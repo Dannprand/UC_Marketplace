@@ -65,7 +65,6 @@
                 <div class="scroll-item">Item 3</div>
                 <div class="scroll-item">Item 4</div>
                 <div class="scroll-item">Item 5</div>
-                <div class="scroll-item">Item 6</div>
             </div>
         </div>
     </div>
