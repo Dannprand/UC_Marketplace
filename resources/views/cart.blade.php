@@ -56,8 +56,9 @@
         }
 
         .cart-item {
+            display: flex;
             background: white;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -99,17 +100,46 @@
             margin-top: 8px;
         }
 
-        .checkbox-container {
+        .quantity-control {
             display: flex;
             align-items: center;
-            padding: 0 10px;
+            gap: 8px;
         }
 
-        .item-checkbox {
-            width: 20px;
-            height: 20px;
-            accent-color: #2ecc71;
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: #2ecc71;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #27ae60;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+         /* Remove number input arrows */
+         input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
         }
 
         /* Total Section (25%) */
@@ -160,13 +190,15 @@
                 <div class="product-image-container">
                     <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
                 </div>
-                <div class="item-details">
+               <div class="item-details">
                     <h3>Rawon Daging</h3>
                     <p>Rp 40.000</p>
                     <div class="seller-name">Toko Maju Mundur</div>
                 </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" class="item-checkbox">
+                <div class="quantity-control">
+                    <button class="quantity-btn minus">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1">
+                    <button class="quantity-btn plus">+</button>
                 </div>
             </div>
 
@@ -180,8 +212,10 @@
                     <p>Rp 40.000</p>
                     <div class="seller-name">Toko Maju Mundur</div>
                 </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" class="item-checkbox">
+                <div class="quantity-control">
+                    <button class="quantity-btn minus">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1">
+                    <button class="quantity-btn plus">+</button>
                 </div>
             </div>
 
@@ -195,5 +229,24 @@
             <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
         </div>
     </div>
+
+    <script>
+        // Quantity control functionality
+        document.querySelectorAll('.quantity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+
+                if (this.classList.contains('minus')) {
+                    value = Math.max(1, value - 1);
+                } else if (this.classList.contains('plus')) {
+                    value++;
+                }
+
+                input.value = value;
+            });
+        });
+    </script>
+    
 </body>
 </html>
