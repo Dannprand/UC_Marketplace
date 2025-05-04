@@ -17,3 +17,7 @@ Route::get('/product', function () {
 Route::get('/cart', function () {
     return view('cart');
 })->name('cart');
+
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
