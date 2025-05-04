@@ -164,7 +164,7 @@
         <!-- Fixed Total Section (25%) -->
         <div class="total-section">
             <div class="total-price">Total: Rp 160.000</div>
-            <button class="buy-button">Buy Now</button>
+            <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
         </div>
     </div>
 </body>

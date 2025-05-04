@@ -234,7 +234,7 @@
                 </div>
                 <div class="buttons">
                     <button class="btn add-to-cart">Add to Cart</button>
-                    <button class="btn buy-now">Buy Now</button>
+                    <button class="btn buy-now" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
                 </div>
             </div>
         </div>
