@@ -29,3 +29,7 @@ Route::get('/login', function () {
 Route::get('/payment', function () {
     return view('payment');
 })->name('payment');
+
+Route::get('/profile', function () {
+    return view('profile');
+})->name('profile');
