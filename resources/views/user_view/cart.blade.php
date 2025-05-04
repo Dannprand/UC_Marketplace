@@ -56,11 +56,12 @@
         }
 
         .cart-item {
+            display: flex;
             background: white;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .cart-item h3 {
@@ -74,6 +75,71 @@
             font-size: 16px;
             color: #e74c3c;
             margin-bottom: 5px; 
+        }
+
+        .product-image-container {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .seller-name {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: #2ecc71;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #27ae60;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+         /* Remove number input arrows */
+         input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
         }
 
         /* Total Section (25%) */
@@ -119,47 +185,43 @@
         
         <!-- Scrollable Items (75%) -->
         <div class="items-section">
+            <!-- Example Cart Item -->
             <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
+                <div class="product-image-container">
+                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+                </div>
+               <div class="item-details">
+                    <h3>Rawon Daging</h3>
+                    <p>Rp 40.000</p>
+                    <div class="seller-name">Toko Maju Mundur</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn minus">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1">
+                    <button class="quantity-btn plus">+</button>
+                </div>
             </div>
-            <!-- Repeat items as needed -->
+
+            <!-- Repeat other items with same structure -->
             <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
+                <div class="product-image-container">
+                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+                </div>
+                <div class="item-details">
+                    <h3>Rawon Daging</h3>
+                    <p>Rp 40.000</p>
+                    <div class="seller-name">Toko Maju Mundur</div>
+                </div>
+                <div class="quantity-control">
+                    <button class="quantity-btn minus">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1">
+                    <button class="quantity-btn plus">+</button>
+                </div>
             </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Repeat items as needed -->
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Repeat items as needed -->
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Add more items here -->
+
+            <!-- Add more items following the same pattern -->
         </div>
+
 
         <!-- Fixed Total Section (25%) -->
         <div class="total-section">
@@ -167,5 +229,24 @@
             <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
         </div>
     </div>
+
+    <script>
+        // Quantity control functionality
+        document.querySelectorAll('.quantity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+
+                if (this.classList.contains('minus')) {
+                    value = Math.max(1, value - 1);
+                } else if (this.classList.contains('plus')) {
+                    value++;
+                }
+
+                input.value = value;
+            });
+        });
+    </script>
+    
 </body>
 </html>
