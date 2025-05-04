@@ -6,6 +6,7 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Home - UCMarketPlace</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -51,6 +52,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.2s ease;
             margin: 0 0.5rem;
+            background: linear-gradient(
+                180deg,
+                #e0f3fe 70%,
+                #a1d4f6 100%
+            );
         }
         
         .scroll-item:hover {
@@ -64,7 +70,7 @@
             text-align: center;
             margin-bottom: 1rem;
             padding: 0 1.25rem;
-            color: #2d3748;
+            color: #a1d4f6;
         }
         
         @media (min-width: 768px) {
@@ -75,10 +81,14 @@
         }
 
         .best-seller-section {
-            background-color: #F5F9FA;
-            padding: 2rem 0;
-            margin-top: 2rem;
-        }
+        background: linear-gradient(
+            180deg,
+            #e0f3fe 70%,
+            #a1d4f6 100%
+        );
+        padding: 2rem 0;
+        margin-top: 2rem;
+    }
         
         .best-seller-container {
             max-width: 1200px;
@@ -116,7 +126,7 @@
         
         .best-seller-item {
             flex: 0 0 160px;
-            height: 220px; /* Increased height to accommodate content */
+            height: 220px; 
             background: white;
             border-radius: 15px;
             scroll-snap-align: start;
@@ -222,8 +232,8 @@
         }
         
         .filter-btn {
-            background-color: #96C2DB;
-            color: white;
+            background-color: white;
+            color:  #96C2DB;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -237,7 +247,7 @@
         }
         
         .filter-btn:hover {
-            background-color: #7fb1d1;
+            background-color: whitesmoke;
             transform: translateY(-1px);
         }
         
@@ -270,10 +280,13 @@
         
         /* Products Section */
         .products-section {
+            background: linear-gradient(
+                180deg,
+                #e0f3fe 70%,
+                #a1d4f6 100%
+            );
             padding: 1rem 0 2rem;
-            margin:2rem;
-            border: ;
-            background-color: #F5F9FA;
+            margin: 2rem;
         }
         
         .products-grid {

@@ -6,6 +6,7 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Landing Page - UCMarketPlace</title>
     <style>
         /* Font Family*/
         body {
@@ -168,7 +169,7 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="section" style="background-color: #f8fafc;">
+    <section class="section rounded-2xl" style="background-color: #f8fafc;">
         <h2 class="section-title animate__animated animate__fadeIn">How It Works</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

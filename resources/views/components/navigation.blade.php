@@ -8,7 +8,7 @@
     <!-- Navigation Links -->
     <ul class="flex space-x-12 text-[#333] font-medium">
         <li>
-            <a href="" 
+            <a href="{{ route('cart') }}" 
                class="relative hover:text-[#96C2DB] transition-all duration-300 ease-in-out after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#96C2DB] after:transition-all after:duration-300 hover:after:w-full">
                Cart
             </a>
