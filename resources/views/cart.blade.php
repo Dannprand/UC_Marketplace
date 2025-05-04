@@ -60,7 +60,7 @@
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .cart-item h3 {
@@ -74,6 +74,42 @@
             font-size: 16px;
             color: #e74c3c;
             margin-bottom: 5px; 
+        }
+
+        .product-image-container {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .seller-name {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .item-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #2ecc71;
+            cursor: pointer;
         }
 
         /* Total Section (25%) */
@@ -119,47 +155,39 @@
         
         <!-- Scrollable Items (75%) -->
         <div class="items-section">
+            <!-- Example Cart Item -->
             <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
+                <div class="product-image-container">
+                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+                </div>
+                <div class="item-details">
+                    <h3>Rawon Daging</h3>
+                    <p>Rp 40.000</p>
+                    <div class="seller-name">Toko Maju Mundur</div>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" class="item-checkbox">
+                </div>
             </div>
-            <!-- Repeat items as needed -->
+
+            <!-- Repeat other items with same structure -->
             <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
+                <div class="product-image-container">
+                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+                </div>
+                <div class="item-details">
+                    <h3>Rawon Daging</h3>
+                    <p>Rp 40.000</p>
+                    <div class="seller-name">Toko Maju Mundur</div>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" class="item-checkbox">
+                </div>
             </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Repeat items as needed -->
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Repeat items as needed -->
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <div class="cart-item">
-                <h3>Rawon Daging</h3>
-                <p>Rp 40.000</p>
-            </div>
-            <!-- Add more items here -->
+
+            <!-- Add more items following the same pattern -->
         </div>
+
 
         <!-- Fixed Total Section (25%) -->
         <div class="total-section">
