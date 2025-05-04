@@ -98,7 +98,7 @@
         <div class="flex justify-end mb-6">
             <button class="merchant-btn">
                 <i class="fas fa-store"></i>
-                Buka Toko
+                Open Merchant
             </button>
         </div>
 
@@ -138,11 +138,11 @@
         <div class="mt-8 flex justify-between items-center">
             <button class="merchant-btn">
                 <i class="fas fa-store"></i>
-                Kelola Toko
+                Manage Merchant
             </button>
             <button class="edit-btn">
                 <i class="fas fa-pencil-alt"></i>
-                Edit Profil
+                Edit Profile
             </button>
         </div>
     </div>
@@ -174,8 +174,8 @@
             });
             
             editBtn.innerHTML = isEditing 
-                ? '<i class="fas fa-save"></i> Simpan Perubahan' 
-                : '<i class="fas fa-pencil-alt"></i> Edit Profil';
+                ? '<i class="fas fa-save"></i> Save Edit' 
+                : '<i class="fas fa-pencil-alt"></i> Edit Profile';
         });
     </script>
 </body>
