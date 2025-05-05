@@ -7,24 +7,24 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            background-color: #f5f9fa;
+            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            min-height: 100vh;
         }
         .container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 1.25rem;
-            
         }
         .merchant-profile {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(143, 211, 248, 0.15);
             margin-bottom: 2rem;
             display: flex;
             align-items: center;
@@ -34,12 +34,12 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: #e5edf1;
+            background: rgba(150, 194, 219, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
-            color: #2d3748;
+            color: #2d3436;
             font-weight: 700;
         }
         .merchant-info {
@@ -48,19 +48,20 @@
         .merchant-name {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #2d3748;
+            color: #2d3436;
             margin: 0;
         }
         .merchant-description {
-            color: #718096;
+            color: #636e72;
             margin-top: 0.25rem;
             font-size: 0.9rem;
         }
         .products-section {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(143, 211, 248, 0.15);
             position: relative;
         }
         .products-grid {
@@ -69,7 +70,7 @@
             gap: 1.2rem;
         }
         .product-card {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             overflow: hidden;
@@ -85,7 +86,7 @@
             width: 100%;
             height: 120px;
             object-fit: cover;
-            background-color: #e5edf1;
+            background-color: #e9ecef;
         }
         .product-details {
             padding: 0.75rem;
@@ -93,7 +94,7 @@
         .product-name {
             font-weight: 600;
             font-size: 1rem;
-            color: #2d3748;
+            color: #2d3436;
             margin: 0 0 0.25rem;
             white-space: nowrap;
             overflow: hidden;
@@ -109,7 +110,7 @@
             position: absolute;
             top: -1.5rem;
             right: -1.5rem;
-            background-color: #2b6cb0;
+            background: #2ecc71;
             color: white;
             border: none;
             width: 60px;
@@ -118,22 +119,30 @@
             font-size: 2rem;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
         }
         .add-product-btn:hover {
-            background-color: #245a94;
+            background: #27ae60;
+            transform: scale(1.05);
+        }
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            .product-image {
+                height: 150px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-
         <!-- Merchant Profile -->
         <div class="merchant-profile">
             <div class="merchant-avatar">M</div>
             <div class="merchant-info">
-                <h2 class="merchant-name">My Awesome Store</h2>
-                <p class="merchant-description">Selling the best products just for you!</p>
+                <h2 class="merchant-name">Toko Maju Mundur</h2>
+                <p class="merchant-description">Specializing in authentic Indonesian cuisine since 2020</p>
             </div>
         </div>
 
@@ -145,8 +154,8 @@
                 <div class="product-card">
                     <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
                     <div class="product-details">
-                        <p class="product-name">Product 1</p>
-                        <p class="product-price">$19.99</p>
+                        <p class="product-name">Rawon Daging</p>
+                        <p class="product-price">Rp 40.000</p>
                     </div>
                 </div>
 
@@ -154,8 +163,8 @@
                 <div class="product-card">
                     <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
                     <div class="product-details">
-                        <p class="product-name">Product 2</p>
-                        <p class="product-price">$29.99</p>
+                        <p class="product-name">Nasi Goreng</p>
+                        <p class="product-price">Rp 25.000</p>
                     </div>
                 </div>
 
@@ -163,15 +172,14 @@
                 <div class="product-card">
                     <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
                     <div class="product-details">
-                        <p class="product-name">Product 3</p>
-                        <p class="product-price">$9.99</p>
+                        <p class="product-name">Soto Ayam</p>
+                        <p class="product-price">Rp 30.000</p>
                     </div>
                 </div>
 
                 <!-- More product cards -->
             </div>
         </div>
-
     </div>
 </body>
 </html>
