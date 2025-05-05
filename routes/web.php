@@ -33,6 +33,14 @@ Route::prefix('user')->group(function () {
     Route::get('/payment', function () {
         return view('user_view.payment');
     })->name('payment');
+
+    Route::get('/profile', function () {
+        return view('user_view.profile');
+    })->name('profile');
+    
+    Route::get('/balance', function () {
+            return view('user_view.balance');
+        })->name('balance');
 });
 
 // Merchant Routes
@@ -43,9 +51,6 @@ Route::prefix('merchant')->group(function () {
     })->name('merchant.dashboard');
 });
 
-Route::get('/profile', function () {
-    return view('profile');
-})->name('profile');
 
 Route::get('/merchant', function () {
     return view('merchant');
