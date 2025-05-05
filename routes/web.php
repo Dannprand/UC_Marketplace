@@ -59,3 +59,7 @@ Route::get('/merchant', function () {
 Route::get('/openMerchant', function () {
     return view('openMerchant');
 })->name('openMerchant');
+
+Route::get('/detailMerchant', function () {
+    return view('detailMerchant');
+})->name('detailMerchant');
