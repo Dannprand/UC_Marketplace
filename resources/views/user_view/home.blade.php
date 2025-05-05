@@ -555,10 +555,8 @@
             </div>
         </div>
     </section>
-
-    </div>
-
     <x-footer />
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('autoScrollContainer');

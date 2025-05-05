@@ -49,7 +49,7 @@
         .merchant-btn {
             background: #4299e1;
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             transition: all 0.2s ease;
             display: inline-flex;
@@ -112,7 +112,7 @@
                     <i class="fas fa-pencil-alt text-sm text-[#2b6cb0]"></i>
                 </div>
             </div>
-            <h2 class="text-2xl font-bold text-[#2d3748] mb-1">John Doe</h2>
+            <h2 class="text-2xl font-bold text-[#2d3748] mb-1">Kevni Artan</h2>
             <p class="text-[#718096]">Web Developer</p>
         </div>
 
@@ -120,26 +120,26 @@
         <div class="space-y-4">
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Email</p>
-                <p class="text-[#2d3748] font-medium">john.doe@example.com</p>
+                <p class="text-[#2d3748] font-medium">kevin@example.com</p>
             </div>
             
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Phone</p>
-                <p class="text-[#2d3748] font-medium">+1 234 567 890</p>
+                <p class="text-[#2d3748] font-medium">08xxxxxxxx</p>
             </div>
             
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Location</p>
-                <p class="text-[#2d3748] font-medium">New York, USA</p>
+                <p class="text-[#2d3748] font-medium">Surabaya, Indonesia</p>
             </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="mt-8 flex justify-between items-center">
-            <button class="merchant-btn">
+            <a href="/openMerchant" class="merchant-btn inline-flex items-center space-x-2">
                 <i class="fas fa-store"></i>
-                Manage Merchant
-            </button>
+                <span>Manage Merchant</span>
+            </a>
             <button class="edit-btn">
                 <i class="fas fa-pencil-alt"></i>
                 Edit Profile

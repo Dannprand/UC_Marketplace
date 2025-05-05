@@ -46,3 +46,11 @@ Route::prefix('merchant')->group(function () {
 Route::get('/profile', function () {
     return view('profile');
 })->name('profile');
+
+Route::get('/merchant', function () {
+    return view('merchant');
+})->name('merchant');
+
+Route::get('/openMerchant', function () {
+    return view('openMerchant');
+})->name('openMerchant');
