@@ -20,15 +20,15 @@
             padding: 0 1.25rem;
         }
         .merchant-profile {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(143, 211, 248, 0.15);
-            margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(143, 211, 248, 0.15);
+            position: relative;
+            margin-bottom: 3.5rem
         }
         .merchant-avatar {
             width: 80px;
@@ -133,9 +133,50 @@
                 height: 150px;
             }
         }
+        .details-btn {
+        margin-left: auto;
+        background: #2ecc71;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .details-btn:hover {
+        background: #27ae60;
+        transform: translateY(-1px);
+    }
+
+    .details-btn svg {
+        transition: transform 0.2s ease;
+    }
+
+    .details-btn:hover svg {
+        transform: translateX(2px);
+    }
+
+    @media (max-width: 640px) {
+        .merchant-profile {
+            flex-wrap: wrap;
+        }
+        .details-btn {
+            width: 100%;
+            justify-content: center;
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+    }
     </style>
 </head>
 <body>
+    <x-navigation/>
+    
     <div class="container">
         <!-- Merchant Profile -->
         <div class="merchant-profile">
@@ -144,6 +185,12 @@
                 <h2 class="merchant-name">Toko Maju Mundur</h2>
                 <p class="merchant-description">Specializing in authentic Indonesian cuisine since 2020</p>
             </div>
+            <button class="details-btn">
+                Details
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
         </div>
         
 
