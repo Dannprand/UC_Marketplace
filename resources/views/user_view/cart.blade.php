@@ -180,6 +180,7 @@
 <body>
     <x-navigation></x-navigation>
 
+    <div class="pt-20">
     <div class="main-container">
         <div class="cart-header">Cart</div>
         
@@ -229,6 +230,8 @@
             <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
         </div>
     </div>
+
+</div>
 
     <script>
         // Quantity control functionality

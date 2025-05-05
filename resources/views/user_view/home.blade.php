@@ -329,10 +329,11 @@
 </head>
 <body class="bg-white">
     <x-navigation />
+    <div class="pt-12">
 
     <div class="animate__animated animate__fadeIn">
         <div class="scroll-section">
-            <h2 class="section-title mt-28">Hot Deals</h2>
+            <h2 class="section-title mt-12">Hot Deals</h2>
             <div class="scroll-container mt-12" id="autoScrollContainer">
                 <div class="scroll-item">Item 1</div>
                 <div class="scroll-item">Item 2</div>
@@ -555,6 +556,8 @@
             </div>
         </div>
     </section>
+
+</div>
     <x-footer />
     </div>
     <script>
