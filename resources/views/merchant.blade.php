@@ -145,6 +145,7 @@
                 <p class="merchant-description">Specializing in authentic Indonesian cuisine since 2020</p>
             </div>
         </div>
+        
 
         <!-- Products Section -->
         <div class="products-section">
