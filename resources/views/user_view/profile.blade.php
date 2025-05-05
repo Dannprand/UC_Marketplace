@@ -94,14 +94,6 @@
 </head>
 <body class="flex items-center justify-center p-4">
     <div class="profile-card w-full max-w-2xl p-8 animate__animated animate__fadeIn">
-        <!-- Merchant Button Section -->
-        <div class="flex justify-end mb-6">
-            <button class="merchant-btn">
-                <i class="fas fa-store"></i>
-                Open Merchant
-            </button>
-        </div>
-
         <!-- Profile Header -->
         <div class="text-center mb-8">
             <div class="avatar-wrapper">
@@ -138,7 +130,7 @@
         <div class="mt-8 flex justify-between items-center">
             <a href="/openMerchant" class="merchant-btn inline-flex items-center space-x-2">
                 <i class="fas fa-store"></i>
-                <span>Manage Merchant</span>
+                <span>Open Merchant</span>
             </a>
             <button class="edit-btn">
                 <i class="fas fa-pencil-alt"></i>
