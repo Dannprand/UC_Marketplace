@@ -63,15 +63,28 @@
             <p class="text-[#718096]">Login to continue</p>
         </div>
 
-        <form class="space-y-6">
+        @if($errors->any())
+            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}" class="space-y-6">
+            @csrf
             <div>
-                <label class="block text-sm font-medium text-[#4a5568] mb-2">Email Address</label>
-                <input type="email" class="form-input w-full p-3" placeholder="">
+                <label for="email" class="block text-sm font-medium text-[#4a5568] mb-2">Email Address</label>
+                <input id="email" type="email" name="email" class="form-input w-full p-3" 
+                       value="{{ old('email') }}" required autocomplete="email" autofocus>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-[#4a5568] mb-2">Password</label>
-                <input type="password" class="form-input w-full p-3" placeholder="">
+                <label for="password" class="block text-sm font-medium text-[#4a5568] mb-2">Password</label>
+                <input id="password" type="password" name="password" class="form-input w-full p-3" 
+                       required autocomplete="current-password">
             </div>
 
             <button type="submit" class="btn-primary w-full font-semibold">
@@ -81,7 +94,7 @@
 
         <div class="mt-6 text-center text-sm text-[#718096]">
             Don't have an account? 
-            <a href="/register" class="text-[#2b6cb0] hover:text-[#2c5282] font-medium">Create account</a>
+            <a href="{{ route('register') }}" class="text-[#2b6cb0] hover:text-[#2c5282] font-medium">Create account</a>
         </div>
     </div>
 </body>
