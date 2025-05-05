@@ -193,8 +193,9 @@
     </style>
 </head>
 <body>
-    <x-navigation></x-navigation>
+    <x-navigation></x-navigation> 
 
+<div class="pt-24">
     <div class="product-container">
         <!-- Left Column -->
         <div class="left-column">
@@ -239,5 +240,6 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>

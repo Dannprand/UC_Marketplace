@@ -175,8 +175,9 @@
     </style>
 </head>
 <body>
-    <x-navigation/>
+   <x-navigation> </x-navigation>
     
+<div class="pt-20">
     <div class="container">
         <!-- Merchant Profile -->
         <div class="merchant-profile">
@@ -229,5 +230,8 @@
             </div>
         </div>
     </div>
+
+</div>
+
 </body>
 </html>
