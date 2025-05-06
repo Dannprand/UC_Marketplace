@@ -3,53 +3,77 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cart;
-use App\Models\User;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
+use Session;
 
 class CartController extends Controller
-{
+{   
+
     // Menampilkan halaman keranjang
     public function index()
 {
-    $user = auth()->user();
+    // Check if the user is authenticated
+    $user = Auth::user();
 
-    // Ambil cart dengan relasi ke cart items dan produk
+    if (!$user) {
+        return redirect()->route('login');  // Redirect to login if the user is not authenticated
+    }
+
+    // Get the cart with the related items and products
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
 
-    // Jika cart belum ada, buat baru
+    // If no cart exists, create a new one
     if (!$cart) {
         $cart = Cart::create(['user_id' => $user->id]);
     }
 
-    return view('user_view.cart', compact('cart'));
+    return view('user_view.cart', compact('cart')); // Return the cart view
 }
 
+
     // Menambahkan produk ke dalam keranjang
-    public function add(Request $request, $productId)
+    public function addToCart(Request $request, $productId)
     {
-        // Ambil user yang sedang login
-        $user = auth()->user();
-
-        // Cek apakah user sudah memiliki keranjang
-        $cart = $user->cart;
-
-        if (!$cart) {
-            // Jika belum ada keranjang, buat baru
-            $cart = Cart::create(['user_id' => $user->id]);
-        }
-
-        // Ambil produk yang ingin ditambahkan ke keranjang
-        $product = Product::findOrFail($productId);
-
-        // Menambahkan produk ke keranjang (menambahkan ke CartItem atau pivot table)
-        $cart->items()->create([
-            'product_id' => $product->id,
-            'quantity' => $request->quantity ?? 1, // Default quantity adalah 1
+        // Validate the quantity input
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
         ]);
 
-        // Redirect kembali ke halaman keranjang
-        return redirect()->route('cart.index');
+        // Find the product by ID
+        $product = Product::findOrFail($productId);
+
+        // Get the quantity from the form
+        $quantity = $request->input('quantity', 1);
+
+        // Create an array for the cart item
+        $cartItem = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'quantity' => $quantity,
+            'subtotal' => $product->price * $quantity,
+        ];
+
+        // Check if cart already exists in session
+        $cart = session()->get('cart', []);
+
+        // Check if product is already in the cart, then update quantity
+        if (isset($cart[$productId])) {
+            $cart[$productId]['quantity'] += $quantity;
+            $cart[$productId]['subtotal'] = $cart[$productId]['price'] * $cart[$productId]['quantity'];
+        } else {
+            // Add the new product to the cart
+            $cart[$productId] = $cartItem;
+        }
+
+        // Save the cart to session
+        session()->put('cart', $cart);
+
+        // Redirect to the cart page with a success message
+        return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
+
 }
 
 

@@ -198,10 +198,19 @@
             font-weight: 600;
             color: #2d3436;
         }
+
+        .cart-animation {
+            animation: popIn 1s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <x-navigation></x-navigation> 
+    <x-navigation></x-navigation>
 
 <div class="pt-24">
     <div class="product-container">
@@ -211,7 +220,7 @@
                 <img src="{{ asset('images/products/'.$product->photo) }}" alt="Product Image">
             </div>
             <div class="seller-card">
-                <h3>{{ $product -> store -> name ?? 'No Merchant Name Available' }}</h3>
+                <h3>{{ $product->store ? $product->store->name : 'No Merchant Name Available' }}</h3>
             </div>
         </div>
     
@@ -219,7 +228,7 @@
         <div class="center-column">
             <div class="product-detail">
                 <h1 class="product-title">{{ $product->name }}</h1>
-            <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 <h3>Product Details</h3>
                 <p>{{ $product->description }}</p>
                 <p>Net weight: 500g</p>
@@ -242,20 +251,19 @@
                 </div>
                 <div class="buttons">
                     @auth
-                    <form method="POST" action="{{ route('cart.add', $product->id) }}">
-                        @csrf
-                        <input type="hidden" name="quantity" value="1">  <!-- atau sesuai dengan input quantity -->
-                        <button type="submit">Tambah ke Keranjang</button>
-                    </form>
+                        <form method="POST" action="{{ route('cart.add', $product->id) }}">
+                            @csrf
+                            <input type="hidden" id="formQuantity" name="quantity" value="1"> 
+                            <button type="submit" class="btn add-to-cart">Add to Cart</button>
+                        </form>
                     
-                
                         <form method="GET" action="{{ route('payment') }}">
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <input type="hidden" name="quantity" id="formQuantityBuyNow" value="1">
                             <button type="submit" class="btn buy-now">Buy Now</button>
                         </form>
                     @endauth
-                
+
                     @guest
                         <button class="btn add-to-cart" onclick="window.location.href='{{ route('login') }}'">Add to Cart</button>
                         <button class="btn buy-now" onclick="window.location.href='{{ route('login') }}'">Buy Now</button>
@@ -264,7 +272,6 @@
             </div>
         </div>
     </div>
-    
 </div>
 
 <script>
@@ -279,6 +286,7 @@
         if (qty > 10) qty = 10;
         quantityInput.value = qty;
         updateSubtotal();
+        syncQuantityToForms();
     }
 
     function updateSubtotal() {
@@ -292,17 +300,12 @@
         document.getElementById('formQuantityBuyNow').value = quantityInput.value;
     }
 
-    const addToCartBtn = document.querySelector('form button.add-to-cart');
-    const buyNowBtn = document.querySelector('form button.buy-now');
-
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', syncQuantityToForms);
-    }
-
-    if (buyNowBtn) {
-        buyNowBtn.addEventListener('click', syncQuantityToForms);
-    }
+    quantityInput.addEventListener('input', () => {
+        updateSubtotal();
+        syncQuantityToForms();
+    });
 </script>
+
 
 </body>
 </html>
