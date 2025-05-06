@@ -47,6 +47,8 @@ Route::prefix('user')->group(function () {
     })->name('cart');
     
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+
+    Route::get('/live-search', [ProductController::class, 'liveSearch']);
     
     Route::get('/payment', function () {
         return view('user_view.payment');

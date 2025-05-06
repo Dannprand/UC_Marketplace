@@ -6,17 +6,22 @@
     </a>
 
     <!-- Search Bar -->
-    <div class="flex-1 max-w-xl mx-8">
+    <div class="flex-1 max-w-xl mx-8 relative">
         <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
             <input type="text" 
-                   class="w-full pl-10 pr-4 py-2 rounded-lg border-0 bg-gray-100 focus:ring-2 focus:ring-[#96C2DB] focus:bg-white transition-all duration-300" 
-                   placeholder="Search products...">
+                id="liveSearchInput"
+                class="w-full pl-10 pr-4 py-2 rounded-lg border-0 bg-gray-100 focus:ring-2 focus:ring-[#96C2DB] focus:bg-white transition-all duration-300" 
+                placeholder="Search products...">
         </div>
+
+        <!-- Suggestions Dropdown -->
+        <div id="suggestionsBox" class="absolute bg-white border mt-2 w-full rounded-lg shadow-lg hidden z-50"></div>
     </div>
 
     <!-- Navigation Links -->
@@ -41,54 +46,3 @@
         </li>
     </ul>
 </nav>
-<<<<<<< Updated upstream
-=======
-
-<!-- JS for Live Search -->
-<script>
-    const searchInput = document.getElementById('liveSearchInput');
-    const suggestionsBox = document.getElementById('suggestionsBox');
-
-    searchInput.addEventListener('input', function () {
-        const query = this.value;
-
-        if (query.length < 2) { 
-            suggestionsBox.classList.add('hidden');
-            return;
-        }
-
-        fetch(`/user/live-search?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                suggestionsBox.innerHTML = '';
-
-                if (data.length === 0) {
-                    suggestionsBox.classList.add('hidden');
-                    return;
-                }
-
-                data.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('px-4', 'py-2', 'hover:bg-gray-100', 'cursor-pointer');
-                    div.textContent = item.name;
-
-                    // ✅ Correct product URL
-                    div.addEventListener('click', () => {
-                        window.location.href = `/user/product/${item.id}`;
-                    });
-
-                    suggestionsBox.appendChild(div);
-                });
-
-                suggestionsBox.classList.remove('hidden');
-            });
-    });
-
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!event.target.closest('#liveSearchInput')) {
-            suggestionsBox.classList.add('hidden');
-        }
-    });
-</script>
->>>>>>> Stashed changes

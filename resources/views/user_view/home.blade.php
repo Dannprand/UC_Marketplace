@@ -223,6 +223,9 @@
                 font-size: 1.1rem;
             }
         }
+        .hidden{
+            display: none;
+        }
 
         .filter-container {
             display: flex;
@@ -257,8 +260,7 @@
             right: 0;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 1rem;
+            padding: 0;
             min-width: 200px;
             z-index: 10;
             display: none;
@@ -269,9 +271,7 @@
         }
         
         .filter-option {
-            padding: 0.5rem 0;
             cursor: pointer;
-            transition: color 0.2s ease;
         }
         
         .filter-option:hover {
@@ -433,53 +433,57 @@
         </div>
     </section>
 
-    <!-- All Products Section with Filter -->
-    <section class="products-section rounded-2xl">
-        <div class="filter-container">
-            <button class="filter-btn" id="filterBtn">
-                Filter
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
-                </svg>
-            </button>
-            <div class="filter-dropdown" id="filterDropdown">
-                <div class="filter-option" data-filter="all">All Products</div>
-                <div class="filter-option" data-filter="food">Food</div>
-                <div class="filter-option" data-filter="drink">Drinks</div>
-                <div class="filter-option" data-filter="snack">Snacks</div>
-            </div>
-        </div>
+   <!-- All Products Section with Filter -->
+<section class="products-section rounded-2xl">
+    <div class="filter-container relative inline-block">
+        <!-- Filter Button -->
+        <button class="filter-btn" id="filterBtn" aria-haspopup="true" aria-expanded="false" aria-controls="filterDropdown">
+            Filter
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+            </svg>
+        </button>
         
-        <div class="products-grid" id="productsGrid">
-    
-            @foreach($products as $product)
-                @php
-                    // Convert category name to lowercase to match your data-filter like "food", "drink", etc.
-                    $category = strtolower($product->category->name ?? 'all');
-    
-                    // Use first image from the images array, or placeholder if none
-                    $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
-    
-                    // Get seller initials (first letters of their name)
-                    $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
-                    $initials = collect(explode(' ', $sellerName))->map(fn($word) => strtoupper($word[0]))->join('');
-                @endphp
-    
-                <a href="{{ route('product.show', $product->id) }}" class="product-card" data-category="{{ $category }}">
-                    <img src="{{ $image }}" alt="Product" class="product-image">
-                    <div class="product-details">
-                        <div class="product-name">{{ $product->name }}</div>
-                        <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                        <div class="seller-info">
-                            <div class="seller-avatar">{{ $initials }}</div>
-                            <div class="seller-name">{{ $sellerName }}</div>
-                        </div>
-                    </div>
-                </a>
-            @endforeach
-    
+        <!-- Filter Dropdown Menu -->
+        <div class="filter-dropdown absolute bg-white border rounded shadow-lg mt-2 hidden z-50" id="filterDropdown" role="menu" aria-labelledby="filterBtn">
+            <!-- No Filter option -->
+            <ul class="filter-options-list">
+            <li><a href="{{ route('home', ['category' => 'all']) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-filter="all" role="menuitem" aria-label="No Filter">No Filter</a></li>
+             @foreach($categories as $category)
+                    <li>
+                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" role="menuitem" aria-label="{{ $category->name }}">
+                            {{ $category->name }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
-    </section>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid mt-6" id="productsGrid">
+        @foreach($products as $product)
+            @php
+                $category = strtolower($product->category->name ?? 'all');
+                $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
+                $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
+                $initials = collect(explode(' ', $sellerName))->map(fn($word) => strtoupper($word[0]))->join('');
+            @endphp
+
+            <a href="{{ route('product.show', $product->id) }}" class="product-card" data-category="{{ $category }}" aria-label="View product details for {{ $product->name }}">
+                <img src="{{ $image }}" class="product-image" />
+                <div class="product-details">
+                    <div class="product-name">{{ $product->name }}</div>
+                    <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                    <div class="seller-info">
+                        <div class="seller-avatar">{{ $initials }}</div>
+                        <div class="seller-name">{{ $sellerName }}</div>
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    </div>
+</section>
     
 
 </div>
@@ -487,67 +491,82 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('autoScrollContainer');
-    const items = container.querySelectorAll('.scroll-item');
-    let currentIndex = 0;
-    let autoScrollEnabled = true;
-    let scrollInterval;
-
-    // Auto-scroll function
-    function autoScroll() {
-        if (!autoScrollEnabled) return;
-
-        currentIndex = (currentIndex + 1) % items.length;
-        items[currentIndex].scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center'
+            const container = document.getElementById('autoScrollContainer');
+            const items = container.querySelectorAll('.scroll-item');
+            let currentIndex = 0;
+    
+            // Handle scroll events to track current index
+            container.addEventListener('scroll', () => {
+                const containerRect = container.getBoundingClientRect();
+                const containerCenter = containerRect.left + containerRect.width / 2;
+    
+                items.forEach((item, index) => {
+                    const itemRect = item.getBoundingClientRect();
+                    if (itemRect.left <= containerCenter && itemRect.right >= containerCenter) {
+                        currentIndex = index;
+                    }
+                });
+            });
         });
-    }
-
-    // Start auto-scrolling every 2 seconds
-    function startAutoScroll() {
-        scrollInterval = setInterval(autoScroll, 2000);
-    }
-
-    // Pause auto-scroll when user interacts
-    container.addEventListener('mouseenter', () => {
-        autoScrollEnabled = false;
-        clearInterval(scrollInterval);
-    });
-
-    container.addEventListener('touchstart', () => {
-        autoScrollEnabled = false;
-        clearInterval(scrollInterval);
-    });
-
-    // Resume auto-scroll when user leaves, but check if manual scroll happened
-    container.addEventListener('mouseleave', () => {
-        if (!autoScrollEnabled) return;  // Don't restart if the user has already interacted
-
-        autoScrollEnabled = true;
-        startAutoScroll();
-    });
-
-    // Handle scroll events to track current index
-    container.addEventListener('scroll', () => {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-
-        items.forEach((item, index) => {
-            const itemRect = item.getBoundingClientRect();
-            if (itemRect.left <= containerCenter && itemRect.right >= containerCenter) {
-                currentIndex = index;
+    
+        // Filter Button and Dropdown
+        const filterBtn = document.querySelector('.filter-btn');
+        const filterDropdown = document.querySelector('.filter-dropdown');
+        
+        // Toggle filter dropdown visibility
+        filterBtn.addEventListener('click', () => {
+            filterDropdown.classList.toggle('show');
+        });
+    
+        // Close the filter dropdown if clicked outside
+        document.addEventListener('click', (e) => {
+            if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+                filterDropdown.classList.remove('show');
             }
         });
-    });
-
-    // Initialize auto-scroll
-    startAutoScroll();
-});
-
-
-
+    
+        // Filter options functionality
+        const filterOptions = document.querySelectorAll('.filter-option');
+        filterOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.preventDefault();  // Prevent default anchor behavior
+                
+                const selectedFilter = option.getAttribute('data-filter').toLowerCase();
+    
+                if (selectedFilter === "all") {
+                    console.log("Resetting filters to show all products.");
+                    showAllProducts();
+                } else {
+                    console.log(`Applying filter: ${selectedFilter}`);
+                    applyFilter(selectedFilter);
+                }
+    
+                // Close dropdown after selecting
+                filterDropdown.classList.remove('show');
+            });
+        });
+    
+        // Show all products
+        function showAllProducts() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.style.display = "block";  // Show all products
+            });
+        }
+    
+        // Apply filter by category
+        function applyFilter(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category').toLowerCase();
+                if (cardCategory === category) {
+                    card.style.display = "block";  // Show the filtered category
+                } else {
+                    card.style.display = "none";   // Hide non-matching categories
+                }
+            });
+        }
     </script>
+       
 </body>
 </html>

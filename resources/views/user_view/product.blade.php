@@ -212,7 +212,6 @@
             </div>
             <div class="seller-card">
                 <h3>{{ $product -> store -> name ?? 'No Merchant Name Available' }}</h3>
-                <p>Seller Rating: ★★★★☆ (4.2/5)</p> <!-- You can adjust this as needed -->
             </div>
         </div>
     
