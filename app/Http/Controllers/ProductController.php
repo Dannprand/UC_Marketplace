@@ -11,26 +11,22 @@ class ProductController extends Controller
     // Show all products with categories filtering
     public function index(Request $request)
     {
-        $categories = Category::all(); // Get all categories
-        $categorySlug = $request->input('category'); // Get the selected category slug from the URL
+        $categoryFilter = $request->input('category'); // 'category' from URL query
 
-        // Fetch products, with optional filtering based on category
-        if ($categorySlug) {
-            $category = Category::where('slug', $categorySlug)->first();
-            if ($category) {
-                // Fetch products that belong to the selected category
-                $products = Product::where('category_id', $category->id)->get();
-            } else {
-                // If the category doesn't exist, return all products
-                $products = Product::all();
-            }
+        $categories = Category::all();
+
+        // Filter logic
+        if ($categoryFilter && $categoryFilter !== 'all') {
+            $products = Product::where('category_id', $categoryFilter)->get();
         } else {
-            // If no category filter is applied, show all products
+            // Show ALL products when "No Filter" (which sends 'all' or is null)
             $products = Product::all();
         }
 
-        // Return the view with products and categories
-        return view('user_view.home', compact('products', 'categories'));
+        return view('user_view.home', [
+            'categories' => $categories,
+            'products' => $products,
+        ]);
     }
 
     // Show a single product

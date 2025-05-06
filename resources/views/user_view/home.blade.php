@@ -260,8 +260,7 @@
             right: 0;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 1rem;
+            padding: 0;
             min-width: 200px;
             z-index: 10;
             display: none;
@@ -272,9 +271,7 @@
         }
         
         .filter-option {
-            padding: 0.5rem 0;
             cursor: pointer;
-            transition: color 0.2s ease;
         }
         
         .filter-option:hover {
@@ -450,11 +447,9 @@
         <!-- Filter Dropdown Menu -->
         <div class="filter-dropdown absolute bg-white border rounded shadow-lg mt-2 hidden z-50" id="filterDropdown" role="menu" aria-labelledby="filterBtn">
             <!-- No Filter option -->
-            <div class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-filter="all" role="menuitem" aria-label="No Filter">No Filter</div>
-
-            <!-- Dynamically Generated Filter Options -->
             <ul class="filter-options-list">
-                @foreach($categories as $category)
+            <li><a href="{{ route('home', ['category' => 'all']) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-filter="all" role="menuitem" aria-label="No Filter">No Filter</a></li>
+             @foreach($categories as $category)
                     <li>
                         <a href="{{ route('home', ['category' => $category->slug]) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" role="menuitem" aria-label="{{ $category->name }}">
                             {{ $category->name }}
@@ -513,33 +508,65 @@
                 });
             });
         });
-
-        // filter
+    
+        // Filter Button and Dropdown
         const filterBtn = document.querySelector('.filter-btn');
         const filterDropdown = document.querySelector('.filter-dropdown');
-
+        
         // Toggle filter dropdown visibility
         filterBtn.addEventListener('click', () => {
             filterDropdown.classList.toggle('show');
         });
-
+    
         // Close the filter dropdown if clicked outside
         document.addEventListener('click', (e) => {
             if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
                 filterDropdown.classList.remove('show');
             }
         });
-
+    
         // Filter options functionality
         const filterOptions = document.querySelectorAll('.filter-option');
         filterOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const selectedFilter = option.textContent;
-                console.log(`Selected filter: ${selectedFilter}`);
-                // Add your filter logic here based on the selected option
+            option.addEventListener('click', (e) => {
+                e.preventDefault();  // Prevent default anchor behavior
+                
+                const selectedFilter = option.getAttribute('data-filter').toLowerCase();
+    
+                if (selectedFilter === "all") {
+                    console.log("Resetting filters to show all products.");
+                    showAllProducts();
+                } else {
+                    console.log(`Applying filter: ${selectedFilter}`);
+                    applyFilter(selectedFilter);
+                }
+    
+                // Close dropdown after selecting
+                filterDropdown.classList.remove('show');
             });
         });
-    </script>
     
+        // Show all products
+        function showAllProducts() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.style.display = "block";  // Show all products
+            });
+        }
+    
+        // Apply filter by category
+        function applyFilter(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category').toLowerCase();
+                if (cardCategory === category) {
+                    card.style.display = "block";  // Show the filtered category
+                } else {
+                    card.style.display = "none";   // Hide non-matching categories
+                }
+            });
+        }
+    </script>
+       
 </body>
 </html>
