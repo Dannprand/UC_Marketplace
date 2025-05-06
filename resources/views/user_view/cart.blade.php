@@ -190,7 +190,7 @@
             <div class="cart-item">
                 <div class="product-image-container">
                     <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
-                </div>
+                </div>  
                 <div class="item-details">
                     <h3>
                         {{-- Check if $product is an object and if store exists --}}
@@ -215,8 +215,6 @@
         @empty
             <p>Your cart is empty.</p>
         @endforelse
-        
-        
         </div>
 
         <!-- Fixed Total Section (25%) -->
