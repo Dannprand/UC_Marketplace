@@ -5,7 +5,13 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Address;
+use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+
 
 class CartController extends Controller
 {   
@@ -100,6 +106,82 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
     
+    // Checkout Process
+    public function payment()
+    {
+        $user = Auth::user();
+        if (!$user) return redirect()->route('login');
+    
+        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+    
+        // Handle empty cart
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Keranjang belanja kosong!');
+        }
+    
+        // Get addresses and payment methods with fallback
+        $addresses = $user->addresses ?? collect();
+        $paymentMethods = $user->paymentMethods ?? collect();
+    
+        return view('user_view.payment', [
+            'cart' => $cart,
+            'totalPrice' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
+            'addresses' => $addresses,
+            'paymentMethods' => $paymentMethods
+        ]);
+    }
+
+    public function processCheckout(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'shipping_address_id' => 'required|exists:addresses,id',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+        ]);
+
+        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+
+        // Create order
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_number' => 'INV-' . Str::upper(Str::random(8)),
+            'status' => 'pending',
+            'total_amount' => $cart->items->sum(function($item) {
+                return $item->product->price * $item->quantity;
+            }),
+            'shipping_address_id' => $request->shipping_address_id,
+            'payment_method_id' => $request->payment_method_id,
+        ]);
+
+        // Create order items
+        foreach ($cart->items as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->product->price,
+                'total_price' => $item->quantity * $item->product->price
+            ]);
+        }
+
+        // Clear cart
+        $cart->items()->delete();
+
+        return redirect()->route('order.confirmation', $order->id)
+            ->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    // Add this method for order confirmation
+    public function orderConfirmation(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $order->load(['items.product', 'shippingAddress', 'paymentMethod']);
+        return view('user_view.order_confirmation', compact('order'));
+    }
 }
 
 

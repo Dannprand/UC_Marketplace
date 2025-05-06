@@ -45,6 +45,10 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    Route::get('/payment', [CartController::class, 'payment'])->name('payment');
+    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/orders/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');

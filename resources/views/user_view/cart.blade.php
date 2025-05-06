@@ -295,11 +295,25 @@
                 @endforelse
             </div>
 
-            <!-- Total Section -->
+           <!-- Total Section -->
             <div class="total-section">
-                <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
-                <div style="margin-bottom: 15px;">Items: <span id="item-count">{{ $cart->items->count() }}</span></div>
-                <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
+                <div class="total-price">Total: Rp {{ number_format($totalPrice, 0, ',', '.') }}</div>
+                <div style="margin-bottom: 15px;">
+                    Items: <span id="item-count">{{ $totalItems }}</span>
+                </div>
+                
+                @if($totalItems > 0)
+                    <form action="{{ route('payment') }}" method="GET">
+                        @csrf
+                        <button type="submit" class="buy-button">
+                            Checkout Now
+                        </button>
+                    </form>
+                @else
+                    <button class="buy-button disabled" disabled>
+                        Cart is Empty
+                    </button>
+                @endif
             </div>
         </div>
     </div>
