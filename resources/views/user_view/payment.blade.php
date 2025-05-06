@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Payment - UCMarketPlace</title>
     <style>
+        /* Base styles remain the same */
         * {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
@@ -24,35 +25,65 @@
             margin: 0;
         }
 
+        /* Revised grid layout */
         .payment-container {
-            max-width: 1200px;
             margin: 20px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 60% 40%;
-            gap: 30px;
+            padding: 0 100px;
+            grid-template-columns: 1fr 1fr;
+            align-items: start;
         }
 
         .payment-header {
             grid-column: 1 / -1;
             padding: 20px;
+            margin: 0 50px;
             font-size: 24px;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 18px;
             font-weight: 600;
             border-bottom: 2px solid black;
             position: relative;
             padding-bottom: 15px;
         }
 
-        .payment-methods {
+        /* Column styling */
+        .payment-column {
             background: white;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+            border-left: 1px solid #e2e8f0;
         }
 
-        .payment-methods h2 {
+        .address-section {
+            grid-column: 1;
+        }
+
+        .payment-section {
+            grid-column: 2;
+        }
+
+        .order-section {
+            grid-column: 1 / -1;
+            position: sticky;
+            top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
+
+            .address-section,
+            .payment-section,
+            .order-section {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .payment-methods h2,
+        .order-summary h2 {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 20px;
@@ -80,49 +111,6 @@
             background-color: #f0f9ff;
         }
 
-        .payment-option input {
-            margin-right: 15px;
-        }
-
-        .payment-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 15px;
-            object-fit: contain;
-        }
-
-        .payment-label {
-            flex-grow: 1;
-        }
-
-        .payment-label h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 3px;
-            color: #2d3748;
-        }
-
-        .payment-label p {
-            font-size: 14px;
-            color: #718096;
-        }
-
-        .order-summary {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 20px;
-        }
-
-        .order-summary h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #2d3748;
-        }
-
         .order-items {
             margin-bottom: 20px;
             max-height: 300px;
@@ -134,50 +122,6 @@
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid #edf2f7;
-        }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-name {
-            font-size: 14px;
-            color: #4a5568;
-        }
-
-        .item-price {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .order-total {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .total-label {
-            font-size: 16px;
-            color: #4a5568;
-        }
-
-        .total-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .grand-total {
-            font-size: 18px;
-            color: #e74c3c;
-            font-weight: 700;
         }
 
         .pay-button {
@@ -194,13 +138,66 @@
             transition: background-color 0.3s;
         }
 
-        .pay-button:hover {
-            background-color: #27ae60;
+        /* Alert styling */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
 
-        .pay-button:disabled {
-            background-color: #cbd5e0;
-            cursor: not-allowed;
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        /* Popup Styling */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .popup-content h2 {
+            color: #2ecc71;
+            margin-bottom: 15px;
+        }
+
+        .popup-content p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .popup-content button {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .popup-content button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
@@ -208,117 +205,124 @@
 <body>
     <x-navigation></x-navigation>
 
-    <div class="payment-container">
-        <div class="payment-header">Payment Method</div>
-        @if(count($cart) > 0)
-            <ul>
-                @foreach($cart as $item)
-                    <li>{{ $item['name'] }} - {{ $item['quantity'] }} x Rp{{ number_format($item['price']) }}</li>
-                @endforeach
-            </ul>
-            <p><strong>Total: Rp{{ number_format($total) }}</strong></p>
-        @else
-            <p>Keranjang kosong.</p>
-        @endif
-
-        <!-- Payment Methods Section -->
-        <div class="payment-methods">
-            <h2>Select Payment Method</h2>
-
-            <div class="payment-option active">
-                <input type="radio" name="paymentMethod" id="ucWallet" checked>
-                <img src="https://via.placeholder.com/40x40?text=UC" alt="UC Wallet" class="payment-icon">
-                <div class="payment-label">
-                    <h3>UC Wallet</h3>
-                    <p>Pay using your UC Wallet balance</p>
+<div class="pt-16">
+    <div class="payment-header">Checkout Process</div>
+        <div class="payment-container">
+            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
+                @csrf
+            
+                <!-- Top Section: Address and Payment Side by Side -->
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <!-- Shipping Address (50%) -->
+                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
+                        <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
+                        @if($addresses->count() > 0)
+                            <select name="shipping_address_id" class="form-select w-full" required>
+                                @foreach($addresses as $address)
+                                    <option value="{{ $address->id }}">
+                                        {{ $address->street }}, {{ $address->city }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <div class="alert alert-danger">
+                                No shipping addresses found. Please add an address first.
+                            </div>
+                        @endif
+                    </div>
+            
+                    <!-- Payment Method (50%) -->
+                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
+                        <h2 class="text-lg font-semibold mb-2">Payment Method</h2>
+                        @if($paymentMethods->count() > 0)
+                            @foreach($paymentMethods as $method)
+                                <div class="payment-option cursor-pointer border rounded p-2 mb-2 flex items-center gap-2">
+                                    <input type="radio" name="payment_method_id" 
+                                           id="method-{{ $method->id }}" 
+                                           value="{{ $method->id }}" required class="accent-blue-500">
+                                    <div class="payment-label">
+                                        <h3 class="font-semibold">{{ $method->provider }}</h3>
+                                        <p>****{{ substr($method->account_number, -4) }}</p>
+                                        @if($method->type == 'e-wallet')
+                                            <p>{{ $method->account_name }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="alert alert-danger">
+                                No payment methods registered. Please add a payment method first.
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
-
-            <div class="payment-option">
-                <input type="radio" name="paymentMethod" id="bankTransfer">
-                <img src="https://via.placeholder.com/40x40?text=Bank" alt="Bank Transfer" class="payment-icon">
-                <div class="payment-label">
-                    <h3>Bank Transfer</h3>
-                    <p>Transfer directly from your bank account</p>
+            
+                <!-- Bottom Section: Order Summary (100%) -->
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+                    <div class="order-items space-y-2">
+                        @foreach($cart->items as $item)
+                            <div class="order-item flex justify-between">
+                                <span class="item-name">{{ $item->product->name }} x{{ $item->quantity }}</span>
+                                <span class="item-price">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+            
+                    <div class="order-total mt-4 flex justify-between font-bold text-lg">
+                        <span class="total-label">Total Amount</span>
+                        <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                    </div>
+            
+                    <button type="submit" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Confirm Payment</button>
                 </div>
-            </div>
-
-            <div class="payment-option">
-                <input type="radio" name="paymentMethod" id="gopay">
-                <img src="https://via.placeholder.com/40x40?text=Gopay" alt="Gopay" class="payment-icon">
-                <div class="payment-label">
-                    <h3>Gopay</h3>
-                    <p>Pay using your Gopay account</p>
-                </div>
-            </div>
-
-            <div class="payment-option">
-                <input type="radio" name="paymentMethod" id="ovo">
-                <img src="https://via.placeholder.com/40x40?text=OVO" alt="OVO" class="payment-icon">
-                <div class="payment-label">
-                    <h3>OVO</h3>
-                    <p>Pay using your OVO account</p>
-                </div>
-            </div>
+            </form>
+            
         </div>
+    </div>
 
-        <!-- Order Summary Section -->
-        <div class="order-summary">
-            <h2>Order Summary</h2>
-
-            <div class="order-items">
-                <div class="order-item">
-                    <span class="item-name">Beef Rawon Soup</span>
-                    <span class="item-price">Rp 40,000</span>
-                </div>
-                <div class="order-item">
-                    <span class="item-name">Nasi Goreng</span>
-                    <span class="item-price">Rp 15,000</span>
-                </div>
-                <div class="order-item">
-                    <span class="item-name">Es Teh</span>
-                    <span class="item-price">Rp 5,000</span>
-                </div>
-            </div>
-
-            <div class="order-total">
-                <div class="total-row">
-                    <span class="total-label">Subtotal</span>
-                    <span class="total-value">Rp 60,000</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Service Fee</span>
-                    <span class="total-value">Rp 2,000</span>
-                </div>
-                <div class="total-row grand-total">
-                    <span class="total-label">Total</span>
-                    <span class="total-value">Rp 62,000</span>
-                </div>
-            </div>
-
-            <button class="pay-button">Pay Now</button>
+    <!-- Popup -->
+    <div class="popup-overlay" id="popup">
+        <div class="popup-content animate__animated animate__zoomIn">
+            <h2>Payment Successful!</h2>
+            <p>Thank you for your order. We will process it shortly.</p>
+            <button id="popup-ok-btn">OK</button>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Handle payment method selection
+            // Payment method selection
             const paymentOptions = document.querySelectorAll('.payment-option');
-
             paymentOptions.forEach(option => {
                 option.addEventListener('click', function () {
-                    // Remove active class from all options
                     paymentOptions.forEach(opt => opt.classList.remove('active'));
-
-                    // Add active class to clicked option
                     this.classList.add('active');
-
-                    // Check the radio input
                     const radio = this.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.checked = true;
-                    }
+                    radio.checked = true;
                 });
+            });
+
+            // Auto-select first payment method
+            const firstPaymentOption = document.querySelector('.payment-option');
+            if (firstPaymentOption) {
+                firstPaymentOption.classList.add('active');
+                firstPaymentOption.querySelector('input').checked = true;
+            }
+
+            // Payment Success Popup (frontend mock)
+            const form = document.getElementById('checkout-form');
+            const popup = document.getElementById('popup');
+            const okBtn = document.getElementById('popup-ok-btn');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // prevent real submission (for demo)
+                popup.style.display = 'flex';
+            });
+
+            okBtn.addEventListener('click', function () {
+                popup.style.display = 'none';
+                window.location.href = '/'; // redirect after popup
             });
         });
     </script>

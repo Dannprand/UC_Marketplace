@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Cart - UCMarketPlace</title>
     <style>
@@ -28,7 +29,8 @@
             display: grid;
             grid-template-columns: 75% 25%;
             grid-template-rows: auto 1fr;
-            height: calc(100vh - 80px); /* Adjust based on navigation height */
+            height: calc(100vh - 80px);
+            /* Adjust based on navigation height */
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
@@ -43,7 +45,7 @@
             color: #333;
             margin-bottom: 20px;
             font-weight: 600;
-            border-bottom: 2px solid black; 
+            border-bottom: 2px solid black;
             position: relative;
             padding-bottom: 15px;
         }
@@ -52,7 +54,7 @@
         .items-section {
             overflow-y: auto;
             padding-right: 15px;
-            height: 100%; 
+            height: 100%;
         }
 
         .cart-item {
@@ -61,20 +63,20 @@
             padding: 20px;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .cart-item h3 {
-            font-size: 16px;
+            font-size: 20px;
             color: #333;
             margin-bottom: 5px;
-            font-weight: 600; 
+            font-weight: 600;
         }
 
         .cart-item p {
             font-size: 16px;
             color: #e74c3c;
-            margin-bottom: 5px; 
+            margin-bottom: 5px;
         }
 
         .product-image-container {
@@ -92,12 +94,6 @@
 
         .item-details {
             flex-grow: 1;
-        }
-
-        .seller-name {
-            font-size: 14px;
-            color: #666;
-            margin-top: 8px;
         }
 
         .quantity-control {
@@ -131,8 +127,8 @@
             font-size: 14px;
         }
 
-         /* Remove number input arrows */
-         input[type=number]::-webkit-inner-spin-button,
+        /* Remove number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
@@ -146,7 +142,7 @@
         .total-section {
             position: sticky;
             top: 20px;
-            height: fit-content; 
+            height: fit-content;
             background: white;
             padding: 10%;
             border-radius: 8px;
@@ -175,71 +171,295 @@
             background: #27ae60;
         }
 
+        .cart-item-container {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+
+        .cart-item-content {
+            display: flex;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .delete-action {
+            position: absolute;
+            right: -100px;
+            top: 0;
+            bottom: 0;
+            width: 100px;
+            background: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: right 0.3s ease;
+            z-index: 1;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .cart-item-container.swiped .delete-action {
+            right: 0;
+        }
+
+        .cart-item-container.swiped .cart-item-content {
+            transform: translateX(-100px);
+        }
+
+        /* Update quantity controls */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        /* Product info styling */
+        .product-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .product-image-container {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+        }
     </style>
 </head>
+
 <body>
     <x-navigation></x-navigation>
 
-    <div class="pt-20">
-        @extends('layouts.app')
-@section('content')
-    <div class="main-container">
-        <div class="cart-header">Cart</div>
+    <div class="pt-12">
+        <div class="main-container">
+            <div class="cart-header">Cart</div>
 
-        <!-- Scrollable Items (75%) -->
-        <div class="items-section">
-            @forelse($cart as $id => $product)
-                <div class="cart-item">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+            <!-- Scrollable Items (75%) -->
+            <div class="items-section">
+                @php $total = 0; @endphp
+                @forelse($cart->items as $item)
+                    <div class="cart-item-container" id="item-{{ $item->id }}">
+                        <div class="cart-item-content">
+                            <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
+                                data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
+                            <div class="product-info">
+                                <div class="product-image-container">
+                                    <img src="{{ asset('storage/' . $item->product->image) }}"
+                                        alt="{{ $item->product->name }}">
+                                </div>
+                                <div>
+                                    <h3>{{ $item->product->name }}</h3>
+                                    <p class="seller-name">{{ $item->product->store->name }}</p>
+                                    <p>Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+
+                            <div class="quantity-control">
+                                <form action="{{ route('cart.update', $item->id) }}" method="POST" class="update-form" 
+                                      onsubmit="updateCartTotal(this, {{ $item->product->price }})">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="button" class="quantity-btn minus" 
+                                            onclick="updateQuantity(this, -1, {{ $item->product->price }})">-</button>
+                                    <input type="number" name="quantity" 
+                                           value="{{ $item->quantity }}" 
+                                           min="1" max="10"
+                                           class="quantity-input"
+                                           data-price="{{ $item->product->price }}"
+                                           onchange="submitForm(this)">
+                                    <button type="button" class="quantity-btn plus" 
+                                            onclick="updateQuantity(this, 1, {{ $item->product->price }})">+</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="delete-action">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Delete</button>
+                        </form>
                     </div>
-                    <div class="item-details">
-                        <h3>{{ $product['name'] }}</h3>
-                        <p>Rp {{ number_format($product['price'], 0, ',', '.') }}</p>
-                        <div class="seller-name">Toko Maju Mundur</div>
-                    </div>
-                    <div class="quantity-control">
-                        <button class="quantity-btn minus" onclick="updateQuantity('{{ $id }}', 'minus')">-</button>
-                        <input type="number" class="quantity-input" value="{{ $product['quantity'] }}" min="1" id="quantity-{{ $id }}">
-                        <button class="quantity-btn plus" onclick="updateQuantity('{{ $id }}', 'plus')">+</button>
-                    </div>
+                @empty
+                    <p>Your cart is empty.</p>
+                @endforelse
+            </div>
+
+           <!-- Total Section -->
+            <div class="total-section">
+                <div class="total-price">Total: Rp {{ number_format($totalPrice, 0, ',', '.') }}</div>
+                <div style="margin-bottom: 15px;">
+                    Items: <span id="item-count">{{ $totalItems }}</span>
                 </div>
-            @empty
-                <p>Your cart is empty.</p>
-            @endforelse
-        </div>
-
-        <!-- Fixed Total Section (25%) -->
-        <div class="total-section">
-            @php
-                $total = 0;
-                foreach ($cart as $product) {
-                    $total += $product['price'] * $product['quantity'];
-                }
-            @endphp
-            <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
-            <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
+                
+                @if($totalItems > 0)
+                    <form action="{{ route('payment') }}" method="GET">
+                        @csrf
+                        <button type="submit" class="buy-button">
+                            Checkout Now
+                        </button>
+                    </form>
+                @else
+                    <button class="buy-button disabled" disabled>
+                        Cart is Empty
+                    </button>
+                @endif
+            </div>
         </div>
     </div>
 
+    {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
-        function updateQuantity(id, action) {
-            const input = document.getElementById('quantity-' + id);
-            let quantity = parseInt(input.value);
-
-            if (action === 'minus') {
-                quantity = Math.max(1, quantity - 1);
-            } else if (action === 'plus') {
-                quantity++;
-            }
-
-            input.value = quantity;
-
-            // Send an AJAX request to update quantity in session (if needed)
-            // You can implement this part to update quantity in the cart session via AJAX
+        // Global variable untuk menyimpan data cart
+        let cartItems = {!! json_encode($cart->items->map(function($item) {
+            return [
+                'id' => $item->id,
+                'price' => $item->product->price,
+                'quantity' => $item->quantity
+            ];
+        })) !!};
+    
+        // Format angka ke rupiah
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
         }
+    
+        // Fungsi hitung total berdasarkan item yang dichecklist
+        function calculateTotal() {
+            let total = 0;
+            let itemCount = 0;
+    
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    const id = parseInt(cb.getAttribute('data-id'));
+                    const item = cartItems.find(i => i.id === id);
+                    if (item) {
+                        total += item.price * item.quantity;
+                        itemCount++;
+                    }
+                }
+            });
+    
+            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
+            document.querySelector('#item-count').textContent = itemCount;
+        }
+    
+        // Update quantity saat tombol +/- ditekan
+        function updateQuantity(button, change, price) {
+            const form = button.closest('.update-form');
+            const input = form.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) + change;
+    
+            newValue = Math.max(1, Math.min(newValue, 10)); // batas 1 - 10
+            input.value = newValue;
+    
+            const itemId = parseInt(form.action.split('/').pop());
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                cartItems[itemIndex].quantity = newValue;
+            }
+    
+            // Update quantity di checkbox juga
+            const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+            if (checkbox) {
+                checkbox.setAttribute('data-quantity', newValue);
+            }
+    
+            calculateTotal();
+            form.submit();
+        }
+    
+        // Update quantity saat input langsung diubah
+        function submitForm(input) {
+            const form = input.closest('form');
+            const itemId = parseInt(form.action.split('/').pop());
+            const quantity = parseInt(input.value);
+    
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                cartItems[itemIndex].quantity = quantity;
+            }
+    
+            const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+            if (checkbox) {
+                checkbox.setAttribute('data-quantity', quantity);
+            }
+    
+            calculateTotal();
+            form.submit();
+        }
+    
+        // Hapus konfirmasi sebelum delete
+        document.querySelectorAll('.delete-action button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to remove this item?')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+    
+        // Swipe gesture (mobile & desktop)
+        document.querySelectorAll('.cart-item-container').forEach(container => {
+            let startX, currentX;
+    
+            container.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+            }, {passive: true});
+    
+            container.addEventListener('touchmove', e => {
+                currentX = e.touches[0].clientX;
+                const diff = startX - currentX;
+    
+                if (diff > 30) container.classList.add('swiped');
+                else if (diff < -30) container.classList.remove('swiped');
+            }, {passive: true});
+    
+            container.addEventListener('mousedown', e => {
+                if (e.button !== 0) return;
+                startX = e.clientX;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                }, {once: true});
+            });
+    
+            function handleMouseMove(e) {
+                currentX = e.clientX;
+                const diff = startX - currentX;
+                if (diff > 30) container.classList.add('swiped');
+                else if (diff < -30) container.classList.remove('swiped');
+            }
+        });
+    
+        // Saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotal();
+    
+            // Dengarkan perubahan checkbox
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                cb.addEventListener('change', calculateTotal);
+            });
+    
+            // Dengarkan input langsung di quantity
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    submitForm(this);
+                });
+            });
+        });
     </script>
-@endsection
-
+    
 </body>
+
 </html>

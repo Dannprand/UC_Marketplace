@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -18,4 +19,12 @@ class PaymentController extends Controller
 
         return view('payment.index', compact('cart', 'total'));
     }
+
+    public function show(Order $order)
+    {
+        return view('payment', [
+            'order' => $order->load('items.product', 'paymentMethod')
+        ]);
+    }
+
 }

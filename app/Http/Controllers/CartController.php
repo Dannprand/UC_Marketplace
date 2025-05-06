@@ -3,54 +3,186 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Address;
+use App\Models\PaymentMethod;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+
 
 class CartController extends Controller
-{
+{   
+
     // Menampilkan halaman keranjang
     public function index()
 {
-    $user = auth()->user();
+    $user = Auth::user();
 
-    // Ambil cart dengan relasi ke cart items dan produk
+    if (!$user) {
+        return redirect()->route('login');
+    }
+
+    // Get the cart with related items and products
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
 
-    // Jika cart belum ada, buat baru
     if (!$cart) {
         $cart = Cart::create(['user_id' => $user->id]);
     }
 
-    return view('user_view.cart', compact('cart'));
+    // Hitung total harga dan jumlah item
+    $totalPrice = 0;
+    $totalItems = 0;
+
+    foreach ($cart->items as $item) {
+        $totalPrice += $item->product->price * $item->quantity;
+        $totalItems += $item->quantity;
+    }
+
+    return view('user_view.cart', compact('cart', 'totalPrice', 'totalItems'));
 }
+
+
 
     // Menambahkan produk ke dalam keranjang
-    public function add(Request $request, $productId)
+    public function addToCart(Request $request, $productId)
     {
-        // Ambil user yang sedang login
-        $user = auth()->user();
-
-        // Cek apakah user sudah memiliki keranjang
-        $cart = $user->cart;
-
-        if (!$cart) {
-            // Jika belum ada keranjang, buat baru
-            $cart = Cart::create(['user_id' => $user->id]);
-        }
-
-        // Ambil produk yang ingin ditambahkan ke keranjang
-        $product = Product::findOrFail($productId);
-
-        // Menambahkan produk ke keranjang (menambahkan ke CartItem atau pivot table)
-        $cart->items()->create([
-            'product_id' => $product->id,
-            'quantity' => $request->quantity ?? 1, // Default quantity adalah 1
+        // Validate the quantity input
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
         ]);
 
-        // Redirect kembali ke halaman keranjang
-        return redirect()->route('cart.index');
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Find the product by ID
+        $product = Product::findOrFail($productId);
+
+        // Get the quantity from the form
+        $quantity = $request->input('quantity', 1);
+
+        // Get or create cart for user
+        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+
+        // Check if this product already exists in user's cart
+        $cartItem = CartItem::where('cart_id', $cart->id)
+                            ->where('product_id', $productId)
+                            ->first();
+
+        if ($cartItem) {
+            // Product already in cart → update quantity
+            $cartItem->quantity += $quantity;
+            $cartItem->save();
+        } else {
+            // New product → add to cart items table
+            CartItem::create([
+                'cart_id' => $cart->id,
+                'product_id' => $productId,
+                'quantity' => $quantity,
+            ]);
+        }
+
+        return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
+    }
+    public function update(Request $request, $itemId)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
+        ]);
+
+        $cartItem = CartItem::findOrFail($itemId);
+        $cartItem->update(['quantity' => $request->quantity]);
+
+        return redirect()->route('cart')->with('success', 'Cart updated!');
+    }
+
+    public function remove($id) {
+        $cartItem = CartItem::findOrFail($id);
+        $cartItem->delete();
+        return redirect()->back()->with('success', 'Item removed from cart.');
+    }
+    
+    // Checkout Process
+    public function payment()
+    {
+        $user = Auth::user();
+        if (!$user) return redirect()->route('login');
+    
+        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+    
+        // Handle empty cart
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Keranjang belanja kosong!');
+        }
+    
+        // Get addresses and payment methods with fallback
+        $addresses = $user->addresses ?? collect();
+        $paymentMethods = $user->paymentMethods ?? collect();
+    
+        return view('user_view.payment', [
+            'cart' => $cart,
+            'totalPrice' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
+            'addresses' => $addresses,
+            'paymentMethods' => $paymentMethods
+        ]);
+    }
+
+    public function processCheckout(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'shipping_address_id' => 'required|exists:addresses,id',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+        ]);
+
+        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+
+        // Create order
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_number' => 'INV-' . Str::upper(Str::random(8)),
+            'status' => 'pending',
+            'total_amount' => $cart->items->sum(function($item) {
+                return $item->product->price * $item->quantity;
+            }),
+            'shipping_address_id' => $request->shipping_address_id,
+            'payment_method_id' => $request->payment_method_id,
+        ]);
+
+        // Create order items
+        foreach ($cart->items as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->product->price,
+                'total_price' => $item->quantity * $item->product->price
+            ]);
+        }
+
+        // Clear cart
+        $cart->items()->delete();
+
+        return redirect()->route('order.confirmation', $order->id)
+            ->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    // Add this method for order confirmation
+    public function orderConfirmation(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $order->load(['items.product', 'shippingAddress', 'paymentMethod']);
+        return view('user_view.order_confirmation', compact('order'));
     }
 }
-
 
 
 

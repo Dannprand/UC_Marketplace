@@ -8,30 +8,10 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
 
-// use Illuminate\Foundation\Auth\EmailVerificationRequest;
-// use Illuminate\Http\Request;
-
 // Public Routes
 Route::get('/', function () {
     return view('landingPage');
 });
-
-/*
-// Email Verification Routes (commented out for future use)
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
-
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('/');
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-*/
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -43,30 +23,17 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-//Route payment and cart
-Route::middleware(['auth'])->group(function () {
-    // Route::get('/cart', [CartController::class, 'index'])->name('cart');
-    // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-    Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
-});
-
-Route::middleware('auth')->prefix('user')->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
-    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-});
+// Payment Route
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+// });
 
 // User Routes
-Route::prefix('user')->group(function () {
-    Route::get('/home', [ProductController::class, 'index'])->name('home');
-
-    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-
-    Route::get('/live-search', [ProductController::class, 'liveSearch']);
-    
+Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/payment', function () {
         return view('user_view.payment');
     })->name('payment');
-
+    
     Route::get('/profile', function () {
         return view('user_view.profile');
     })->name('profile');
@@ -74,7 +41,21 @@ Route::prefix('user')->group(function () {
     Route::get('/balance', function () {
         return view('user_view.balance');
     })->name('balance');
+
+    // Cart Routes
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    Route::get('/payment', [CartController::class, 'payment'])->name('payment');
+    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/orders/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
 });
+    //Page Awal User Masuk!!
+    Route::get('/home', [ProductController::class, 'index'])->name('home');
+    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+    Route::get('/live-search', [ProductController::class, 'liveSearch']);
 
 
 // Optional: view-only routes (if you're still using them)
@@ -89,31 +70,3 @@ Route::get('/openMerchant', function () {
 Route::get('/detailMerchant', function () {
     return view('detailMerchant');
 })->name('detailMerchant');
-
-// Merchant Routes with controller logic
-Route::prefix('merchant')->middleware(['auth'])->group(function () {
-    // Open Merchant (initial form)
-    Route::get('/open', [MerchantController::class, 'showOpenForm'])->name('merchant.open');
-    Route::post('/open', [MerchantController::class, 'openMerchant']);
-    // Manage Merchant (merchant password confirmation etc.)
-    Route::get('/manage', [MerchantController::class, 'showManageForm'])->name('merchant.manage');
-    Route::post('/manage', [MerchantController::class, 'manageMerchant']);
-    // Create Store (after merchant registration)
-    Route::get('/store/create', [StoreController::class, 'create'])->name('store.create');
-    // Route::post('/store', [StoreController::class, 'store']);
-    Route::post('/store', [StoreController::class, 'store'])->name('store.store');
-    // Dashboard (after store is created)
-    Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
-    // Add these inside your merchant prefix group
-    Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
-
-    
-});
-
-// Product Routes
-// Product Management Routes
-Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
-Route::post('/products', [ProductController::class, 'store'])->name('product.store');
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
-Route::put('/products/{product}', [ProductController::class, 'update'])->name('product.update');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
