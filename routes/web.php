@@ -23,10 +23,17 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-// Payment Route
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
-// });
+//Route payment and cart
+Route::middleware(['auth'])->group(function () {
+    // Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+});
+
+Route::middleware('auth')->prefix('user')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+});
 
 // User Routes
 Route::middleware('auth')->prefix('user')->group(function () {
@@ -70,3 +77,31 @@ Route::get('/openMerchant', function () {
 Route::get('/detailMerchant', function () {
     return view('detailMerchant');
 })->name('detailMerchant');
+
+// Merchant Routes with controller logic
+Route::prefix('merchant')->middleware(['auth'])->group(function () {
+    // Open Merchant (initial form)
+    Route::get('/open', [MerchantController::class, 'showOpenForm'])->name('merchant.open');
+    Route::post('/open', [MerchantController::class, 'openMerchant']);
+    // Manage Merchant (merchant password confirmation etc.)
+    Route::get('/manage', [MerchantController::class, 'showManageForm'])->name('merchant.manage');
+    Route::post('/manage', [MerchantController::class, 'manageMerchant']);
+    // Create Store (after merchant registration)
+    Route::get('/store/create', [StoreController::class, 'create'])->name('store.create');
+    // Route::post('/store', [StoreController::class, 'store']);
+    Route::post('/store', [StoreController::class, 'store'])->name('store.store');
+    // Dashboard (after store is created)
+    Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
+    // Add these inside your merchant prefix group
+    Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
+
+    
+});
+
+// Product Routes
+// Product Management Routes
+Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
+Route::post('/products', [ProductController::class, 'store'])->name('product.store');
+Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
+Route::put('/products/{product}', [ProductController::class, 'update'])->name('product.update');
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
