@@ -74,7 +74,9 @@ class AuthController extends Controller
         // Current behavior - login immediately
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Registration successful!');
+        // Jangan langsung login
+    return redirect()->route('login')->with('success', 'Registration successful! Please login.');
+
     }
 
     // Handle logout request

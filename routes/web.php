@@ -28,10 +28,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 // User Routes
 Route::middleware('auth')->prefix('user')->group(function () {
-    Route::get('/home', [ProductController::class, 'index'])->name('home');
-    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-    Route::get('/live-search', [ProductController::class, 'liveSearch']);
-    
     Route::get('/payment', function () {
         return view('user_view.payment');
     })->name('payment');
@@ -46,9 +42,14 @@ Route::middleware('auth')->prefix('user')->group(function () {
 
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
-
-    Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 });
+    //Page Awal User Masuk!!
+    Route::get('/home', [ProductController::class, 'index'])->name('home');
+    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+    Route::get('/live-search', [ProductController::class, 'liveSearch']);
 
 // Merchant Routes
 Route::prefix('merchant')->group(function () {

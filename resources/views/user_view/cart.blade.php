@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Cart - UCMarketPlace</title>
     <style>
@@ -28,7 +29,8 @@
             display: grid;
             grid-template-columns: 75% 25%;
             grid-template-rows: auto 1fr;
-            height: calc(100vh - 80px); /* Adjust based on navigation height */
+            height: calc(100vh - 80px);
+            /* Adjust based on navigation height */
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
@@ -43,7 +45,7 @@
             color: #333;
             margin-bottom: 20px;
             font-weight: 600;
-            border-bottom: 2px solid black; 
+            border-bottom: 2px solid black;
             position: relative;
             padding-bottom: 15px;
         }
@@ -52,7 +54,7 @@
         .items-section {
             overflow-y: auto;
             padding-right: 15px;
-            height: 100%; 
+            height: 100%;
         }
 
         .cart-item {
@@ -61,20 +63,20 @@
             padding: 20px;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .cart-item h3 {
             font-size: 20px;
             color: #333;
             margin-bottom: 5px;
-            font-weight: 600; 
+            font-weight: 600;
         }
 
         .cart-item p {
             font-size: 16px;
             color: #e74c3c;
-            margin-bottom: 5px; 
+            margin-bottom: 5px;
         }
 
         .product-image-container {
@@ -125,7 +127,7 @@
             font-size: 14px;
         }
 
-         /* Remove number input arrows */
+        /* Remove number input arrows */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -140,7 +142,7 @@
         .total-section {
             position: sticky;
             top: 20px;
-            height: fit-content; 
+            height: fit-content;
             background: white;
             padding: 10%;
             border-radius: 8px;
@@ -169,8 +171,73 @@
             background: #27ae60;
         }
 
+        .cart-item-container {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+
+        .cart-item-content {
+            display: flex;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .delete-action {
+            position: absolute;
+            right: -100px;
+            top: 0;
+            bottom: 0;
+            width: 100px;
+            background: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: right 0.3s ease;
+            z-index: 1;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .cart-item-container.swiped .delete-action {
+            right: 0;
+        }
+
+        .cart-item-container.swiped .cart-item-content {
+            transform: translateX(-100px);
+        }
+
+        /* Update quantity controls */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        /* Product info styling */
+        .product-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .product-image-container {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+        }
     </style>
 </head>
+
 <body>
     <x-navigation></x-navigation>
 
@@ -181,67 +248,241 @@
             <!-- Scrollable Items (75%) -->
             <div class="items-section">
                 @php $total = 0; @endphp
+                @forelse($cart->items as $item)
+                    <div class="cart-item-container" id="item-{{ $item->id }}">
+                        <div class="cart-item-content">
+                            <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
+                                data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
+                            <div class="product-info">
+                                <div class="product-image-container">
+                                    <img src="{{ asset('storage/' . $item->product->image) }}"
+                                        alt="{{ $item->product->name }}">
+                                </div>
+                                <div>
+                                    <h3>{{ $item->product->name }}</h3>
+                                    <p class="seller-name">{{ $item->product->store->name }}</p>
+                                    <p>Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
 
-                @forelse($cart->items as $cartItem)
-                <div class="cart-item">
-                    <div class="product-image-container">
-                        {{-- Use product image if available, otherwise placeholder --}}
-                        <img src="{{ $cartItem->product->image_url ?? 'https://via.placeholder.com/100x100' }}" alt="Product" class="product-image">
-                    </div>  
+                            <div class="quantity-control">
+                                <form action="{{ route('cart.update', $item->id) }}" method="POST" class="update-form" 
+                                      onsubmit="updateCartTotal(this, {{ $item->product->price }})">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="button" class="quantity-btn minus" 
+                                            onclick="updateQuantity(this, -1, {{ $item->product->price }})">-</button>
+                                    <input type="number" name="quantity" 
+                                           value="{{ $item->quantity }}" 
+                                           min="1" max="10"
+                                           class="quantity-input"
+                                           data-price="{{ $item->product->price }}"
+                                           onchange="submitForm(this)">
+                                    <button type="button" class="quantity-btn plus" 
+                                            onclick="updateQuantity(this, 1, {{ $item->product->price }})">+</button>
+                                </form>
+                            </div>
+                        </div>
 
-                    <div class="item-details">
-                        <h3>{{ $cartItem->product->name ?? 'No Merchant Name Available' }}</h3>
-                        <p class="item-subtotal">Rp {{ number_format($cartItem->product->price * $cartItem->quantity, 0, ',', '.') }}</p>
-                        {{-- <p class="seller-name">{{ $cartItem->product->store->name ?? 'No Merchant Name Available' }}</p> --}}
+                        <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="delete-action">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Delete</button>
+                        </form>
                     </div>
-
-                    <div class="quantity-control">
-                        {{-- Quantity Buttons (Optional to activate later) --}}
-                        <button class="quantity-btn minus" onclick="updateQuantity('{{ $cartItem->id }}', 'minus')">-</button>
-                        <input type="number" class="quantity-input" value="{{ $cartItem->quantity }}" min="1" id="quantity-{{ $cartItem->id }}">
-                        <button class="quantity-btn plus" onclick="updateQuantity('{{ $cartItem->id }}', 'plus')">+</button>
-                    </div>
-                </div>
-
-                @php
-                    $subtotal = $cartItem->product->price * $cartItem->quantity;
-                    $total += $subtotal;
-                @endphp
-
                 @empty
                     <p>Your cart is empty.</p>
                 @endforelse
             </div>
 
-            <!-- Fixed Total Section (25%) -->
+            <!-- Total Section -->
             <div class="total-section">
-                @php
-                    $total = 0;
-                    foreach ($cart->items as $cartItem) {
-                        $subtotal = $cartItem->product->price * $cartItem->quantity;
-                        $total += $subtotal;
-                    }
-                @endphp
                 <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
-                <button class="buy-button" onclick="window.location.href='#'">Buy Now</button>
+                <div style="margin-bottom: 15px;">Items: <span id="item-count">{{ $cart->items->count() }}</span></div>
+                <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
             </div>
         </div>
     </div>
 
     {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
-        function updateQuantity(id, action) {
-            const input = document.getElementById('quantity-' + id);
-            let quantity = parseInt(input.value);
-
-            if (action === 'minus') {
-                quantity = Math.max(1, quantity - 1);
-            } else if (action === 'plus') {
-                quantity++;
+        // Swipe to delete functionality
+        document.querySelectorAll('.cart-item-container').forEach(container => {
+            let startX, currentX;
+            
+            container.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+            }, {passive: true});
+            
+            container.addEventListener('touchmove', e => {
+                currentX = e.touches[0].clientX;
+                const diff = startX - currentX;
+                
+                if (diff > 30) {
+                    container.classList.add('swiped');
+                } else if (diff < -30) {
+                    container.classList.remove('swiped');
+                }
+            }, {passive: true});
+            
+            // For desktop with mouse
+            container.addEventListener('mousedown', e => {
+                if (e.button !== 0) return; // Only left mouse button
+                startX = e.clientX;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                }, {once: true});
+            });
+            
+            function handleMouseMove(e) {
+                currentX = e.clientX;
+                const diff = startX - currentX;
+                
+                if (diff > 30) {
+                    container.classList.add('swiped');
+                } else if (diff < -30) {
+                    container.classList.remove('swiped');
+                }
             }
-
-            input.value = quantity;
+        });
+        
+        // Quantity update functions
+        function updateQuantity(button, change) {
+            const form = button.closest('.update-form');
+            const input = form.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) + change;
+            
+            // Ensure value stays within min/max bounds
+            newValue = Math.max(parseInt(input.min), Math.min(newValue, parseInt(input.max)));
+            
+            input.value = newValue;
+            submitForm(input);
         }
-    </script>
+        
+        function submitForm(input) {
+            const form = input.closest('form');
+            form.submit();
+        }
+        
+        // Confirm before delete
+        document.querySelectorAll('.delete-action button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to remove this item?')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+        
+        // Real-time total calculation
+        function calculateTotal() {
+            let total = 0;
+            let itemCount = 0;
+            
+            document.querySelectorAll('.cart-item-container').forEach(item => {
+                const price = parseFloat(item.querySelector('.item-details p:nth-child(3)').textContent.replace(/[^\d]/g, ''));
+                const quantity = parseInt(item.querySelector('.quantity-input').value);
+                total += price * quantity;
+                itemCount++;
+            });
+            
+            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
+            document.querySelector('#item-count').textContent = itemCount;
+        }
+        
+        // Format rupiah helper
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
+        
+        // Initialize and update on changes
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotal();
+            
+            // Listen for quantity changes
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', calculateTotal);
+            });
+        });
+
+        // Global variable to store cart items data
+let cartItems = {!! json_encode($cart->items->map(function($item) {
+    return [
+        'id' => $item->id,
+        'price' => $item->product->price,
+        'quantity' => $item->quantity
+    ];
+})) !!};
+
+// Update quantity and calculate total
+function updateQuantity(button, change, price) {
+    const form = button.closest('.update-form');
+    const input = form.querySelector('.quantity-input');
+    let newValue = parseInt(input.value) + change;
+    
+    // Ensure value stays within bounds
+    newValue = Math.max(1, Math.min(newValue, 10));
+    
+    // Update the input value
+    input.value = newValue;
+    
+    // Update cartItems data
+    const itemId = form.action.split('/').pop();
+    const itemIndex = cartItems.findIndex(item => item.id == itemId);
+    if (itemIndex !== -1) {
+        cartItems[itemIndex].quantity = newValue;
+    }
+    
+    // Calculate and update total
+    calculateTotal();
+    
+    // Submit the form
+    form.submit();
+}
+
+// Submit form helper
+function submitForm(input) {
+    const form = input.closest('form');
+    const itemId = form.action.split('/').pop();
+    const quantity = parseInt(input.value);
+    
+    // Update cartItems data
+    const itemIndex = cartItems.findIndex(item => item.id == itemId);
+    if (itemIndex !== -1) {
+        cartItems[itemIndex].quantity = quantity;
+    }
+    
+    calculateTotal();
+    form.submit();
+}
+
+// Calculate total based on actual prices
+function calculateTotal() {
+    let total = 0;
+    let itemCount = 0;
+    
+    cartItems.forEach(item => {
+        total += item.price * item.quantity;
+        itemCount++;
+    });
+    
+    // Update the UI
+    document.querySelector('.total-price').innerHTML = 
+        `Total: Rp ${formatRupiah(total)}`;
+    document.querySelector('#item-count').textContent = itemCount;
+}
+
+// Format currency
+function formatRupiah(number) {
+    return new Intl.NumberFormat('id-ID').format(number);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    calculateTotal();
+});
+        </script>
 </body>
+
 </html>
