@@ -190,7 +190,7 @@
                     </div>  
 
                     <div class="item-details">
-                        <h3>{{ $cartItem->product->store->name ?? 'No Merchant Name Available' }}</h3>
+                        <h3>{{ $cartItem->product->name ?? 'No Merchant Name Available' }}</h3>
                         <p class="item-subtotal">Rp {{ number_format($cartItem->product->price * $cartItem->quantity, 0, ',', '.') }}</p>
                         {{-- <p class="seller-name">{{ $cartItem->product->store->name ?? 'No Merchant Name Available' }}</p> --}}
                     </div>
