@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Your Merchant - UC Marketplace</title>
+    <title>Create Store - UC Marketplace</title>
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Similar styles to openMerchant.blade.php */
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
@@ -92,66 +93,49 @@
 <body class="flex items-center justify-center p-4">
     <div class="merchant-card w-full max-w-md p-8 animate__animated animate__fadeIn">
         <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-[#2d3748] mb-2">Open Your Merchant</h2>
-            <p class="text-[#718096]">Fill the form below to get started</p>
+            <h2 class="text-3xl font-bold text-[#2d3748] mb-2">Create Your Store</h2>
+            <p class="text-[#718096]">Set up your store to start selling</p>
         </div>
 
-        <form method="POST" action="{{ route('merchant.open') }}" enctype="multipart/form-data" class="space-y-4">
+        <form method="POST" action="{{ route('store.store') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
             
-            <div class="pfp-upload">
-                <div class="pfp-preview" id="pfpPreview">
-                    <span class="text-gray-500">No image</span>
-                </div>
-                <label class="file-input-label">
-                    Upload Merchant Logo
-                    <input type="file" name="pfp" id="pfpInput" class="hidden" accept="image/*">
-                </label>
+            <div>
+                <label for="name" class="block text-sm font-medium text-[#4a5568] mb-2">Store Name</label>
+                <input id="name" type="text" name="name" class="form-input w-full p-3" 
+                       value="{{ old('name') }}" required placeholder="Enter your store name">
             </div>
 
             <div>
-                <label for="merchant_name" class="block text-sm font-medium text-[#4a5568] mb-2">Merchant Name</label>
-                <input id="merchant_name" type="text" name="merchant_name" class="form-input w-full p-3" 
-                       value="{{ old('merchant_name') }}" required placeholder="Enter your merchant name">
-            </div>
-
-            <div>
-                <label for="description" class="block text-sm font-medium text-[#4a5568] mb-2">Description</label>
+                <label for="description" class="block text-sm font-medium text-[#4a5568] mb-2">Store Description</label>
                 <textarea id="description" name="description" class="form-input w-full p-3" rows="4" 
-                          required placeholder="Describe your business">{{ old('description') }}</textarea>
+                          required placeholder="Describe your store">{{ old('description') }}</textarea>
             </div>
 
             <div>
-                <label for="merchant_password" class="block text-sm font-medium text-[#4a5568] mb-2">Merchant Password</label>
-                <input id="merchant_password" type="password" name="merchant_password" class="form-input w-full p-3" 
-                       required placeholder="Create a merchant password" minlength="8">
+                <label for="category_id" class="block text-sm font-medium text-[#4a5568] mb-2">Category</label>
+                <select id="category_id" name="category_id" class="form-input w-full p-3" required>
+                    <option value="">Select a category</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div>
-                <label for="merchant_password_confirmation" class="block text-sm font-medium text-[#4a5568] mb-2">Confirm Password</label>
-                <input id="merchant_password_confirmation" type="password" name="merchant_password_confirmation" 
-                       class="form-input w-full p-3" required placeholder="Confirm your merchant password">
+                <label class="block text-sm font-medium text-[#4a5568] mb-2">Store Logo (Required)</label>
+                <input type="file" name="logo" class="form-input w-full p-3" required accept="image/*">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-[#4a5568] mb-2">Store Banner (Optional)</label>
+                <input type="file" name="banner" class="form-input w-full p-3" accept="image/*">
             </div>
 
             <button type="submit" class="btn-primary w-full font-semibold mt-4">
-                Open Merchant
+                Create Store
             </button>
         </form>
     </div>
-
-    <script>
-        // Preview uploaded profile picture
-        document.getElementById('pfpInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('pfpPreview');
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
 </body>
 </html>

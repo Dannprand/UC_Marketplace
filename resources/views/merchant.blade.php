@@ -172,66 +172,91 @@
             margin-top: 1rem;
         }
     }
+    .no-store {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .create-store-btn {
+        background: #2ecc71;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .create-store-btn:hover {
+        background: #27ae60;
+        transform: translateY(-2px);
+    }
     </style>
 </head>
 <body>
-   <x-navigation> </x-navigation>
-    
-<div class="pt-20">
-    <div class="container">
-        <!-- Merchant Profile -->
-        <div class="merchant-profile">
-            <div class="merchant-avatar">M</div>
-            <div class="merchant-info">
-                <h2 class="merchant-name">Toko Maju Mundur</h2>
-                <p class="merchant-description">Specializing in authentic Indonesian cuisine since 2020</p>
-            </div>
-            <a href="{{ route('detailMerchant') }}" class="details-btn">
-                Details
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-            </a>
-        </div>
-        
-
-        <!-- Products Section -->
-        <div class="products-section">
-            <button class="add-product-btn">+</button>
-            <div class="products-grid">
-                <!-- Product Card 1 -->
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
-                    <div class="product-details">
-                        <p class="product-name">Rawon Daging</p>
-                        <p class="product-price">Rp 40.000</p>
+    <x-navigation></x-navigation>
+     
+    <div class="pt-20">
+        <div class="container">
+            @if(!$store)
+                <div class="no-store">
+                    <h2 class="text-2xl font-bold mb-4">You haven't created a store yet</h2>
+                    <p class="text-gray-600 mb-4">Create your store to start selling products on UC Marketplace</p>
+                    <a href="{{ route('store.create') }}" class="create-store-btn">
+                        Create Your Store
+                    </a>
+                </div>
+            @else
+                <!-- Merchant Profile -->
+                <div class="merchant-profile">
+                    <div class="merchant-avatar">
+                        @if($merchant->merchant_pfp)
+                            <img src="{{ asset('storage/' . $merchant->merchant_pfp) }}" alt="Merchant Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                        @else
+                            {{ strtoupper(substr($store->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div class="merchant-info">
+                        <h2 class="merchant-name">{{ $store->name }}</h2>
+                        <p class="merchant-description">{{ $store->description }}</p>
+                    </div>
+                    <a href="{{ route('detailMerchant') }}" class="details-btn">
+                        Details
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+ 
+                <!-- Products Section -->
+                <div class="products-section">
+                    <a href="{{ route('product.create') }}" class="add-product-btn">+</a>
+                    <div class="products-grid">
+                        @forelse($products as $product)
+                            <div class="product-card">
+                                @if(isset($product->images[0]))
+                                    <img src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}" class="product-image">
+                                @else
+                                    <div class="product-image bg-gray-200 flex items-center justify-center">
+                                        <span class="text-gray-500">No image</span>
+                                    </div>
+                                @endif
+                                <div class="product-details">
+                                    <p class="product-name">{{ $product->name }}</p>
+                                    <p class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="col-span-full text-center text-gray-600 py-4">No products yet. Add your first one!</p>
+                        @endforelse
                     </div>
                 </div>
-
-                <!-- Product Card 2 -->
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
-                    <div class="product-details">
-                        <p class="product-name">Nasi Goreng</p>
-                        <p class="product-price">Rp 25.000</p>
-                    </div>
-                </div>
-
-                <!-- Product Card 3 -->
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200x120" alt="Product" class="product-image">
-                    <div class="product-details">
-                        <p class="product-name">Soto Ayam</p>
-                        <p class="product-price">Rp 30.000</p>
-                    </div>
-                </div>
-
-                <!-- More product cards -->
-            </div>
+            @endif
         </div>
     </div>
-
-</div>
-
-</body>
+ </body>
 </html>
