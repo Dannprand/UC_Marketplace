@@ -211,9 +211,7 @@
                 <img src="{{ asset('images/products/'.$product->photo) }}" alt="Product Image">
             </div>
             <div class="seller-card">
-                <!-- Replace $product->seller->name with the correct field -->
-                <h3>{{ $product->merchant_name ?? 'No Merchant Name Available' }}</h3>
- <!-- Assuming merchant_name is the field for the seller's name -->
+                <h3>{{ $product -> store -> name ?? 'No Merchant Name Available' }}</h3>
                 <p>Seller Rating: ★★★★☆ (4.2/5)</p> <!-- You can adjust this as needed -->
             </div>
         </div>
