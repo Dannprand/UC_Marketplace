@@ -16,18 +16,28 @@ class CartController extends Controller
     $user = Auth::user();
 
     if (!$user) {
-        return redirect()->route('login');  // Redirect to login if the user is not authenticated
+        return redirect()->route('login');
     }
 
-    // Get the cart with the related items and products
+    // Get the cart with related items and products
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
 
     if (!$cart) {
         $cart = Cart::create(['user_id' => $user->id]);
     }
 
-    return view('user_view.cart', compact('cart')); 
+    // Hitung total harga dan jumlah item
+    $totalPrice = 0;
+    $totalItems = 0;
+
+    foreach ($cart->items as $item) {
+        $totalPrice += $item->product->price * $item->quantity;
+        $totalItems += $item->quantity;
+    }
+
+    return view('user_view.cart', compact('cart', 'totalPrice', 'totalItems'));
 }
+
 
 
     // Menambahkan produk ke dalam keranjang
@@ -72,6 +82,24 @@ class CartController extends Controller
 
         return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
+    public function update(Request $request, $itemId)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
+        ]);
+
+        $cartItem = CartItem::findOrFail($itemId);
+        $cartItem->update(['quantity' => $request->quantity]);
+
+        return redirect()->route('cart')->with('success', 'Cart updated!');
+    }
+
+    public function remove($id) {
+        $cartItem = CartItem::findOrFail($id);
+        $cartItem->delete();
+        return redirect()->back()->with('success', 'Item removed from cart.');
+    }
+    
 }
 
 
