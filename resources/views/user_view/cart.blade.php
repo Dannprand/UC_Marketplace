@@ -181,75 +181,65 @@
     <x-navigation></x-navigation>
 
     <div class="pt-20">
+        @extends('layouts.app')
+@section('content')
     <div class="main-container">
         <div class="cart-header">Cart</div>
-        
+
         <!-- Scrollable Items (75%) -->
         <div class="items-section">
-            <!-- Example Cart Item -->
-            <div class="cart-item">
-                <div class="product-image-container">
-                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+            @forelse($cart as $id => $product)
+                <div class="cart-item">
+                    <div class="product-image-container">
+                        <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
+                    </div>
+                    <div class="item-details">
+                        <h3>{{ $product['name'] }}</h3>
+                        <p>Rp {{ number_format($product['price'], 0, ',', '.') }}</p>
+                        <div class="seller-name">Toko Maju Mundur</div>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn minus" onclick="updateQuantity('{{ $id }}', 'minus')">-</button>
+                        <input type="number" class="quantity-input" value="{{ $product['quantity'] }}" min="1" id="quantity-{{ $id }}">
+                        <button class="quantity-btn plus" onclick="updateQuantity('{{ $id }}', 'plus')">+</button>
+                    </div>
                 </div>
-               <div class="item-details">
-                    <h3>Rawon Daging</h3>
-                    <p>Rp 40.000</p>
-                    <div class="seller-name">Toko Maju Mundur</div>
-                </div>
-                <div class="quantity-control">
-                    <button class="quantity-btn minus">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1">
-                    <button class="quantity-btn plus">+</button>
-                </div>
-            </div>
-
-            <!-- Repeat other items with same structure -->
-            <div class="cart-item">
-                <div class="product-image-container">
-                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
-                </div>
-                <div class="item-details">
-                    <h3>Rawon Daging</h3>
-                    <p>Rp 40.000</p>
-                    <div class="seller-name">Toko Maju Mundur</div>
-                </div>
-                <div class="quantity-control">
-                    <button class="quantity-btn minus">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1">
-                    <button class="quantity-btn plus">+</button>
-                </div>
-            </div>
-
-            <!-- Add more items following the same pattern -->
+            @empty
+                <p>Your cart is empty.</p>
+            @endforelse
         </div>
-
 
         <!-- Fixed Total Section (25%) -->
         <div class="total-section">
-            <div class="total-price">Total: Rp 160.000</div>
+            @php
+                $total = 0;
+                foreach ($cart as $product) {
+                    $total += $product['price'] * $product['quantity'];
+                }
+            @endphp
+            <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
             <button class="buy-button" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
         </div>
     </div>
 
-</div>
-
     <script>
-        // Quantity control functionality
-        document.querySelectorAll('.quantity-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('.quantity-input');
-                let value = parseInt(input.value);
+        function updateQuantity(id, action) {
+            const input = document.getElementById('quantity-' + id);
+            let quantity = parseInt(input.value);
 
-                if (this.classList.contains('minus')) {
-                    value = Math.max(1, value - 1);
-                } else if (this.classList.contains('plus')) {
-                    value++;
-                }
+            if (action === 'minus') {
+                quantity = Math.max(1, quantity - 1);
+            } else if (action === 'plus') {
+                quantity++;
+            }
 
-                input.value = value;
-            });
-        });
+            input.value = quantity;
+
+            // Send an AJAX request to update quantity in session (if needed)
+            // You can implement this part to update quantity in the cart session via AJAX
+        }
     </script>
-    
+@endsection
+
 </body>
 </html>

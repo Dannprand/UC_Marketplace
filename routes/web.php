@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\PaymentController;
+
 // use Illuminate\Foundation\Auth\EmailVerificationRequest;
 // use Illuminate\Http\Request;
 
@@ -38,14 +41,24 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
+//Route payment and cart
+Route::middleware(['auth'])->group(function () {
+    // Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+});
+
+Route::middleware('auth')->prefix('user')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+});
+
+
+
 // User Routes
 Route::prefix('user')->group(function () {
     Route::get('/home', [ProductController::class, 'index'])->name('home');
-    
-    Route::get('/cart', function () {
-        return view('user_view.cart');
-    })->name('cart');
-    
+
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
 
     Route::get('/live-search', [ProductController::class, 'liveSearch']);

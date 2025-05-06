@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Payment - UCMarketPlace</title>
     <style>
@@ -48,7 +49,7 @@
             background: white;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .payment-methods h2 {
@@ -110,7 +111,7 @@
             background: white;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 20px;
         }
@@ -203,16 +204,27 @@
         }
     </style>
 </head>
+
 <body>
     <x-navigation></x-navigation>
 
     <div class="payment-container">
         <div class="payment-header">Payment Method</div>
-        
+        @if(count($cart) > 0)
+            <ul>
+                @foreach($cart as $item)
+                    <li>{{ $item['name'] }} - {{ $item['quantity'] }} x Rp{{ number_format($item['price']) }}</li>
+                @endforeach
+            </ul>
+            <p><strong>Total: Rp{{ number_format($total) }}</strong></p>
+        @else
+            <p>Keranjang kosong.</p>
+        @endif
+
         <!-- Payment Methods Section -->
         <div class="payment-methods">
             <h2>Select Payment Method</h2>
-            
+
             <div class="payment-option active">
                 <input type="radio" name="paymentMethod" id="ucWallet" checked>
                 <img src="https://via.placeholder.com/40x40?text=UC" alt="UC Wallet" class="payment-icon">
@@ -221,7 +233,7 @@
                     <p>Pay using your UC Wallet balance</p>
                 </div>
             </div>
-            
+
             <div class="payment-option">
                 <input type="radio" name="paymentMethod" id="bankTransfer">
                 <img src="https://via.placeholder.com/40x40?text=Bank" alt="Bank Transfer" class="payment-icon">
@@ -230,7 +242,7 @@
                     <p>Transfer directly from your bank account</p>
                 </div>
             </div>
-            
+
             <div class="payment-option">
                 <input type="radio" name="paymentMethod" id="gopay">
                 <img src="https://via.placeholder.com/40x40?text=Gopay" alt="Gopay" class="payment-icon">
@@ -239,7 +251,7 @@
                     <p>Pay using your Gopay account</p>
                 </div>
             </div>
-            
+
             <div class="payment-option">
                 <input type="radio" name="paymentMethod" id="ovo">
                 <img src="https://via.placeholder.com/40x40?text=OVO" alt="OVO" class="payment-icon">
@@ -249,11 +261,11 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Order Summary Section -->
         <div class="order-summary">
             <h2>Order Summary</h2>
-            
+
             <div class="order-items">
                 <div class="order-item">
                     <span class="item-name">Beef Rawon Soup</span>
@@ -268,7 +280,7 @@
                     <span class="item-price">Rp 5,000</span>
                 </div>
             </div>
-            
+
             <div class="order-total">
                 <div class="total-row">
                     <span class="total-label">Subtotal</span>
@@ -283,24 +295,24 @@
                     <span class="total-value">Rp 62,000</span>
                 </div>
             </div>
-            
+
             <button class="pay-button">Pay Now</button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Handle payment method selection
             const paymentOptions = document.querySelectorAll('.payment-option');
-            
+
             paymentOptions.forEach(option => {
-                option.addEventListener('click', function() {
+                option.addEventListener('click', function () {
                     // Remove active class from all options
                     paymentOptions.forEach(opt => opt.classList.remove('active'));
-                    
+
                     // Add active class to clicked option
                     this.classList.add('active');
-                    
+
                     // Check the radio input
                     const radio = this.querySelector('input[type="radio"]');
                     if (radio) {
@@ -311,4 +323,5 @@
         });
     </script>
 </body>
+
 </html>
