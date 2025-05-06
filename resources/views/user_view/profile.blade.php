@@ -104,25 +104,22 @@
                     <i class="fas fa-pencil-alt text-sm text-[#2b6cb0]"></i>
                 </div>
             </div>
-            <h2 class="text-2xl font-bold text-[#2d3748] mb-1">Kevni Artan</h2>
-            <p class="text-[#718096]">Web Developer</p>
+            <h2 class="text-2xl font-bold text-[#2d3748] mb-1">{{ auth()->user()->full_name }}</h2>
+            <p class="text-[#718096]">User</p>
         </div>
 
         <!-- Profile Info -->
         <div class="space-y-4">
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Email</p>
-                <p class="text-[#2d3748] font-medium">kevin@example.com</p>
             </div>
             
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Phone</p>
-                <p class="text-[#2d3748] font-medium">08xxxxxxxx</p>
             </div>
             
             <div class="info-item">
                 <p class="text-sm text-[#718096] mb-1">Location</p>
-                <p class="text-[#2d3748] font-medium">Surabaya, Indonesia</p>
             </div>
         </div>
 
