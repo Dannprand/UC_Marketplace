@@ -487,67 +487,24 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('autoScrollContainer');
-    const items = container.querySelectorAll('.scroll-item');
-    let currentIndex = 0;
-    let autoScrollEnabled = true;
-    let scrollInterval;
-
-    // Auto-scroll function
-    function autoScroll() {
-        if (!autoScrollEnabled) return;
-
-        currentIndex = (currentIndex + 1) % items.length;
-        items[currentIndex].scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center'
+            const container = document.getElementById('autoScrollContainer');
+            const items = container.querySelectorAll('.scroll-item');
+            let currentIndex = 0;
+    
+            // Handle scroll events to track current index
+            container.addEventListener('scroll', () => {
+                const containerRect = container.getBoundingClientRect();
+                const containerCenter = containerRect.left + containerRect.width / 2;
+    
+                items.forEach((item, index) => {
+                    const itemRect = item.getBoundingClientRect();
+                    if (itemRect.left <= containerCenter && itemRect.right >= containerCenter) {
+                        currentIndex = index;
+                    }
+                });
+            });
         });
-    }
-
-    // Start auto-scrolling every 2 seconds
-    function startAutoScroll() {
-        scrollInterval = setInterval(autoScroll, 2000);
-    }
-
-    // Pause auto-scroll when user interacts
-    container.addEventListener('mouseenter', () => {
-        autoScrollEnabled = false;
-        clearInterval(scrollInterval);
-    });
-
-    container.addEventListener('touchstart', () => {
-        autoScrollEnabled = false;
-        clearInterval(scrollInterval);
-    });
-
-    // Resume auto-scroll when user leaves, but check if manual scroll happened
-    container.addEventListener('mouseleave', () => {
-        if (!autoScrollEnabled) return;  // Don't restart if the user has already interacted
-
-        autoScrollEnabled = true;
-        startAutoScroll();
-    });
-
-    // Handle scroll events to track current index
-    container.addEventListener('scroll', () => {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-
-        items.forEach((item, index) => {
-            const itemRect = item.getBoundingClientRect();
-            if (itemRect.left <= containerCenter && itemRect.right >= containerCenter) {
-                currentIndex = index;
-            }
-        });
-    });
-
-    // Initialize auto-scroll
-    startAutoScroll();
-});
-
-
-
     </script>
+    
 </body>
 </html>
