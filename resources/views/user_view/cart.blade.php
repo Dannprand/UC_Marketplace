@@ -65,7 +65,7 @@
         }
 
         .cart-item h3 {
-            font-size: 16px;
+            font-size: 20px;
             color: #333;
             margin-bottom: 5px;
             font-weight: 600; 
@@ -92,12 +92,6 @@
 
         .item-details {
             flex-grow: 1;
-        }
-
-        .seller-name {
-            font-size: 14px;
-            color: #666;
-            margin-top: 8px;
         }
 
         .quantity-control {
@@ -132,7 +126,7 @@
         }
 
          /* Remove number input arrows */
-         input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
@@ -180,60 +174,61 @@
 <body>
     <x-navigation></x-navigation>
 
-    <div class="pt-20">
-    <div class="main-container">
-        <div class="cart-header">Cart</div>
+    <div class="pt-12">
+        <div class="main-container">
+            <div class="cart-header">Cart</div>
 
-        <!-- Scrollable Items (75%) -->
-        <div class="items-section">
-            @forelse($cart as $id => $product)
-            <div class="cart-item">
-                <div class="product-image-container">
-                    <img src="https://via.placeholder.com/100x100" alt="Product" class="product-image">
-                </div>  
-                <div class="item-details">
-                    <h3>
-                        {{-- Check if $product is an object and if store exists --}}
-                        {{ isset($product->store) && is_object($product->store) ? $product->store->name : 'No Merchant Name Available' }}
-                    </h3>
-                    <p>
-                        {{-- Check if $product is an array or object and contains 'price' --}}
-                        @if(is_array($product) || is_object($product))
-                            Rp {{ number_format($product['price'], 0, ',', '.') }}
-                        @else
-                            Rp 0
-                        @endif
-                    </p>
-                    <div class="seller-name">Toko Maju Mundur</div>
+            <!-- Scrollable Items (75%) -->
+            <div class="items-section">
+                @php $total = 0; @endphp
+
+                @forelse($cart->items as $cartItem)
+                <div class="cart-item">
+                    <div class="product-image-container">
+                        {{-- Use product image if available, otherwise placeholder --}}
+                        <img src="{{ $cartItem->product->image_url ?? 'https://via.placeholder.com/100x100' }}" alt="Product" class="product-image">
+                    </div>  
+
+                    <div class="item-details">
+                        <h3>{{ $cartItem->product->store->name ?? 'No Merchant Name Available' }}</h3>
+                        <p class="item-subtotal">Rp {{ number_format($cartItem->product->price * $cartItem->quantity, 0, ',', '.') }}</p>
+                        {{-- <p class="seller-name">{{ $cartItem->product->store->name ?? 'No Merchant Name Available' }}</p> --}}
+                    </div>
+
+                    <div class="quantity-control">
+                        {{-- Quantity Buttons (Optional to activate later) --}}
+                        <button class="quantity-btn minus" onclick="updateQuantity('{{ $cartItem->id }}', 'minus')">-</button>
+                        <input type="number" class="quantity-input" value="{{ $cartItem->quantity }}" min="1" id="quantity-{{ $cartItem->id }}">
+                        <button class="quantity-btn plus" onclick="updateQuantity('{{ $cartItem->id }}', 'plus')">+</button>
+                    </div>
                 </div>
-                <div class="quantity-control">
-                    <button class="quantity-btn minus" onclick="updateQuantity('{{ $id }}', 'minus')">-</button>
-                    <input type="number" class="quantity-input" value="{{ isset($product['quantity']) ? $product['quantity'] : 1 }}" min="1" id="quantity-{{ $id }}">
-                    <button class="quantity-btn plus" onclick="updateQuantity('{{ $id }}', 'plus')">+</button>
-                </div>
+
+                @php
+                    $subtotal = $cartItem->product->price * $cartItem->quantity;
+                    $total += $subtotal;
+                @endphp
+
+                @empty
+                    <p>Your cart is empty.</p>
+                @endforelse
             </div>
-        @empty
-            <p>Your cart is empty.</p>
-        @endforelse
-        </div>
 
-        <!-- Fixed Total Section (25%) -->
-        <div class="total-section">
-            @php
-            $total = 0;
-            foreach ($cart as $product) {
-                // Check if $product is an array or object before accessing price and quantity
-                if (is_array($product) || is_object($product)) {
-                    $total += $product['price'] * $product['quantity'];
-                }
-            }
-        @endphp
-        <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
-        <button class="buy-button" onclick="window.location.href='#'">Buy Now</button>
-
+            <!-- Fixed Total Section (25%) -->
+            <div class="total-section">
+                @php
+                    $total = 0;
+                    foreach ($cart->items as $cartItem) {
+                        $subtotal = $cartItem->product->price * $cartItem->quantity;
+                        $total += $subtotal;
+                    }
+                @endphp
+                <div class="total-price">Total: Rp {{ number_format($total, 0, ',', '.') }}</div>
+                <button class="buy-button" onclick="window.location.href='#'">Buy Now</button>
+            </div>
         </div>
     </div>
 
+    {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
         function updateQuantity(id, action) {
             const input = document.getElementById('quantity-' + id);
@@ -246,7 +241,6 @@
             }
 
             input.value = quantity;
-
         }
     </script>
 </body>
