@@ -41,3 +41,54 @@
         </li>
     </ul>
 </nav>
+<<<<<<< Updated upstream
+=======
+
+<!-- JS for Live Search -->
+<script>
+    const searchInput = document.getElementById('liveSearchInput');
+    const suggestionsBox = document.getElementById('suggestionsBox');
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value;
+
+        if (query.length < 2) { 
+            suggestionsBox.classList.add('hidden');
+            return;
+        }
+
+        fetch(`/user/live-search?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                suggestionsBox.innerHTML = '';
+
+                if (data.length === 0) {
+                    suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('px-4', 'py-2', 'hover:bg-gray-100', 'cursor-pointer');
+                    div.textContent = item.name;
+
+                    // ✅ Correct product URL
+                    div.addEventListener('click', () => {
+                        window.location.href = `/user/product/${item.id}`;
+                    });
+
+                    suggestionsBox.appendChild(div);
+                });
+
+                suggestionsBox.classList.remove('hidden');
+            });
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('#liveSearchInput')) {
+            suggestionsBox.classList.add('hidden');
+        }
+    });
+</script>
+>>>>>>> Stashed changes
