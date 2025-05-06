@@ -220,10 +220,9 @@
     
         <!-- Center Column -->
         <div class="center-column">
-            <h1 class="product-title">{{ $product->name }}</h1>
-            <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-            
             <div class="product-detail">
+                <h1 class="product-title">{{ $product->name }}</h1>
+            <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 <h3>Product Details</h3>
                 <p>{{ $product->description }}</p>
                 <p>Net weight: 500g</p>
@@ -245,8 +244,25 @@
                     <div id="subtotalDisplay">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 </div>
                 <div class="buttons">
-                    <button class="btn add-to-cart">Add to Cart</button>
-                    <button class="btn buy-now" onclick="window.location.href='{{ route('payment') }}'">Buy Now</button>
+                    @auth
+                    <form method="POST" action="{{ route('cart.add', $product->id) }}">
+                        @csrf
+                        <input type="hidden" name="quantity" value="1">  <!-- atau sesuai dengan input quantity -->
+                        <button type="submit">Tambah ke Keranjang</button>
+                    </form>
+                    
+                
+                        <form method="GET" action="{{ route('payment') }}">
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" id="formQuantityBuyNow" value="1">
+                            <button type="submit" class="btn buy-now">Buy Now</button>
+                        </form>
+                    @endauth
+                
+                    @guest
+                        <button class="btn add-to-cart" onclick="window.location.href='{{ route('login') }}'">Add to Cart</button>
+                        <button class="btn buy-now" onclick="window.location.href='{{ route('login') }}'">Buy Now</button>
+                    @endguest
                 </div>
             </div>
         </div>
@@ -272,6 +288,22 @@
         let qty = parseInt(quantityInput.value);
         let subtotal = qty * unitPrice;
         subtotalDisplay.innerText = "Rp " + subtotal.toLocaleString('id-ID');
+    }
+
+    function syncQuantityToForms() {
+        document.getElementById('formQuantity').value = quantityInput.value;
+        document.getElementById('formQuantityBuyNow').value = quantityInput.value;
+    }
+
+    const addToCartBtn = document.querySelector('form button.add-to-cart');
+    const buyNowBtn = document.querySelector('form button.buy-now');
+
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', syncQuantityToForms);
+    }
+
+    if (buyNowBtn) {
+        buyNowBtn.addEventListener('click', syncQuantityToForms);
     }
 </script>
 
