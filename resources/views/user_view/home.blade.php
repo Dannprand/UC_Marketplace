@@ -451,111 +451,36 @@
         </div>
         
         <div class="products-grid" id="productsGrid">
-            <!-- Product 1 -->
-            <div class="product-card" data-category="food">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Nasi Goreng</div>
-                    <div class="product-price">Rp 15.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">TM</div>
-                        <div class="seller-name">Thomas Miller</div>
+    
+            @foreach($products as $product)
+                @php
+                    // Convert category name to lowercase to match your data-filter like "food", "drink", etc.
+                    $category = strtolower($product->category->name ?? 'all');
+    
+                    // Use first image from the images array, or placeholder if none
+                    $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
+    
+                    // Get seller initials (first letters of their name)
+                    $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
+                    $initials = collect(explode(' ', $sellerName))->map(fn($word) => strtoupper($word[0]))->join('');
+                @endphp
+    
+                <a href="{{ route('product.show', $product->id) }}" class="product-card" data-category="{{ $category }}">
+                    <img src="{{ $image }}" alt="Product" class="product-image">
+                    <div class="product-details">
+                        <div class="product-name">{{ $product->name }}</div>
+                        <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                        <div class="seller-info">
+                            <div class="seller-avatar">{{ $initials }}</div>
+                            <div class="seller-name">{{ $sellerName }}</div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Product 2 -->
-            <div class="product-card" data-category="food">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Babi Guling</div>
-                    <div class="product-price">Rp 25.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">DB</div>
-                        <div class="seller-name">David Brown</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 3 -->
-            <div class="product-card" data-category="food">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Nasi Kremes</div>
-                    <div class="product-price">Rp 20.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">JS</div>
-                        <div class="seller-name">John Smith</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 4 -->
-            <div class="product-card" data-category="snack">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Sandwich</div>
-                    <div class="product-price">Rp 14.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">MJ</div>
-                        <div class="seller-name">Mary Johnson</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 5 -->
-            <div class="product-card" data-category="snack">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Sosis Bakar</div>
-                    <div class="product-price">Rp 9.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">SW</div>
-                        <div class="seller-name">Sarah Wilson</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 6 -->
-            <div class="product-card" data-category="snack">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Siomay Dimsum</div>
-                    <div class="product-price">Rp 15.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">ED</div>
-                        <div class="seller-name">Emily Davis</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 7 -->
-            <div class="product-card" data-category="drink">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Es Teh</div>
-                    <div class="product-price">Rp 5.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">AL</div>
-                        <div class="seller-name">Alex Lee</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Product 8 -->
-            <div class="product-card" data-category="drink">
-                <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                <div class="product-details">
-                    <div class="product-name">Kopi Susu</div>
-                    <div class="product-price">Rp 8.000</div>
-                    <div class="seller-info">
-                        <div class="seller-avatar">KP</div>
-                        <div class="seller-name">Kevin Park</div>
-                    </div>
-                </div>
-            </div>
+                </a>
+            @endforeach
+    
         </div>
     </section>
+    
 
 </div>
     <x-footer />

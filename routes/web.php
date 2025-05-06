@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ProductController;
 // use Illuminate\Foundation\Auth\EmailVerificationRequest;
 // use Illuminate\Http\Request;
 
@@ -39,17 +40,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 // User Routes
 Route::prefix('user')->group(function () {
-    Route::get('/home', function () {
-        return view('user_view.home');
-    })->name('home');
+    Route::get('/home', [ProductController::class, 'index'])->name('home');
     
     Route::get('/cart', function () {
         return view('user_view.cart');
     })->name('cart');
     
-    Route::get('/product', function () {
-        return view('user_view.product');
-    })->name('product');
+    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
     
     Route::get('/payment', function () {
         return view('user_view.payment');

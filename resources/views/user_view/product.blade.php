@@ -6,7 +6,7 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>Product Detail - UCMarketPlace</title>
+    <title>{{ $product->name }} - UCMarketPlace</title>
     <style>
         * {
             box-sizing: border-box;
@@ -39,6 +39,14 @@
             aspect-ratio: 1/1;
             border-radius: 12px;
             margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
         }
 
         .center-column {
@@ -199,39 +207,42 @@
     <div class="product-container">
         <!-- Left Column -->
         <div class="left-column">
-            <div class="product-image"></div>
+            <div class="product-image">
+                <img src="{{ asset('images/products/'.$product->photo) }}" alt="Product Image">
+            </div>
             <div class="seller-card">
-                <h3>Moving Forward Store</h3>
-                <p>Seller Rating: ★★★★☆ (4.2/5)</p>
+                <!-- Replace $product->seller->name with the correct field -->
+                <h3>{{ $product->merchant_name ?? 'No Merchant Name Available' }}</h3>
+ <!-- Assuming merchant_name is the field for the seller's name -->
+                <p>Seller Rating: ★★★★☆ (4.2/5)</p> <!-- You can adjust this as needed -->
             </div>
         </div>
-
+    
         <!-- Center Column -->
         <div class="center-column">
-            <h1 class="product-title">Beef Rawon Soup</h1>
-            <div class="product-price">Rp 40,000</div>
+            <h1 class="product-title">{{ $product->name }}</h1>
+            <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
             
             <div class="product-detail">
                 <h3>Product Details</h3>
-                <p>Authentic East Javanese beef rawon soup made with premium quality beef and traditional spices. Slow-cooked for 4 hours to enhance flavor.</p>
-                <p>Ingredients: Beef, keluak nuts, garlic, shallots, ginger, turmeric, coriander, and other natural spices.</p>
+                <p>{{ $product->description }}</p>
                 <p>Net weight: 500g</p>
                 <p>⚠️ Contains nuts ⚠️</p>
             </div>
         </div>
-
+    
         <!-- Right Column -->
         <div class="right-column">
             <div class="order-card">
                 <h3 style="font-size: 16px; margin-bottom: 24px;">Order Settings</h3>
                 <div class="quantity-selector">
-                    <button class="quantity-btn">-</button>
-                    <input type="number" value="1" min="1" max="10">
-                    <button class="quantity-btn">+</button>
+                    <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                    <input type="number" id="quantityInput" value="1" min="1" max="10" onchange="updateSubtotal()">
+                    <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
                 </div>
                 <div class="subtotal">
                     <span>Subtotal:</span>
-                    <div>Rp 40,000</div>
+                    <div id="subtotalDisplay">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 </div>
                 <div class="buttons">
                     <button class="btn add-to-cart">Add to Cart</button>
@@ -240,6 +251,29 @@
             </div>
         </div>
     </div>
+    
 </div>
+
+<script>
+    const unitPrice = {{ $product->price }};
+    const quantityInput = document.getElementById('quantityInput');
+    const subtotalDisplay = document.getElementById('subtotalDisplay');
+
+    function updateQuantity(change) {
+        let qty = parseInt(quantityInput.value);
+        qty += change;
+        if (qty < 1) qty = 1;
+        if (qty > 10) qty = 10;
+        quantityInput.value = qty;
+        updateSubtotal();
+    }
+
+    function updateSubtotal() {
+        let qty = parseInt(quantityInput.value);
+        let subtotal = qty * unitPrice;
+        subtotalDisplay.innerText = "Rp " + subtotal.toLocaleString('id-ID');
+    }
+</script>
+
 </body>
 </html>
