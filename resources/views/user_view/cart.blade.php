@@ -306,66 +306,86 @@
 
     {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
-        // Swipe to delete functionality
-        document.querySelectorAll('.cart-item-container').forEach(container => {
-            let startX, currentX;
-            
-            container.addEventListener('touchstart', e => {
-                startX = e.touches[0].clientX;
-            }, {passive: true});
-            
-            container.addEventListener('touchmove', e => {
-                currentX = e.touches[0].clientX;
-                const diff = startX - currentX;
-                
-                if (diff > 30) {
-                    container.classList.add('swiped');
-                } else if (diff < -30) {
-                    container.classList.remove('swiped');
+        // Global variable untuk menyimpan data cart
+        let cartItems = {!! json_encode($cart->items->map(function($item) {
+            return [
+                'id' => $item->id,
+                'price' => $item->product->price,
+                'quantity' => $item->quantity
+            ];
+        })) !!};
+    
+        // Format angka ke rupiah
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
+    
+        // Fungsi hitung total berdasarkan item yang dichecklist
+        function calculateTotal() {
+            let total = 0;
+            let itemCount = 0;
+    
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    const id = parseInt(cb.getAttribute('data-id'));
+                    const item = cartItems.find(i => i.id === id);
+                    if (item) {
+                        total += item.price * item.quantity;
+                        itemCount++;
+                    }
                 }
-            }, {passive: true});
-            
-            // For desktop with mouse
-            container.addEventListener('mousedown', e => {
-                if (e.button !== 0) return; // Only left mouse button
-                startX = e.clientX;
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                }, {once: true});
             });
-            
-            function handleMouseMove(e) {
-                currentX = e.clientX;
-                const diff = startX - currentX;
-                
-                if (diff > 30) {
-                    container.classList.add('swiped');
-                } else if (diff < -30) {
-                    container.classList.remove('swiped');
-                }
-            }
-        });
-        
-        // Quantity update functions
-        function updateQuantity(button, change) {
+    
+            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
+            document.querySelector('#item-count').textContent = itemCount;
+        }
+    
+        // Update quantity saat tombol +/- ditekan
+        function updateQuantity(button, change, price) {
             const form = button.closest('.update-form');
             const input = form.querySelector('.quantity-input');
             let newValue = parseInt(input.value) + change;
-            
-            // Ensure value stays within min/max bounds
-            newValue = Math.max(parseInt(input.min), Math.min(newValue, parseInt(input.max)));
-            
+    
+            newValue = Math.max(1, Math.min(newValue, 10)); // batas 1 - 10
             input.value = newValue;
-            submitForm(input);
-        }
-        
-        function submitForm(input) {
-            const form = input.closest('form');
+    
+            const itemId = parseInt(form.action.split('/').pop());
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                cartItems[itemIndex].quantity = newValue;
+            }
+    
+            // Update quantity di checkbox juga
+            const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+            if (checkbox) {
+                checkbox.setAttribute('data-quantity', newValue);
+            }
+    
+            calculateTotal();
             form.submit();
         }
-        
-        // Confirm before delete
+    
+        // Update quantity saat input langsung diubah
+        function submitForm(input) {
+            const form = input.closest('form');
+            const itemId = parseInt(form.action.split('/').pop());
+            const quantity = parseInt(input.value);
+    
+            const itemIndex = cartItems.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                cartItems[itemIndex].quantity = quantity;
+            }
+    
+            const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+            if (checkbox) {
+                checkbox.setAttribute('data-quantity', quantity);
+            }
+    
+            calculateTotal();
+            form.submit();
+        }
+    
+        // Hapus konfirmasi sebelum delete
         document.querySelectorAll('.delete-action button').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 if (!confirm('Are you sure you want to remove this item?')) {
@@ -374,115 +394,58 @@
                 }
             });
         });
-        
-        // Real-time total calculation
-        function calculateTotal() {
-            let total = 0;
-            let itemCount = 0;
-            
-            document.querySelectorAll('.cart-item-container').forEach(item => {
-                const price = parseFloat(item.querySelector('.item-details p:nth-child(3)').textContent.replace(/[^\d]/g, ''));
-                const quantity = parseInt(item.querySelector('.quantity-input').value);
-                total += price * quantity;
-                itemCount++;
+    
+        // Swipe gesture (mobile & desktop)
+        document.querySelectorAll('.cart-item-container').forEach(container => {
+            let startX, currentX;
+    
+            container.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+            }, {passive: true});
+    
+            container.addEventListener('touchmove', e => {
+                currentX = e.touches[0].clientX;
+                const diff = startX - currentX;
+    
+                if (diff > 30) container.classList.add('swiped');
+                else if (diff < -30) container.classList.remove('swiped');
+            }, {passive: true});
+    
+            container.addEventListener('mousedown', e => {
+                if (e.button !== 0) return;
+                startX = e.clientX;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                }, {once: true});
             });
-            
-            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
-            document.querySelector('#item-count').textContent = itemCount;
-        }
-        
-        // Format rupiah helper
-        function formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID').format(number);
-        }
-        
-        // Initialize and update on changes
+    
+            function handleMouseMove(e) {
+                currentX = e.clientX;
+                const diff = startX - currentX;
+                if (diff > 30) container.classList.add('swiped');
+                else if (diff < -30) container.classList.remove('swiped');
+            }
+        });
+    
+        // Saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             calculateTotal();
-            
-            // Listen for quantity changes
+    
+            // Dengarkan perubahan checkbox
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                cb.addEventListener('change', calculateTotal);
+            });
+    
+            // Dengarkan input langsung di quantity
             document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', calculateTotal);
+                input.addEventListener('change', function() {
+                    submitForm(this);
+                });
             });
         });
-
-        // Global variable to store cart items data
-let cartItems = {!! json_encode($cart->items->map(function($item) {
-    return [
-        'id' => $item->id,
-        'price' => $item->product->price,
-        'quantity' => $item->quantity
-    ];
-})) !!};
-
-// Update quantity and calculate total
-function updateQuantity(button, change, price) {
-    const form = button.closest('.update-form');
-    const input = form.querySelector('.quantity-input');
-    let newValue = parseInt(input.value) + change;
+    </script>
     
-    // Ensure value stays within bounds
-    newValue = Math.max(1, Math.min(newValue, 10));
-    
-    // Update the input value
-    input.value = newValue;
-    
-    // Update cartItems data
-    const itemId = form.action.split('/').pop();
-    const itemIndex = cartItems.findIndex(item => item.id == itemId);
-    if (itemIndex !== -1) {
-        cartItems[itemIndex].quantity = newValue;
-    }
-    
-    // Calculate and update total
-    calculateTotal();
-    
-    // Submit the form
-    form.submit();
-}
-
-// Submit form helper
-function submitForm(input) {
-    const form = input.closest('form');
-    const itemId = form.action.split('/').pop();
-    const quantity = parseInt(input.value);
-    
-    // Update cartItems data
-    const itemIndex = cartItems.findIndex(item => item.id == itemId);
-    if (itemIndex !== -1) {
-        cartItems[itemIndex].quantity = quantity;
-    }
-    
-    calculateTotal();
-    form.submit();
-}
-
-// Calculate total based on actual prices
-function calculateTotal() {
-    let total = 0;
-    let itemCount = 0;
-    
-    cartItems.forEach(item => {
-        total += item.price * item.quantity;
-        itemCount++;
-    });
-    
-    // Update the UI
-    document.querySelector('.total-price').innerHTML = 
-        `Total: Rp ${formatRupiah(total)}`;
-    document.querySelector('#item-count').textContent = itemCount;
-}
-
-// Format currency
-function formatRupiah(number) {
-    return new Intl.NumberFormat('id-ID').format(number);
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    calculateTotal();
-});
-        </script>
 </body>
 
 </html>
