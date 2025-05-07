@@ -306,7 +306,7 @@
                     <form action="{{ route('payment') }}" method="GET">
                         @csrf
                         <button type="submit" class="buy-button">
-                            Checkout Now
+                            Buy Now
                         </button>
                     </form>
                 @else

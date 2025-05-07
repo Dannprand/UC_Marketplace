@@ -32,6 +32,9 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/cart', [CartController::class, 'index'])->name('cart');
     // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+    Route::post('/payment-methods', [PaymentController::class, 'store'])->name('payment-methods.store');
+    // Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
+
 });
 
 Route::middleware('auth')->prefix('user')->group(function () {
@@ -50,7 +53,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
     })->name('profile');
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     Route::get('/balance', function () {
         return view('user_view.balance');
     })->name('balance');

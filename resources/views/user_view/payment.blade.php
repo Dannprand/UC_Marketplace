@@ -54,6 +54,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             height: fit-content;
             border-left: 1px solid #e2e8f0;
+             border-radius: 12px;
         }
 
         .address-section {
@@ -99,6 +100,7 @@
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
+            border-radius: 12px;
         }
 
         .payment-option:hover {
@@ -120,6 +122,7 @@
         .order-item {
             display: flex;
             justify-content: space-between;
+            border-radius: 12px;
             padding: 10px 0;
             border-bottom: 1px solid #edf2f7;
         }
