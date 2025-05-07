@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Store;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -91,16 +92,24 @@ class ProductController extends Controller
             $imagePaths[] = $image->store('product_images', 'public');
         }
 
-        $product = Product::create([
-            'store_id' => $store->id,
+        $productData = [
+           'store_id' => $store->id,
             'category_id' => $request->category_id,
             'name' => $request->name,
+            'slug' => Str::slug($request->name) . '-' . uniqid(), // Generate slug otomatis
             'description' => $request->description,
             'price' => $request->price,
             'quantity' => $request->quantity,
             'images' => $imagePaths,
-            'sold_amount' => 0, // Initialize sold amount
-        ]);
+            'sold_amount' => 0,
+            'is_discounted' => $request->boolean('is_discounted'),
+            'discount_percentage' => $request->is_discounted ? $request->discount_percentage : null,
+            'is_featured' => $request->boolean('is_featured'),
+            'rating' => 0,
+            'review_count' => 0,
+            ];
+
+        $product = Product::create($productData);
 
         return redirect()->route('merchant.dashboard')->with('success', 'Product created successfully');
     }

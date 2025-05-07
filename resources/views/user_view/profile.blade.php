@@ -122,7 +122,13 @@
                 </div>
             </div>
             <h2 class="text-2xl font-bold text-[#2d3748] mb-1">{{ auth()->user()->full_name }}</h2>
-            <p class="text-[#718096]">User</p>
+            <p class="text-[#718096]">
+                @if(auth()->user()->is_merchant)
+                    Merchant
+                @else
+                    User
+                @endif
+            </p>
         </div>
 
         <!-- Profile Info -->
@@ -142,11 +148,18 @@
 
         <!-- Action Buttons -->
         <div class="mt-8 flex justify-between items-center">
-            <a href="/openMerchant" class="merchant-btn inline-flex items-center space-x-2">
-                <i class="fas fa-store"></i>
-                <span>Open Merchant</span>
-            </a>
-            
+            @if(auth()->user()->is_merchant)
+                <a href="{{ route('merchant.dashboard') }}" class="merchant-btn inline-flex items-center space-x-2">
+                    <i class="fas fa-store"></i>
+                    <span>My Merchant</span>
+                </a>
+            @else
+                <a href="{{ route('merchant.open') }}" class="merchant-btn inline-flex items-center space-x-2">
+                    <i class="fas fa-store"></i>
+                    <span>Open Merchant</span>
+                </a>
+            @endif
+                
             <div class="flex items-center gap-4">
                 <!-- Logout Button -->
                 <form method="POST" action="{{ route('logout') }}">
