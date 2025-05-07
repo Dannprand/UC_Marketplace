@@ -58,6 +58,10 @@ Route::middleware('auth')->prefix('user')->group(function () {
         return view('user_view.balance');
     })->name('balance');
 
+    Route::get('/order', function () {
+        return view('user_view.order');
+    })->name('order');
+
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
@@ -66,7 +70,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
 
     Route::get('/payment', [CartController::class, 'payment'])->name('payment');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/orders/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
@@ -118,6 +122,11 @@ Route::get('/detailMerchant', function () {
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
+
+Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
+
+Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+
 
 // Route::get('/merchant', function () {
 //     return view('merchant_view.merchant'); // Updated path
