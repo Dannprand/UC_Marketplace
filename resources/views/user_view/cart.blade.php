@@ -238,10 +238,10 @@
     </style>
 </head>
 
-<body style="padding-top: 80px;">
+<body>
     <x-navigation></x-navigation>
 
-    <div class="pt-12">
+    <div class="pt-18">
         <div class="main-container">
             <div class="cart-header">Cart</div>
 
