@@ -19,6 +19,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+
+    // Address input
+    Route::get('/register/address', [AuthController::class, 'showAddressForm'])->name('register.address');
+    Route::post('/register/address', [AuthController::class, 'processAddress']);
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
@@ -44,6 +48,8 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/profile', function () {
         return view('user_view.profile');
     })->name('profile');
+    
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     Route::get('/balance', function () {
         return view('user_view.balance');

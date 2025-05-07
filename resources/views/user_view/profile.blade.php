@@ -90,6 +90,23 @@
             background: #EBF8FF;
             transform: scale(1.05);
         }
+
+        /* Logout button styling */
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -129,10 +146,23 @@
                 <i class="fas fa-store"></i>
                 <span>Open Merchant</span>
             </a>
-            <button class="edit-btn">
-                <i class="fas fa-pencil-alt"></i>
-                Edit Profile
-            </button>
+            
+            <div class="flex items-center gap-4">
+                <!-- Logout Button -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="logout-btn inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
+        
+                <!-- Existing Edit Button -->
+                <button class="edit-btn">
+                    <i class="fas fa-pencil-alt"></i>
+                    Edit Profile
+                </button>
+            </div>
         </div>
     </div>
 

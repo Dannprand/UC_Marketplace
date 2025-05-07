@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -72,10 +73,9 @@ class AuthController extends Controller
         // Auth::login($user);
 
         // Current behavior - login immediately
-        Auth::login($user);
+        session(['registering_user' => $user->id]);
 
-        // Jangan langsung login
-    return redirect()->route('login')->with('success', 'Registration successful! Please login.');
+        return redirect()->route('register.address');
 
     }
 
@@ -89,4 +89,49 @@ class AuthController extends Controller
 
         return redirect('/');
     }
+
+    public function showAddressForm()
+{
+    if (!session()->has('registering_user')) {
+        return redirect()->route('register');
+    }
+
+    return view('auth.address');
+}
+
+public function processAddress(Request $request)
+{
+    $userId = session()->get('registering_user');
+    if (!$userId) {
+        return redirect()->route('register');
+    }
+
+    $validated = $request->validate([
+        'street' => 'required|string|max:255',
+        'city' => 'required|string|max:255',
+        'province' => 'required|string|max:255',
+        'postal_code' => 'required|string|max:10',
+        'country' => 'required|string|max:255',
+        'is_primary' => 'sometimes|boolean',
+    ]);
+
+    // Create address
+    Address::create([
+        'user_id' => $userId,
+        'street' => $validated['street'],
+        'city' => $validated['city'],
+        'province' => $validated['province'],
+        'postal_code' => $validated['postal_code'],
+        'country' => $validated['country'],
+        'is_primary' => $request->has('is_primary'),
+    ]);
+
+    // Login the user
+    Auth::loginUsingId($userId);
+
+    // Clear session
+    session()->forget('registering_user');
+
+    return redirect()->route('home')->with('success', 'Registration complete!');
+}
 }
