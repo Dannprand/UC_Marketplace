@@ -34,15 +34,21 @@ class User extends Authenticatable //implements MustVerifyEmail
     ];
 
     // Relationships
-    public function addresses()
-    {
-        return $this->hasMany(Address::class);
-    }
-    
-    public function paymentMethods()
-    {
-        return $this->hasMany(PaymentMethod::class);
-    }
+    // In User.php model
+public function addresses()
+{
+    return $this->hasMany(Address::class);
+}
+
+public function paymentMethods()
+{
+    return $this->hasMany(PaymentMethod::class);
+}
+
+public function orders()
+{
+    return $this->hasMany(Order::class);
+}
     
 
     public function interests()
@@ -59,9 +65,5 @@ class User extends Authenticatable //implements MustVerifyEmail
     {
         return $this->hasOne(Cart::class);
     }
-
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-    }
+    
 }

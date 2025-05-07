@@ -1,14 +1,12 @@
 <?php
-// app/Http/Controllers/PaymentController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem; // Added missing import
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;   
-
+use App\Models\User;
 
 class PaymentController extends Controller
 {
@@ -23,11 +21,10 @@ class PaymentController extends Controller
     
         $user = Auth::user();
 
-$address = $user->addresses()->where('is_primary', true)->first(); // Ambil alamat utama
-$paymentMethod = $user->paymentMethods()->where('is_default', true)->first(); // Ambil metode utama
+        $address = $user->addresses()->where('is_primary', true)->first();
+        $paymentMethod = $user->paymentMethods()->where('is_default', true)->first();
 
-return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'));
-
+        return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'));
     }
 
     public function show(Order $order)
@@ -61,31 +58,31 @@ return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'
     }
 
     public function confirmPayment(Request $request)
-{
-    $user = Auth::user();
-    $cart = session()->get('cart', []);
-    $groupedByMerchant = collect($cart)->groupBy('merchant_id');
-    
-    foreach ($groupedByMerchant as $merchantId => $items) {
-        $order = Order::create([
-            'user_id' => $user->id,
-            'merchant_id' => $merchantId,
-            'payment_method_id' => $user->paymentMethods()->where('is_default', true)->value('id'),
-            'total' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
-        ]);
-
-        foreach ($items as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
+    {
+        $user = Auth::user();
+        $cart = session()->get('cart', []);
+        $groupedByMerchant = collect($cart)->groupBy('merchant_id');
+        
+        foreach ($groupedByMerchant as $merchantId => $items) {
+            $order = Order::create([
+                'user_id' => $user->id,
+                'merchant_id' => $merchantId,
+                'payment_method_id' => $user->paymentMethods()->where('is_default', true)->value('id'),
+                'total' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
             ]);
+
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                ]);
+            }
         }
+
+        session()->forget('cart');
+
+        return redirect()->route('orders.history')->with('success', 'Order placed successfully!');
     }
-
-    session()->forget('cart');
-
-    return redirect()->route('orders.history')->with('success', 'Order placed successfully!');
-}
 }
