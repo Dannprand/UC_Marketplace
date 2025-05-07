@@ -328,7 +328,7 @@
     </style>
 </head>
 {{-- <body class="bg-white"> --}}
-<body class="bg-white" style="padding-top: 80px;">
+<body>
     <x-navigation />
     <div class="pt-12">
 
