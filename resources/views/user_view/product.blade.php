@@ -231,8 +231,6 @@
                 <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 <h3>Product Details</h3>
                 <p>{{ $product->description }}</p>
-                <p>Net weight: 500g</p>
-                <p>⚠️ Contains nuts ⚠️</p>
             </div>
         </div>
     

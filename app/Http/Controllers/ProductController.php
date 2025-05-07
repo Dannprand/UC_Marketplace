@@ -93,9 +93,10 @@ class ProductController extends Controller
         }
 
         $productData = [
-            'store_id' => $store->id,
+           'store_id' => $store->id,
             'category_id' => $request->category_id,
             'name' => $request->name,
+            'slug' => Str::slug($request->name) . '-' . uniqid(), // Generate slug otomatis
             'description' => $request->description,
             'price' => $request->price,
             'quantity' => $request->quantity,
@@ -106,7 +107,7 @@ class ProductController extends Controller
             'is_featured' => $request->boolean('is_featured'),
             'rating' => 0,
             'review_count' => 0,
-        ];
+            ];
 
         $product = Product::create($productData);
 
