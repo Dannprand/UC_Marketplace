@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;   
+
 
 class PaymentController extends Controller
 {
@@ -14,12 +16,18 @@ class PaymentController extends Controller
     {
         $cart = session()->get('cart', []);
         $total = 0;
-
+    
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
         }
+    
+        $user = Auth::user();
 
-        return view('payment.index', compact('cart', 'total'));
+$address = $user->addresses()->where('is_primary', true)->first(); // Ambil alamat utama
+$paymentMethod = $user->paymentMethods()->where('is_default', true)->first(); // Ambil metode utama
+
+return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'));
+
     }
 
     public function show(Order $order)
@@ -51,4 +59,33 @@ class PaymentController extends Controller
 
         return redirect()->back()->with('success', 'Payment method saved successfully!');
     }
+
+    public function confirmPayment(Request $request)
+{
+    $user = Auth::user();
+    $cart = session()->get('cart', []);
+    $groupedByMerchant = collect($cart)->groupBy('merchant_id');
+    
+    foreach ($groupedByMerchant as $merchantId => $items) {
+        $order = Order::create([
+            'user_id' => $user->id,
+            'merchant_id' => $merchantId,
+            'payment_method_id' => $user->paymentMethods()->where('is_default', true)->value('id'),
+            'total' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
+        ]);
+
+        foreach ($items as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+        }
+    }
+
+    session()->forget('cart');
+
+    return redirect()->route('orders.history')->with('success', 'Order placed successfully!');
+}
 }

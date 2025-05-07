@@ -37,9 +37,15 @@ class Order extends Model
     }
 
     public function items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+{
+    return $this->hasMany(OrderItem::class); // atau OrderDetails, tergantung nama tabelnya
+}
+
+public function merchant()
+{
+    return $this->belongsTo(Merchant::class); // jika ingin tampilkan merchant
+}
+
 
     public function shippingAddress()
     {

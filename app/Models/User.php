@@ -34,15 +34,16 @@ class User extends Authenticatable //implements MustVerifyEmail
     ];
 
     // Relationships
-    public function address()
+    public function addresses()
     {
-        return $this->hasOne(Address::class);
+        return $this->hasMany(Address::class);
     }
-
+    
     public function paymentMethods()
     {
         return $this->hasMany(PaymentMethod::class);
     }
+    
 
     public function interests()
     {
