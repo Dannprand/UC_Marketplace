@@ -217,7 +217,7 @@
         <!-- Left Column -->
         <div class="left-column">
             <div class="product-image">
-                <img src="{{ asset('images/products/'.$product->photo) }}" alt="Product Image">
+                <img id="mainImage" src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}">
             </div>
             <div class="seller-card">
                 <h3>{{ $product->store ? $product->store->name : 'No Merchant Name Available' }}</h3>

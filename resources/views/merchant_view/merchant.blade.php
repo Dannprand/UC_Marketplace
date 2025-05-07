@@ -107,19 +107,23 @@
             margin: 0;
         }
         .add-product-btn {
-            position: absolute;
-            top: -1.5rem;
-            right: -1.5rem;
-            background: #2ecc71;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px; /* Ukuran lingkaran */
+            height: 40px; /* Ukuran lingkaran */
+            background-color: #2ecc71; /* Warna hijau */
             color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.2s ease;
+            font-size: 24px; /* Ukuran tanda + */
+            font-weight: bold;
+            border-radius: 50%; /* Bentuk lingkaran */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Efek bayangan */
+            text-decoration: none; /* Menghapus garis bawah pada link */
+            transition: all 0.3s ease; /* Transisi smooth saat hover */
+            position: absolute;
+            top: 10px; /* Posisi dari atas */
+            right: 10px; /* Posisi dari kanan */
+            z-index: 10; /* Agar tetap berada di atas konten lainnya */
         }
         .add-product-btn:hover {
             background: #27ae60;
@@ -234,7 +238,10 @@
  
                 <!-- Products Section -->
                 <div class="products-section">
-                    <a href="{{ route('product.create') }}" class="add-product-btn">+</a>
+                    <!-- Tombol Tambah Produk -->
+                    <a href="{{ route('product.create') }}" class="add-product-btn">
+                        <span class="plus-sign">+</span>
+                    </a>
                     <div class="products-grid">
                         @forelse($products as $product)
                             <div class="product-card">

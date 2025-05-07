@@ -27,7 +27,7 @@
 
         /* Revised grid layout */
         .payment-container {
-            margin: 20px auto;
+            margin: 30px auto;
             padding: 0 100px;
             grid-template-columns: 1fr 1fr;
             align-items: start;
@@ -208,7 +208,7 @@
 <body>
     <x-navigation></x-navigation>
 
-<div class="pt-16">
+<div class="pt-24">
     <div class="payment-header">Checkout Process</div>
         <div class="payment-container">
             <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
