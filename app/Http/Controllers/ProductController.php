@@ -67,7 +67,8 @@ class ProductController extends Controller
             return redirect()->route('store.create')->with('error', 'You need to create a store first');
         }
 
-        return view('products.create', compact('store', 'categories'));
+        // return view('products.create', compact('store', 'categories'));
+        return view('merchant_view.products.create', compact('store', 'categories'));
     }
 
     // Store new product (merchant view)

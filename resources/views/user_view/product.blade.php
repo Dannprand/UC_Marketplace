@@ -209,7 +209,7 @@
         }
     </style>
 </head>
-<body>
+<body style="padding-top: 80px;">
     <x-navigation></x-navigation>
 
 <div class="pt-24">

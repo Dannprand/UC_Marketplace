@@ -65,43 +65,56 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/live-search', [ProductController::class, 'liveSearch']);
 
 
-// Optional: view-only routes (if you're still using them)
-Route::get('/merchant', function () {
-    return view('merchant');
-})->name('merchant');
-
-Route::get('/openMerchant', function () {
-    return view('openMerchant');
-})->name('openMerchant');
-
-Route::get('/detailMerchant', function () {
-    return view('detailMerchant');
-})->name('detailMerchant');
-
-// Merchant Routes with controller logic
+// Merchant Routes
 Route::prefix('merchant')->middleware(['auth'])->group(function () {
-    // Open Merchant (initial form)
+    // Merchant Registration Flow
     Route::get('/open', [MerchantController::class, 'showOpenForm'])->name('merchant.open');
     Route::post('/open', [MerchantController::class, 'openMerchant']);
-    // Manage Merchant (merchant password confirmation etc.)
+    
+    // Merchant Management
     Route::get('/manage', [MerchantController::class, 'showManageForm'])->name('merchant.manage');
     Route::post('/manage', [MerchantController::class, 'manageMerchant']);
-    // Create Store (after merchant registration)
-    Route::get('/store/create', [StoreController::class, 'create'])->name('store.create');
-    // Route::post('/store', [StoreController::class, 'store']);
-    Route::post('/store', [StoreController::class, 'store'])->name('store.store');
-    // Dashboard (after store is created)
-    Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
-    // Add these inside your merchant prefix group
-    Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
-
     
+    // Store Management
+    Route::get('/store/create', [StoreController::class, 'create'])->name('store.create');
+    Route::post('/store', [StoreController::class, 'store'])->name('store.store');
+    
+    // Dashboard
+    Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
+
+    // Add this inside the merchant group
+    Route::get('/detail', function () {
+        return view('merchant_view.detailMerchant');
+    })->name('merchant.detail');
+    
+    // Product Management
+    Route::prefix('/products')->group(function () {
+        Route::get('/create', [ProductController::class, 'create'])->name('product.create');
+        Route::post('/', [ProductController::class, 'store'])->name('product.store');
+        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
+        Route::put('/{product}', [ProductController::class, 'update'])->name('product.update');
+        Route::delete('/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+    });
 });
 
-// Product Routes
-// Product Management Routes
-Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
-Route::post('/products', [ProductController::class, 'store'])->name('product.store');
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
-Route::put('/products/{product}', [ProductController::class, 'update'])->name('product.update');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+// View-only routes (if still needed for legacy links)
+Route::get('/merchant', function () {
+    return redirect()->route('merchant.dashboard');
+});
+
+Route::get('/detailMerchant', function () {
+    return redirect()->route('merchant.detail');
+});
+
+Route::get('/openMerchant', function () {
+    return view('openMerchant'); // This remains in root views
+})->name('openMerchant.legacy');
+
+// Route::get('/merchant', function () {
+//     return view('merchant_view.merchant'); // Updated path
+// })->name('merchant.legacy');
+
+// Route::get('/detailMerchant', function () {
+//     return view('merchant_view.detailMerchant'); // Updated path
+// })->name('detailMerchant.legacy');
+

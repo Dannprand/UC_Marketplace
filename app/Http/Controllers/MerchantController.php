@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MerchantController extends Controller
 {
@@ -49,11 +50,10 @@ class MerchantController extends Controller
         ]);
 
         // Update user's merchant status
-        Auth::user()->update(['is_merchant' => true]);
-        // $user = Auth::user();
-        // $user->is_merchant = true;
-        // $user->save();
-
+        // Auth::user()->update(['is_merchant' => true]);
+        $user = Auth::user();
+        $user->is_merchant = true;
+        $user->save();
 
         return redirect()->route('store.create');
     }
@@ -83,21 +83,6 @@ class MerchantController extends Controller
     }
 
     // Show merchant dashboard
-    // public function dashboard()
-    // {
-    //     $merchant = Auth::user()->merchant;
-    //     $store = $merchant->store;
-        
-    //     if (!$store) {
-    //         return redirect()->route('store.create');
-    //     }
-        
-    //     // Get products for this store
-    //     $products = $store->products;
-        
-    //     return view('merchant', compact('merchant', 'store', 'products'));
-    // }
-
     public function dashboard()
     {
         $merchant = Auth::user()->merchant;
@@ -109,6 +94,7 @@ class MerchantController extends Controller
         
         $products = $store->products()->with('category')->get();
         
-        return view('merchant', compact('merchant', 'store', 'products'));
+        // return view('merchant', compact('merchant', 'store', 'products'));
+        return view('merchant_view.merchant', compact('merchant', 'store', 'products'));
     }
 }
