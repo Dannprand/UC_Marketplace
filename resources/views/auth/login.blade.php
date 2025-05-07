@@ -91,6 +91,7 @@
             <button type="submit" class="btn-primary w-full font-semibold">
                 Login
             </button>
+            {{-- <a href="{{ route('home') }}" class="btn-primary w-full font-semibold">Login</a> --}}
         </form>
 
         @if (session('success'))
