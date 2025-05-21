@@ -83,6 +83,7 @@
             width: 100px;
             height: 100px;
             flex-shrink: 0;
+            margin-left: 5%
         }
 
         .product-image {
@@ -255,8 +256,8 @@
                                 data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
                             <div class="product-info">
                                 <div class="product-image-container">
-                                    <img src="{{ asset('storage/' . $item->product->image) }}"
-                                        alt="{{ $item->product->name }}">
+                                    <img src="{{ asset('storage/' . $item->product->images[0]) }}" 
+                                        alt="{{ $item->product->name }}" class="rounded object-cover w-20 h-20">
                                 </div>
                                 <div>
                                     <h3>{{ $item->product->name }}</h3>

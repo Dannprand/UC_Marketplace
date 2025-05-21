@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\OrderController;
 
 // Public Routes
 Route::get('/', function () {
@@ -43,6 +44,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
 });
 
 // User Routes
+Route::middleware('auth')->prefix('user')->group(function () {  
 
 Route::middleware('auth')->prefix('user')->group(function () {
     // Route::get('/payment', function () {
@@ -71,14 +73,18 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
+    // Payment routes
     // Route::get('/payment', [CartController::class, 'payment'])->name('payment');
-    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
+    // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
+    Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
+    Route::get('/order/confirmation/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-    Route::get('/live-search', [ProductController::class, 'liveSearch']);
+    Route::get('/live-search', [ProductController::class, 'liveSearch'])->name('live.search');
 
 
 // Merchant Routes
@@ -126,9 +132,8 @@ Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
 
-Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
 
-Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+// Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
 
 
 // Route::get('/merchant', function () {

@@ -26,9 +26,10 @@
         }
 
         .payment-container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 20px;
+            margin: 30px auto;
+            padding: 0 100px;
+            grid-template-columns: 1fr 1fr;
+            align-items: start;
         }
 
         .payment-header {
@@ -100,173 +101,219 @@
             margin-top: 15px;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .payment-container {
-                padding: 0 10px;
-            }
-            
-            .form-section {
-                padding: 15px;
-            }
+        /* Popup Styling */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
 
-        /* Rest of your existing styles... */
+        .popup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .popup-content h2 {
+            color: #2ecc71;
+            margin-bottom: 15px;
+        }
+
+        .popup-content p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .popup-content button {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .popup-content button:hover {
+            background-color: #2980b9;
+        }
+
     </style>
 </head>
 
 <body>
-    <x-navigation></x-navigation>
+   <x-navigation />
 
-    <div class="pt-16">
-        <div class="payment-header">Checkout Process</div>
-        <div class="payment-container">
-            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
-                @csrf
+<div class="pt-24">
+    <div class="payment-header">Checkout Process</div>
+    <div class="payment-container">
+        <!-- New Address Form -->
+        <div id="new-address-form" class="my-4 bg-white p-4 rounded-xl hidden">
+        <h3 class="font-semibold mb-2">Add a New Address</h3>
+            <form action="{{ route('address.store') }}" method="POST" class="space-y-2">
+                 @csrf
+                <input type="hidden" name="from_checkout" value="1">
 
-                <!-- Shipping Address Section -->
-                <div class="form-section">
-                    <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
-                    
-                    @if($user->addresses->count() > 0)
-                        <label for="address-select" class="block text-sm font-medium text-gray-700">Select Address</label>
-                        <select id="address-select" name="address_id" class="select-dropdown">
-                            @foreach($user->addresses as $addr)
-                                <option value="{{ $addr->id }}" {{ $addr->is_primary ? 'selected' : '' }}>
-                                    {{ $addr->street }}, {{ $addr->city }}, {{ $addr->province }} - {{ $addr->postal_code }}
-                                </option>
-                            @endforeach
-                        </select>
-                        
-                        <div class="selected-info mt-3">
-                            <h4 class="font-medium">Selected Address:</h4>
-                            <p id="selected-address-display">
-                                {{ $address->street }}, {{ $address->city }}, {{ $address->province }} - 
-                                {{ $address->postal_code }}, {{ $address->country }}
-                            </p>
-                        </div>
-                        
-                        <a href="{{ route('profile') }}" class="add-new-btn">+ Add New Address</a>
-                    @else
-                        <div class="alert alert-danger">
-                            No shipping address found. 
-                            <a href="{{ route('profile') }}" class="text-blue-600 hover:underline">Please add an address first.</a>
-                        </div>
-                    @endif
-                </div>
+                <input type="text" name="street" placeholder="Street / House No." required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="city" placeholder="City" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="province" placeholder="Province" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="postal_code" placeholder="Postal Code" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="country" placeholder="Country" required class="w-full border px-3 py-2 rounded mb-2">
 
-                <!-- Payment Method Section -->
-                <div class="form-section">
-                    <h2 class="text-lg font-semibold mb-4">Payment Method</h2>
-                    
-                    @if($user->paymentMethods->count() > 0)
-                        <label for="payment-select" class="block text-sm font-medium text-gray-700">Select Payment Method</label>
-                        <select id="payment-select" name="payment_method_id" class="select-dropdown">
-                            @foreach($user->paymentMethods as $method)
-                                <option value="{{ $method->id }}" {{ $method->is_default ? 'selected' : '' }}>
-                                    {{ $method->type }} - {{ $method->provider }} ({{ $method->account_number }})
-                                </option>
-                            @endforeach
-                        </select>
-                        
-                        <div class="selected-info mt-3">
-                            <h4 class="font-medium">Selected Payment:</h4>
-                            <p id="selected-payment-display">
-                                {{ $paymentMethod->type }} - {{ $paymentMethod->provider }} 
-                                ({{ $paymentMethod->account_number }})
-                            </p>
-                        </div>
-                        
-                        <a href="{{ route('profile') }}" class="add-new-btn">+ Add New Payment Method</a>
-                    @else
-                        <div class="alert alert-danger">
-                            No payment method found. 
-                            <a href="{{ route('profile') }}" class="text-blue-600 hover:underline">Please add a payment method first.</a>
-                        </div>
-                    @endif
-                </div>
+                <label class="flex items-center mb-2">
+                    <input type="checkbox" name="is_primary" value="1" class="mr-2">
+                        Set as primary address
+                </label>
 
-                <!-- Order Summary Section -->
-                <div class="form-section">
-                    <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
-                    <div class="order-items space-y-2">
-                        @foreach($cart->items as $item)
-                            <div class="order-item flex justify-between">
-                                <span class="item-name">{{ $item->product->name }} x{{ $item->quantity }}</span>
-                                <span class="item-price">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="order-total mt-4 flex justify-between font-bold text-lg">
-                        <span class="total-label">Total Amount</span>
-                        <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
-                    </div>
-
-                    @if($user->addresses->count() > 0 && $user->paymentMethods->count() > 0)
-                        <button type="submit" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium text-lg transition-colors">
-                            Confirm Payment
-                        </button>
-                    @else
-                        <button type="button" class="mt-4 w-full bg-gray-400 text-white py-3 px-4 rounded-lg font-medium text-lg cursor-not-allowed" disabled>
-                            Complete your details to proceed
-                        </button>
-                    @endif
-                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Address</button>
             </form>
         </div>
+
+        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
+            @csrf
+            <!-- Top Section: Address and Payment Side by Side -->
+            <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Shipping Address (50%) -->
+                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
+                    <div class="mb-4">
+                    <label for="shipping_address_id" class="block mb-1 font-medium">Shipping Address</label>
+                        <select name="shipping_address_id" id="shipping_address_id" class="w-full border rounded px-3 py-2" required>
+                            @foreach($addresses as $address)
+                                <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
+                                    {{ $address->street }}, {{ $address->city }}, {{ $address->province }} - {{ $address->postal_code }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <a href="#" id="toggle-address-form" class="text-blue-600 underline text-sm">+ Add New Address</a>
+
+                    
+                </div>
+
+                <!-- Payment Method (Input Section) -->
+                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
+                    <h2 class="text-lg font-semibold mb-2">Add Payment Method</h2>
+
+                    <!-- Select Type -->
+                    <div class="mb-3">
+                        <label for="payment-type" class="block mb-1">Payment Type</label>
+                        <select name="type" id="payment-type" class="w-full border rounded px-3 py-2" required>
+                        <option value="" disabled selected>-- Select Payment Type --</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="e-wallet">E-Wallet</option>
+                        </select>
+                    </div>
+
+                    <!-- Select Provider -->
+                    <div class="mb-3">
+                        <label for="payment-provider" class="block mb-1">Provider</label>
+                        <select name="provider" id="payment-provider" class="w-full border rounded px-3 py-2" required>
+                            <option value="" disabled selected>-- Select Provider --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Order Summary (100%) -->
+            <div class="bg-white p-4 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+                <div class="order-items space-y-2">
+                    @foreach($cart->items as $item)
+                        <div class="order-item flex justify-between">
+                            <span class="item-name">
+                                {{ $item->product->name }} x{{ $item->quantity }}
+                            </span>
+                            <span class="item-price">
+                                Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="order-total mt-4 flex justify-between font-bold text-lg">
+                    <span class="total-label">Total Amount</span>
+                    <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                </div>
+
+                <button type="submit"
+                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                    Confirm Payment
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Popup remains the same -->
-    <div class="popup-overlay" id="popup">
-        <div class="popup-content animate__animated animate__zoomIn">
-            <h2>Payment Successful!</h2>
-            <p>Thank you for your order. We will process it shortly.</p>
-            <button id="popup-ok-btn">OK</button>
-        </div>
+<!-- Optional Payment Success Popup -->
+<div class="popup-overlay" id="popup" style="display:none;">
+    <div class="popup-content animate__animated animate__zoomIn">
+        <h2>Payment Successful!</h2>
+        <p>Thank you for your order. We will process it shortly.</p>
+        <button id="popup-ok-btn">OK</button>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Update displayed address when selection changes
-            const addressSelect = document.getElementById('address-select');
-            const paymentSelect = document.getElementById('payment-select');
-            const addressDisplay = document.getElementById('selected-address-display');
-            const paymentDisplay = document.getElementById('selected-payment-display');
-            
-            if (addressSelect) {
-                addressSelect.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    addressDisplay.textContent = selectedOption.text;
-                });
-            }
-            
-            if (paymentSelect) {
-                paymentSelect.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    paymentDisplay.textContent = selectedOption.text;
-                });
-            }
+@php
+    $orderSuccess = session('order_success');
+@endphp
 
-            // Payment Success Popup
-            const form = document.getElementById('checkout-form');
-            const popup = document.getElementById('popup');
-            const okBtn = document.getElementById('popup-ok-btn');
+<script>
+    // Toggle form tambah alamat baru
+    document.getElementById('toggle-address-form').addEventListener('click', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('new-address-form');
+        form.classList.toggle('hidden');
+    });
 
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault(); // prevent real submission (for demo)
-                    popup.style.display = 'flex';
-                });
-            }
+    // Payment type & provider logic
+    const providerSelect = document.getElementById('payment-provider');
+    const typeSelect = document.getElementById('payment-type');
 
-            if (okBtn) {
-                okBtn.addEventListener('click', function () {
-                    popup.style.display = 'none';
-                    window.location.href = '/orders'; // redirect to orders page
-                });
-            }
+    const providers = {
+        'bank_transfer': ['BCA'],
+        'e-wallet': ['Gopay', 'UC Coin']
+    };
+
+    typeSelect.addEventListener('change', function () {
+        const selectedType = this.value;
+        const options = providers[selectedType] || [];
+
+        // Reset & populate provider dropdown
+        providerSelect.innerHTML = '<option value="" disabled selected>-- Select Provider --</option>';
+        options.forEach(provider => {
+            const option = document.createElement('option');
+            option.value = provider;
+            option.textContent = provider;
+            providerSelect.appendChild(option);
         });
-    </script>
-</body>
-</html>
+    });
+
+    // Payment success popup logic
+    const orderSuccess = @json(session('order_success'));
+    console.log("Order Success from session:", orderSuccess);
+
+    if (orderSuccess) {
+        window.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'flex';
+
+            document.getElementById('popup-ok-btn').addEventListener('click', () => {
+                popup.style.display = 'none';
+                window.location.href = '/home';
+            });
+        });
+    }
+</script>
