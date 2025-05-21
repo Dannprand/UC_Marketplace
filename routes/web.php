@@ -33,7 +33,6 @@ Route::middleware(['auth'])->group(function () {
     // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::post('/payment-methods', [PaymentController::class, 'store'])->name('payment-methods.store');
-    // Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
 
 });
 
