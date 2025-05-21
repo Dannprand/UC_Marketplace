@@ -70,12 +70,12 @@ Route::middleware('auth')->prefix('user')->group(function () {
 
     Route::get('/payment', [CartController::class, 'payment'])->name('payment');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    // Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-    Route::get('/live-search', [ProductController::class, 'liveSearch']);
+    Route::get('/live-search', [ProductController::class, 'liveSearch'])->name('live.search');
 
 
 // Merchant Routes
@@ -125,7 +125,7 @@ Route::get('/openMerchant', function () {
 
 Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
 
-Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+// Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
 
 
 // Route::get('/merchant', function () {
