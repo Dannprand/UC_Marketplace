@@ -54,7 +54,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             height: fit-content;
             border-left: 1px solid #e2e8f0;
-             border-radius: 12px;
+            border-radius: 12px;
         }
 
         .address-section {
@@ -208,58 +208,37 @@
 <body>
     <x-navigation></x-navigation>
 
-<div class="pt-24">
+<div class="pt-18">
     <div class="payment-header">Checkout Process</div>
         <div class="payment-container">
             <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
                 @csrf
-            
+
                 <!-- Top Section: Address and Payment Side by Side -->
                 <div class="flex flex-col lg:flex-row gap-4">
                     <!-- Shipping Address (50%) -->
                     <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
                         <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
-                        @if($addresses->count() > 0)
-                            <select name="shipping_address_id" class="form-select w-full" required>
-                                @foreach($addresses as $address)
-                                    <option value="{{ $address->id }}">
-                                        {{ $address->street }}, {{ $address->city }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        @if($address)
+                            <div>{{ $address->street }}, {{ $address->city }}, {{ $address->province }} -
+                                {{ $address->postal_code }}, {{ $address->country }}</div>
                         @else
-                            <div class="alert alert-danger">
-                                No shipping addresses found. Please add an address first.
-                            </div>
+                            <div class="alert alert-danger">No shipping address found. Please add an address first.</div>
                         @endif
                     </div>
-            
+
                     <!-- Payment Method (50%) -->
                     <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
                         <h2 class="text-lg font-semibold mb-2">Payment Method</h2>
-                        @if($paymentMethods->count() > 0)
-                            @foreach($paymentMethods as $method)
-                                <div class="payment-option cursor-pointer border rounded p-2 mb-2 flex items-center gap-2">
-                                    <input type="radio" name="payment_method_id" 
-                                           id="method-{{ $method->id }}" 
-                                           value="{{ $method->id }}" required class="accent-blue-500">
-                                    <div class="payment-label">
-                                        <h3 class="font-semibold">{{ $method->provider }}</h3>
-                                        <p>****{{ substr($method->account_number, -4) }}</p>
-                                        @if($method->type == 'e-wallet')
-                                            <p>{{ $method->account_name }}</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                        @if($paymentMethod)
+                            <div>{{ $paymentMethod->type }} - {{ $paymentMethod->provider }}
+                                ({{ $paymentMethod->account_number }})</div>
                         @else
-                            <div class="alert alert-danger">
-                                No payment methods registered. Please add a payment method first.
-                            </div>
+                            <div class="alert alert-danger">No payment method found. Please add one.</div>
                         @endif
                     </div>
                 </div>
-            
+
                 <!-- Bottom Section: Order Summary (100%) -->
                 <div class="bg-white p-4 rounded shadow">
                     <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
@@ -267,20 +246,23 @@
                         @foreach($cart->items as $item)
                             <div class="order-item flex justify-between">
                                 <span class="item-name">{{ $item->product->name }} x{{ $item->quantity }}</span>
-                                <span class="item-price">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
+                                <span class="item-price">Rp
+                                    {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
                             </div>
                         @endforeach
                     </div>
-            
+
                     <div class="order-total mt-4 flex justify-between font-bold text-lg">
                         <span class="total-label">Total Amount</span>
                         <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </div>
-            
-                    <button type="submit" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Confirm Payment</button>
+
+                    <button type="submit"
+                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Confirm
+                        Payment</button>
                 </div>
             </form>
-            
+
         </div>
     </div>
 
