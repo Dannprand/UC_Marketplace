@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\OrderController;
 
 // Public Routes
 Route::get('/', function () {
@@ -27,17 +28,9 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::middleware('auth')->prefix('user')->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
-    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-});
 
 // User Routes
-Route::middleware('auth')->prefix('user')->group(function () {
-    // Route::get('/payment', function () {
-    //     return view('user_view.payment');
-    // })->name('payment');
-    
+Route::middleware('auth')->prefix('user')->group(function () {  
     Route::get('/profile', function () {
         return view('user_view.profile');
     })->name('profile');
@@ -58,10 +51,13 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
+    // Payment routes
     Route::get('/payment', [CartController::class, 'payment'])->name('payment');
-
-    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    // Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
+    // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
+    Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
+    Route::get('/order/confirmation/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
@@ -114,7 +110,6 @@ Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
 
-Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
 
 // Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
 

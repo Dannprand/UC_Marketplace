@@ -202,6 +202,7 @@
         .popup-content button:hover {
             background-color: #2980b9;
         }
+
     </style>
 </head>
 
@@ -211,29 +212,48 @@
 <div class="pt-24">
     <div class="payment-header">Checkout Process</div>
     <div class="payment-container">
+        <!-- New Address Form -->
+        <div id="new-address-form" class="my-4 bg-white p-4 rounded-xl hidden">
+        <h3 class="font-semibold mb-2">Add a New Address</h3>
+            <form action="{{ route('address.store') }}" method="POST" class="space-y-2">
+                 @csrf
+                <input type="hidden" name="from_checkout" value="1">
+
+                <input type="text" name="street" placeholder="Street / House No." required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="city" placeholder="City" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="province" placeholder="Province" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="postal_code" placeholder="Postal Code" required class="w-full border px-3 py-2 rounded mb-2">
+                <input type="text" name="country" placeholder="Country" required class="w-full border px-3 py-2 rounded mb-2">
+
+                <label class="flex items-center mb-2">
+                    <input type="checkbox" name="is_primary" value="1" class="mr-2">
+                        Set as primary address
+                </label>
+
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Address</button>
+            </form>
+        </div>
+
         <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
             @csrf
-
             <!-- Top Section: Address and Payment Side by Side -->
             <div class="flex flex-col lg:flex-row gap-4">
                 <!-- Shipping Address (50%) -->
                 <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
-                    <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
-                    @php
-                        $primaryAddress = $addresses->where('is_primary', true)->first();
-                    @endphp
+                    <div class="mb-4">
+                    <label for="shipping_address_id" class="block mb-1 font-medium">Shipping Address</label>
+                        <select name="shipping_address_id" id="shipping_address_id" class="w-full border rounded px-3 py-2" required>
+                            @foreach($addresses as $address)
+                                <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
+                                    {{ $address->street }}, {{ $address->city }}, {{ $address->province }} - {{ $address->postal_code }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    @if($primaryAddress)
-                        <div>
-                            {{ $primaryAddress->street }}, {{ $primaryAddress->city }},
-                            {{ $primaryAddress->province }} - {{ $primaryAddress->postal_code }},
-                            {{ $primaryAddress->country }}
-                        </div>
-                    @else
-                        <div class="alert alert-danger">
-                            No primary address found. Please add or set an address as primary.
-                        </div>
-                    @endif
+                    <a href="#" id="toggle-address-form" class="text-blue-600 underline text-sm">+ Add New Address</a>
+
+                    
                 </div>
 
                 <!-- Payment Method (Input Section) -->
@@ -244,7 +264,7 @@
                     <div class="mb-3">
                         <label for="payment-type" class="block mb-1">Payment Type</label>
                         <select name="type" id="payment-type" class="w-full border rounded px-3 py-2" required>
-                            <option value="" disabled selected>-- Select Payment Type --</option>
+                        <option value="" disabled selected>-- Select Payment Type --</option>
                             <option value="bank_transfer">Bank Transfer</option>
                             <option value="e-wallet">E-Wallet</option>
                         </select>
@@ -257,21 +277,7 @@
                             <option value="" disabled selected>-- Select Provider --</option>
                         </select>
                     </div>
-
-                    {{-- <!-- Account Name -->
-                    <div class="mb-3">
-                        <label for="account-name" class="block mb-1">Account Name</label>
-                        <input type="text" name="account_name" id="account-name" class="w-full border rounded px-3 py-2" required>
-                    </div>
-
-                    <!-- Account Number -->
-                    <div class="mb-3">
-                        <label for="account-number" class="block mb-1">Account Number</label>
-                        <input type="text" name="account_number" id="account-number" class="w-full border rounded px-3 py-2" required>
-                    </div> --}}
                 </div>
-
-
             </div>
 
             <!-- Bottom Section: Order Summary (100%) -->
@@ -305,7 +311,7 @@
 </div>
 
 <!-- Optional Payment Success Popup -->
-<div class="popup-overlay" id="popup">
+<div class="popup-overlay" id="popup" style="display:none;">
     <div class="popup-content animate__animated animate__zoomIn">
         <h2>Payment Successful!</h2>
         <p>Thank you for your order. We will process it shortly.</p>
@@ -313,7 +319,19 @@
     </div>
 </div>
 
+@php
+    $orderSuccess = session('order_success');
+@endphp
+
 <script>
+    // Toggle form tambah alamat baru
+    document.getElementById('toggle-address-form').addEventListener('click', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('new-address-form');
+        form.classList.toggle('hidden');
+    });
+
+    // Payment type & provider logic
     const providerSelect = document.getElementById('payment-provider');
     const typeSelect = document.getElementById('payment-type');
 
@@ -326,8 +344,8 @@
         const selectedType = this.value;
         const options = providers[selectedType] || [];
 
+        // Reset & populate provider dropdown
         providerSelect.innerHTML = '<option value="" disabled selected>-- Select Provider --</option>';
-
         options.forEach(provider => {
             const option = document.createElement('option');
             option.value = provider;
@@ -335,4 +353,20 @@
             providerSelect.appendChild(option);
         });
     });
+
+    // Payment success popup logic
+    const orderSuccess = @json(session('order_success'));
+    console.log("Order Success from session:", orderSuccess);
+
+    if (orderSuccess) {
+        window.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'flex';
+
+            document.getElementById('popup-ok-btn').addEventListener('click', () => {
+                popup.style.display = 'none';
+                window.location.href = '/home';
+            });
+        });
+    }
 </script>
