@@ -83,6 +83,7 @@
             width: 100px;
             height: 100px;
             flex-shrink: 0;
+            margin-left: 5%
         }
 
         .product-image {

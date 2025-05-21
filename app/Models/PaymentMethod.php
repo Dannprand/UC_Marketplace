@@ -11,8 +11,8 @@ class PaymentMethod extends Model
 
     protected $fillable = [
         'user_id',
-        'type', // e.g., 'credit_card', 'bank_transfer', 'e-wallet'
-        'provider', // e.g., 'VISA', 'MasterCard', 'BCA', 'Gopay'
+        'type', // e.g., 'bank_transfer', 'e-wallet'
+        'provider', // e.g.,  'BCA', 'Gopay','UC Coin'
         'account_name',
         'account_number',
         'expiry_date',

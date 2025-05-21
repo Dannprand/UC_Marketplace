@@ -206,111 +206,133 @@
 </head>
 
 <body>
-    <x-navigation></x-navigation>
+   <x-navigation />
 
-<div class="pt-18">
+<div class="pt-24">
     <div class="payment-header">Checkout Process</div>
-        <div class="payment-container">
-            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
-                @csrf
+    <div class="payment-container">
+        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
+            @csrf
 
-                <!-- Top Section: Address and Payment Side by Side -->
-                <div class="flex flex-col lg:flex-row gap-4">
-                    <!-- Shipping Address (50%) -->
-                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
-                        @if($address)
-                            <div>{{ $address->street }}, {{ $address->city }}, {{ $address->province }} -
-                                {{ $address->postal_code }}, {{ $address->country }}</div>
-                        @else
-                            <div class="alert alert-danger">No shipping address found. Please add an address first.</div>
-                        @endif
-                    </div>
+            <!-- Top Section: Address and Payment Side by Side -->
+            <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Shipping Address (50%) -->
+                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
+                    <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
+                    @php
+                        $primaryAddress = $addresses->where('is_primary', true)->first();
+                    @endphp
 
-                    <!-- Payment Method (50%) -->
-                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-2">Payment Method</h2>
-                        @if($paymentMethod)
-                            <div>{{ $paymentMethod->type }} - {{ $paymentMethod->provider }}
-                                ({{ $paymentMethod->account_number }})</div>
-                        @else
-                            <div class="alert alert-danger">No payment method found. Please add one.</div>
-                        @endif
-                    </div>
+                    @if($primaryAddress)
+                        <div>
+                            {{ $primaryAddress->street }}, {{ $primaryAddress->city }},
+                            {{ $primaryAddress->province }} - {{ $primaryAddress->postal_code }},
+                            {{ $primaryAddress->country }}
+                        </div>
+                    @else
+                        <div class="alert alert-danger">
+                            No primary address found. Please add or set an address as primary.
+                        </div>
+                    @endif
                 </div>
 
-                <!-- Bottom Section: Order Summary (100%) -->
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
-                    <div class="order-items space-y-2">
-                        @foreach($cart->items as $item)
-                            <div class="order-item flex justify-between">
-                                <span class="item-name">{{ $item->product->name }} x{{ $item->quantity }}</span>
-                                <span class="item-price">Rp
-                                    {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
-                            </div>
-                        @endforeach
+                <!-- Payment Method (Input Section) -->
+                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
+                    <h2 class="text-lg font-semibold mb-2">Add Payment Method</h2>
+
+                    <!-- Select Type -->
+                    <div class="mb-3">
+                        <label for="payment-type" class="block mb-1">Payment Type</label>
+                        <select name="type" id="payment-type" class="w-full border rounded px-3 py-2" required>
+                            <option value="" disabled selected>-- Select Payment Type --</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="e-wallet">E-Wallet</option>
+                        </select>
                     </div>
 
-                    <div class="order-total mt-4 flex justify-between font-bold text-lg">
-                        <span class="total-label">Total Amount</span>
-                        <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                    <!-- Select Provider -->
+                    <div class="mb-3">
+                        <label for="payment-provider" class="block mb-1">Provider</label>
+                        <select name="provider" id="payment-provider" class="w-full border rounded px-3 py-2" required>
+                            <option value="" disabled selected>-- Select Provider --</option>
+                        </select>
                     </div>
 
-                    <button type="submit"
-                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Confirm
-                        Payment</button>
+                    {{-- <!-- Account Name -->
+                    <div class="mb-3">
+                        <label for="account-name" class="block mb-1">Account Name</label>
+                        <input type="text" name="account_name" id="account-name" class="w-full border rounded px-3 py-2" required>
+                    </div>
+
+                    <!-- Account Number -->
+                    <div class="mb-3">
+                        <label for="account-number" class="block mb-1">Account Number</label>
+                        <input type="text" name="account_number" id="account-number" class="w-full border rounded px-3 py-2" required>
+                    </div> --}}
                 </div>
-            </form>
 
-        </div>
+
+            </div>
+
+            <!-- Bottom Section: Order Summary (100%) -->
+            <div class="bg-white p-4 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+                <div class="order-items space-y-2">
+                    @foreach($cart->items as $item)
+                        <div class="order-item flex justify-between">
+                            <span class="item-name">
+                                {{ $item->product->name }} x{{ $item->quantity }}
+                            </span>
+                            <span class="item-price">
+                                Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="order-total mt-4 flex justify-between font-bold text-lg">
+                    <span class="total-label">Total Amount</span>
+                    <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                </div>
+
+                <button type="submit"
+                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                    Confirm Payment
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Popup -->
-    <div class="popup-overlay" id="popup">
-        <div class="popup-content animate__animated animate__zoomIn">
-            <h2>Payment Successful!</h2>
-            <p>Thank you for your order. We will process it shortly.</p>
-            <button id="popup-ok-btn">OK</button>
-        </div>
+<!-- Optional Payment Success Popup -->
+<div class="popup-overlay" id="popup">
+    <div class="popup-content animate__animated animate__zoomIn">
+        <h2>Payment Successful!</h2>
+        <p>Thank you for your order. We will process it shortly.</p>
+        <button id="popup-ok-btn">OK</button>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Payment method selection
-            const paymentOptions = document.querySelectorAll('.payment-option');
-            paymentOptions.forEach(option => {
-                option.addEventListener('click', function () {
-                    paymentOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    const radio = this.querySelector('input[type="radio"]');
-                    radio.checked = true;
-                });
-            });
+<script>
+    const providerSelect = document.getElementById('payment-provider');
+    const typeSelect = document.getElementById('payment-type');
 
-            // Auto-select first payment method
-            const firstPaymentOption = document.querySelector('.payment-option');
-            if (firstPaymentOption) {
-                firstPaymentOption.classList.add('active');
-                firstPaymentOption.querySelector('input').checked = true;
-            }
+    const providers = {
+        'bank_transfer': ['BCA'],
+        'e-wallet': ['Gopay', 'UC Coin']
+    };
 
-            // Payment Success Popup (frontend mock)
-            const form = document.getElementById('checkout-form');
-            const popup = document.getElementById('popup');
-            const okBtn = document.getElementById('popup-ok-btn');
+    typeSelect.addEventListener('change', function () {
+        const selectedType = this.value;
+        const options = providers[selectedType] || [];
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault(); // prevent real submission (for demo)
-                popup.style.display = 'flex';
-            });
+        providerSelect.innerHTML = '<option value="" disabled selected>-- Select Provider --</option>';
 
-            okBtn.addEventListener('click', function () {
-                popup.style.display = 'none';
-                window.location.href = '/'; // redirect after popup
-            });
+        options.forEach(provider => {
+            const option = document.createElement('option');
+            option.value = provider;
+            option.textContent = provider;
+            providerSelect.appendChild(option);
         });
-    </script>
-</body>
-
-</html>
+    });
+</script>

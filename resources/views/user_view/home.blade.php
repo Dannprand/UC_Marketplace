@@ -315,6 +315,18 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
         
+        .seller-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #E5EDF1;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         @media (min-width: 768px) {
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -327,7 +339,6 @@
 
     </style>
 </head>
-{{-- <body class="bg-white"> --}}
 <body>
     <x-navigation />
     <div class="pt-12">
@@ -468,7 +479,7 @@
                 $category = strtolower($product->category->name ?? 'all');
                 $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
                 $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
-                $initials = collect(explode(' ', $sellerName))->map(fn($word) => strtoupper($word[0]))->join('');
+                $logo = $product->store->logo ?? 'https://via.placeholder.com/40x40?text=Logo'; // fallback logo
             @endphp
 
             <a href="{{ route('product.show', $product->id) }}" class="product-card" data-category="{{ $category }}" aria-label="View product details for {{ $product->name }}">
@@ -477,7 +488,9 @@
                     <div class="product-name">{{ $product->name }}</div>
                     <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                     <div class="seller-info">
-                        <div class="seller-avatar">{{ $initials }}</div>
+                        <div class="seller-avatar">
+                            <img src="{{ $logo }}" alt="Logo {{ $sellerName }}" class="w-full h-full object-cover rounded-full">
+                        </div>
                         <div class="seller-name">{{ $sellerName }}</div>
                     </div>
                 </div>

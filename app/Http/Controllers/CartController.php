@@ -106,30 +106,38 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
     
-    // Checkout Process
     public function payment()
-    {
-        $user = Auth::user();
-        if (!$user) return redirect()->route('login');
-    
-        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
-    
-        // Handle empty cart
-        if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('cart')->with('error', 'Keranjang belanja kosong!');
-        }
-    
-        // Get addresses and payment methods with fallback
-        $addresses = $user->addresses ?? collect();
-        $paymentMethods = $user->paymentMethods ?? collect();
-    
-        return view('user_view.payment', [
-            'cart' => $cart,
-            'totalPrice' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
-            'addresses' => $addresses,
-            'paymentMethods' => $paymentMethods
-        ]);
+{
+    $user = Auth::user();
+    if (!$user) {
+        return redirect()->route('login');
     }
+
+    // Ambil cart user beserta item dan produk
+    $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+
+    // Jika cart kosong, arahkan kembali
+    if (!$cart || $cart->items->isEmpty()) {
+        return redirect()->route('cart')->with('error', 'Keranjang belanja kosong!');
+    }
+
+    // Ambil alamat dan metode pembayaran user
+    $addresses = $user->addresses ?? collect();
+    $paymentMethods = $user->paymentMethods ?? collect();
+
+    // Hitung total harga
+    $totalPrice = $cart->items->sum(function ($item) {
+        return $item->product->price * $item->quantity;
+    });
+
+    return view('user_view.payment', [
+        'cart' => $cart,
+        'totalPrice' => $totalPrice,
+        'addresses' => $addresses,
+        'paymentMethods' => $paymentMethods,
+    ]);
+}
+
 
     public function processCheckout(Request $request)
     {
