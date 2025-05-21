@@ -31,7 +31,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::middleware(['auth'])->group(function () {
     // Route::get('/cart', [CartController::class, 'index'])->name('cart');
     // Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-    Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+    // Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::post('/payment-methods', [PaymentController::class, 'store'])->name('payment-methods.store');
     // Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
 
@@ -43,10 +43,13 @@ Route::middleware('auth')->prefix('user')->group(function () {
 });
 
 // User Routes
+
 Route::middleware('auth')->prefix('user')->group(function () {
-    Route::get('/payment', function () {
-        return view('user_view.payment');
-    })->name('payment');
+    // Route::get('/payment', function () {
+    //     return view('user_view.payment');
+    // })->name('payment');
+
+    Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     
     Route::get('/profile', function () {
         return view('user_view.profile');
@@ -68,7 +71,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
-    Route::get('/payment', [CartController::class, 'payment'])->name('payment');
+    // Route::get('/payment', [CartController::class, 'payment'])->name('payment');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });

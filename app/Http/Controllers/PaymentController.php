@@ -12,19 +12,28 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $cart = session()->get('cart', []);
-        $total = 0;
-    
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
-    
         $user = Auth::user();
+        
+        // Load cart with items and product relationships
+        $cart = $user->cart()->with('items.product')->first();
+        
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty');
+        }
+
+        $totalPrice = $cart->items->sum(function($item) {
+            return $item->product->price * $item->quantity;
+        });
 
         $address = $user->addresses()->where('is_primary', true)->first();
         $paymentMethod = $user->paymentMethods()->where('is_default', true)->first();
 
-        return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'));
+        return view('user_view.payment', [
+            'cart' => $cart,
+            'totalPrice' => $totalPrice,
+            'address' => $address,
+            'paymentMethod' => $paymentMethod
+        ]);
     }
 
     public function show(Order $order)

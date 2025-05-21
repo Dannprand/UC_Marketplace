@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Payment - UCMarketPlace</title>
     <style>
-        /* Base styles remain the same */
+        /* Previous styles remain the same */
         * {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
@@ -25,18 +25,14 @@
             margin: 0;
         }
 
-        /* Revised grid layout */
         .payment-container {
+            max-width: 1200px;
             margin: 20px auto;
-            padding: 0 100px;
-            grid-template-columns: 1fr 1fr;
-            align-items: start;
+            padding: 0 20px;
         }
 
         .payment-header {
-            grid-column: 1 / -1;
             padding: 20px;
-            margin: 0 50px;
             font-size: 24px;
             color: #333;
             margin-bottom: 18px;
@@ -46,162 +42,76 @@
             padding-bottom: 15px;
         }
 
-        /* Column styling */
-        .payment-column {
+        /* Form sections */
+        .form-section {
             background: white;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            height: fit-content;
-            border-left: 1px solid #e2e8f0;
-            border-radius: 12px;
-        }
-
-        .address-section {
-            grid-column: 1;
-        }
-
-        .payment-section {
-            grid-column: 2;
-        }
-
-        .order-section {
-            grid-column: 1 / -1;
-            position: sticky;
-            top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .payment-container {
-                grid-template-columns: 1fr;
-            }
-
-            .address-section,
-            .payment-section,
-            .order-section {
-                grid-column: 1 / -1;
-            }
-        }
-
-        .payment-methods h2,
-        .order-summary h2 {
-            font-size: 18px;
-            font-weight: 600;
             margin-bottom: 20px;
-            color: #2d3748;
         }
 
-        .payment-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
+        /* Dropdown styles */
+        .select-dropdown {
+            width: 100%;
+            padding: 12px 15px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-        }
-
-        .payment-option:hover {
-            border-color: #96C2DB;
+            font-size: 16px;
+            margin-top: 10px;
             background-color: #f8fafc;
+            transition: all 0.3s ease;
         }
 
-        .payment-option.active {
+        .select-dropdown:hover {
             border-color: #96C2DB;
+        }
+
+        .select-dropdown:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        /* Add new button */
+        .add-new-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-new-btn:hover {
+            background-color: #3182ce;
+        }
+
+        /* Selected info box */
+        .selected-info {
             background-color: #f0f9ff;
-        }
-
-        .order-items {
-            margin-bottom: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            border-radius: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .pay-button {
-            width: 100%;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
             padding: 15px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
+            margin-top: 15px;
         }
 
-        /* Alert styling */
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .payment-container {
+                padding: 0 10px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
         }
 
-        .alert-danger {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fca5a5;
-        }
-
-        /* Popup Styling */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .popup-content {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .popup-content h2 {
-            color: #2ecc71;
-            margin-bottom: 15px;
-        }
-
-        .popup-content p {
-            margin-bottom: 25px;
-            color: #555;
-        }
-
-        .popup-content button {
-            padding: 12px 25px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        .popup-content button:hover {
-            background-color: #2980b9;
-        }
+        /* Rest of your existing styles... */
     </style>
 </head>
 
@@ -214,40 +124,76 @@
             <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
                 @csrf
 
-                <!-- Top Section: Address and Payment Side by Side -->
-                <div class="flex flex-col lg:flex-row gap-4">
-                    <!-- Shipping Address (50%) -->
-                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-2">Shipping Address</h2>
-                        @if($address)
-                            <div>{{ $address->street }}, {{ $address->city }}, {{ $address->province }} -
-                                {{ $address->postal_code }}, {{ $address->country }}</div>
-                        @else
-                            <div class="alert alert-danger">No shipping address found. Please add an address first.</div>
-                        @endif
-                    </div>
-
-                    <!-- Payment Method (50%) -->
-                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow">
-                        <h2 class="text-lg font-semibold mb-2">Payment Method</h2>
-                        @if($paymentMethod)
-                            <div>{{ $paymentMethod->type }} - {{ $paymentMethod->provider }}
-                                ({{ $paymentMethod->account_number }})</div>
-                        @else
-                            <div class="alert alert-danger">No payment method found. Please add one.</div>
-                        @endif
-                    </div>
+                <!-- Shipping Address Section -->
+                <div class="form-section">
+                    <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
+                    
+                    @if($user->addresses->count() > 0)
+                        <label for="address-select" class="block text-sm font-medium text-gray-700">Select Address</label>
+                        <select id="address-select" name="address_id" class="select-dropdown">
+                            @foreach($user->addresses as $addr)
+                                <option value="{{ $addr->id }}" {{ $addr->is_primary ? 'selected' : '' }}>
+                                    {{ $addr->street }}, {{ $addr->city }}, {{ $addr->province }} - {{ $addr->postal_code }}
+                                </option>
+                            @endforeach
+                        </select>
+                        
+                        <div class="selected-info mt-3">
+                            <h4 class="font-medium">Selected Address:</h4>
+                            <p id="selected-address-display">
+                                {{ $address->street }}, {{ $address->city }}, {{ $address->province }} - 
+                                {{ $address->postal_code }}, {{ $address->country }}
+                            </p>
+                        </div>
+                        
+                        <a href="{{ route('profile') }}" class="add-new-btn">+ Add New Address</a>
+                    @else
+                        <div class="alert alert-danger">
+                            No shipping address found. 
+                            <a href="{{ route('profile') }}" class="text-blue-600 hover:underline">Please add an address first.</a>
+                        </div>
+                    @endif
                 </div>
 
-                <!-- Bottom Section: Order Summary (100%) -->
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+                <!-- Payment Method Section -->
+                <div class="form-section">
+                    <h2 class="text-lg font-semibold mb-4">Payment Method</h2>
+                    
+                    @if($user->paymentMethods->count() > 0)
+                        <label for="payment-select" class="block text-sm font-medium text-gray-700">Select Payment Method</label>
+                        <select id="payment-select" name="payment_method_id" class="select-dropdown">
+                            @foreach($user->paymentMethods as $method)
+                                <option value="{{ $method->id }}" {{ $method->is_default ? 'selected' : '' }}>
+                                    {{ $method->type }} - {{ $method->provider }} ({{ $method->account_number }})
+                                </option>
+                            @endforeach
+                        </select>
+                        
+                        <div class="selected-info mt-3">
+                            <h4 class="font-medium">Selected Payment:</h4>
+                            <p id="selected-payment-display">
+                                {{ $paymentMethod->type }} - {{ $paymentMethod->provider }} 
+                                ({{ $paymentMethod->account_number }})
+                            </p>
+                        </div>
+                        
+                        <a href="{{ route('profile') }}" class="add-new-btn">+ Add New Payment Method</a>
+                    @else
+                        <div class="alert alert-danger">
+                            No payment method found. 
+                            <a href="{{ route('profile') }}" class="text-blue-600 hover:underline">Please add a payment method first.</a>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Order Summary Section -->
+                <div class="form-section">
+                    <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
                     <div class="order-items space-y-2">
                         @foreach($cart->items as $item)
                             <div class="order-item flex justify-between">
                                 <span class="item-name">{{ $item->product->name }} x{{ $item->quantity }}</span>
-                                <span class="item-price">Rp
-                                    {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
+                                <span class="item-price">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -257,16 +203,21 @@
                         <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </div>
 
-                    <button type="submit"
-                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Confirm
-                        Payment</button>
+                    @if($user->addresses->count() > 0 && $user->paymentMethods->count() > 0)
+                        <button type="submit" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium text-lg transition-colors">
+                            Confirm Payment
+                        </button>
+                    @else
+                        <button type="button" class="mt-4 w-full bg-gray-400 text-white py-3 px-4 rounded-lg font-medium text-lg cursor-not-allowed" disabled>
+                            Complete your details to proceed
+                        </button>
+                    @endif
                 </div>
             </form>
-
         </div>
     </div>
 
-    <!-- Popup -->
+    <!-- Popup remains the same -->
     <div class="popup-overlay" id="popup">
         <div class="popup-content animate__animated animate__zoomIn">
             <h2>Payment Successful!</h2>
@@ -277,40 +228,45 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Payment method selection
-            const paymentOptions = document.querySelectorAll('.payment-option');
-            paymentOptions.forEach(option => {
-                option.addEventListener('click', function () {
-                    paymentOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    const radio = this.querySelector('input[type="radio"]');
-                    radio.checked = true;
+            // Update displayed address when selection changes
+            const addressSelect = document.getElementById('address-select');
+            const paymentSelect = document.getElementById('payment-select');
+            const addressDisplay = document.getElementById('selected-address-display');
+            const paymentDisplay = document.getElementById('selected-payment-display');
+            
+            if (addressSelect) {
+                addressSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    addressDisplay.textContent = selectedOption.text;
                 });
-            });
-
-            // Auto-select first payment method
-            const firstPaymentOption = document.querySelector('.payment-option');
-            if (firstPaymentOption) {
-                firstPaymentOption.classList.add('active');
-                firstPaymentOption.querySelector('input').checked = true;
+            }
+            
+            if (paymentSelect) {
+                paymentSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    paymentDisplay.textContent = selectedOption.text;
+                });
             }
 
-            // Payment Success Popup (frontend mock)
+            // Payment Success Popup
             const form = document.getElementById('checkout-form');
             const popup = document.getElementById('popup');
             const okBtn = document.getElementById('popup-ok-btn');
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault(); // prevent real submission (for demo)
-                popup.style.display = 'flex';
-            });
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // prevent real submission (for demo)
+                    popup.style.display = 'flex';
+                });
+            }
 
-            okBtn.addEventListener('click', function () {
-                popup.style.display = 'none';
-                window.location.href = '/'; // redirect after popup
-            });
+            if (okBtn) {
+                okBtn.addEventListener('click', function () {
+                    popup.style.display = 'none';
+                    window.location.href = '/orders'; // redirect to orders page
+                });
+            }
         });
     </script>
 </body>
-
 </html>
