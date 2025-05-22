@@ -41,10 +41,6 @@ Route::middleware('auth')->prefix('user')->group(function () {
         return view('user_view.balance');
     })->name('balance');
 
-    Route::get('/order', function () {
-        return view('user_view.order');
-    })->name('order');
-
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
@@ -57,7 +53,10 @@ Route::middleware('auth')->prefix('user')->group(function () {
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
-    Route::get('/order/confirmation/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
+
+    // Order Routes 
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
 });
     //Page Awal User Masuk!!
     Route::get('/home', [ProductController::class, 'index'])->name('home');

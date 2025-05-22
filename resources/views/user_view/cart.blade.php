@@ -304,8 +304,10 @@
                 </div>
                 
                 @if($totalItems > 0)
-                    <form action="{{ route('payment') }}" method="GET">
+                    <form id="checkout-form" action="{{ route('payment') }}" method="GET">
                         @csrf
+                        {{-- Hidden inputs untuk selected_items nanti diisi JS --}}
+                        <div id="selected-items-inputs"></div>
                         <button type="submit" class="buy-button">
                             Buy Now
                         </button>
@@ -315,6 +317,7 @@
                         Cart is Empty
                     </button>
                 @endif
+
             </div>
         </div>
     </div>
@@ -459,6 +462,68 @@
                 });
             });
         });
+
+        // cart store
+        document.addEventListener('DOMContentLoaded', function() {
+        calculateTotal();
+
+        // Dengarkan perubahan checkbox
+        document.querySelectorAll('.item-checkbox').forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
+
+        // Dengarkan input langsung di quantity
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                submitForm(this);
+            });
+        });
+
+        // Tangani submit form checkout
+        const checkoutForm = document.getElementById('checkout-form');
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Ambil semua checkbox yang dicek
+            const checkedBoxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
+            if (checkedBoxes.length === 0) {
+                alert('Silakan pilih minimal satu item untuk checkout.');
+                return;
+            }
+
+            // Cek semua item berasal dari toko yang sama
+            const selectedIds = checkedBoxes.map(cb => parseInt(cb.getAttribute('data-id')));
+            const selectedStores = new Set();
+
+            checkedBoxes.forEach(cb => {
+                // cari store name dari seller-name element di cart item container
+                const itemContainer = cb.closest('.cart-item-container');
+                const storeName = itemContainer.querySelector('.seller-name').textContent.trim();
+                selectedStores.add(storeName);
+            });
+
+            if (selectedStores.size > 1) {
+                alert('Anda hanya dapat melakukan checkout untuk satu toko saja.');
+                return;
+            }
+
+            // Isi hidden inputs selected_items[] di form
+            const inputsContainer = document.getElementById('selected-items-inputs');
+            inputsContainer.innerHTML = ''; // kosongkan dulu
+
+            selectedIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_items[]';
+                input.value = id;
+                inputsContainer.appendChild(input);
+            });
+
+            // Submit form jika validasi lolos
+            this.submit();
+        });
+    });
+
     </script>
     
 </body>

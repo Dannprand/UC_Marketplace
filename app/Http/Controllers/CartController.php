@@ -105,40 +105,62 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
     
-    public function payment()
+   public function payment(Request $request)
 {
     $user = Auth::user();
     if (!$user) {
         return redirect()->route('login');
     }
 
-    // Ambil cart user beserta item dan produk
-    $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+    $orderSuccess = session('order_success', false);
 
-    // Jika cart kosong, arahkan kembali
-    if (!$cart || $cart->items->isEmpty()) {
+    $cart = Cart::with('items.product.store')->where('user_id', $user->id)->first();
+
+    $selectedItemIds = $request->query('selected_items', []);
+
+    if (!is_array($selectedItemIds)) {
+        $selectedItemIds = [];
+    }
+    $selectedItemIds = array_map('intval', $selectedItemIds);
+
+    if (!$orderSuccess && (!$cart || $cart->items->isEmpty())) {
         return redirect()->route('cart')->with('error', 'Keranjang belanja kosong!');
     }
 
-    // Ambil alamat dan metode pembayaran user
+    if (empty($selectedItemIds)) {
+        return redirect()->route('cart')->with('error', 'Silakan pilih item yang ingin dibeli.');
+    }
+
+    $items = $cart->items->filter(function ($item) use ($selectedItemIds) {
+        return in_array($item->id, $selectedItemIds);
+    });
+
+    if ($items->isEmpty()) {
+        return redirect()->route('cart')->with('error', 'Item yang dipilih tidak valid.');
+    }
+
+    $storeIds = $items->pluck('product.store_id')->unique();
+
+    if ($storeIds->count() > 1) {
+        return redirect()->route('cart')->with('error', 'Anda hanya dapat melakukan checkout untuk satu toko saja.');
+    }
+
     $addresses = $user->addresses ?? collect();
     $paymentMethods = $user->paymentMethods ?? collect();
 
-    // Hitung total harga
-    $totalPrice = $cart->items->sum(function ($item) {
-        return $item->product->price * $item->quantity;
-    });
-
-    $orderSuccess = session('order_success', false);
+    $totalPrice = $items->sum(fn($item) => $item->product->price * $item->quantity);
 
     return view('user_view.payment', [
         'cart' => $cart,
+        'items' => $items,  // ini yang dipakai di blade
         'totalPrice' => $totalPrice,
         'addresses' => $addresses,
         'paymentMethods' => $paymentMethods,
-        'orderSuccess' => $orderSuccess,  // Kirim ke blade
+        'orderSuccess' => $orderSuccess,
     ]);
 }
+
+
 
    public function processCheckout(Request $request)
 {
@@ -200,16 +222,6 @@ class CartController extends Controller
         ->with('order_number', $order->order_number);
 }
 
-    // Add this method for order confirmation
-    public function orderConfirmation(Order $order)
-    {
-        if ($order->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $order->load(['items.product', 'shippingAddress', 'paymentMethod']);
-        return view('user_view.order_confirmation', compact('order'));
-    }
 }
 
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\User;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,30 +42,23 @@ class OrderController extends Controller
         return redirect()->route('checkout.payment')->with('success', 'Address added successfully.');
     }
 
-//     public function deleteAddress($id)
-// {
-//     $user = Auth::user();
-//     $address = $user->addresses()->findOrFail($id);
+    // Tampilkan daftar order user
+    public function index()
+    {
+        $user = Auth::user();
 
-//     // Cek apakah user punya lebih dari 1 alamat
-//     if ($user->addresses()->count() <= 1) {
-//         return back()->withErrors(['You must have at least one address.']);
-//     }
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
-//     $wasPrimary = $address->is_primary;
+        // Ambil semua order user beserta relasi item, product, dan merchant/store
+        $orders = $user->orders()
+            ->with('items.product.store.merchant')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-//     $address->delete();
+        return view('user_view.order', compact('orders'));
+    }
 
-//     // Kalau alamat yang dihapus adalah primary, set salah satu jadi primary
-//     if ($wasPrimary) {
-//         $nextAddress = $user->addresses()->first();
-//         if ($nextAddress) {
-//             $nextAddress->is_primary = true;
-//             $nextAddress->save();
-//         }
-//     }
-
-//     return back()->with('success', 'Address deleted successfully.');
-// }
 
 }
