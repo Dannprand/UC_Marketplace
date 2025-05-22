@@ -311,20 +311,6 @@
     </div>
 </div>
 
-<!-- Payment Success Popup -->
-<div id="popup" class="fixed inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-out hidden">
-    <div id="popup-content" class="bg-white rounded-xl p-6 w-80 text-center transform scale-75 opacity-0 transition-transform duration-300 ease-out">
-        <h2 class="text-xl font-bold text-green-600 mb-2">Payment Successful!</h2>
-        <p class="text-gray-700 mb-4">Thank you for your order. We will process it shortly.</p>
-        <button id="popup-ok-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">OK</button>
-    </div>
-</div>
-
-
-@php
-    $orderSuccess = session('order_success');
-@endphp
-
 <script>
     // Toggle form tambah alamat baru
     document.getElementById('toggle-address-form').addEventListener('click', function (e) {
@@ -355,28 +341,4 @@
             providerSelect.appendChild(option);
         });
     });
-
-    // Pop up
-    const orderSuccess = @json(session('order_success'));
-    const popup = document.getElementById('popup');
-    const popupContent = document.getElementById('popup-content');
-
-    if (orderSuccess) {
-        window.addEventListener('DOMContentLoaded', () => {
-            // Tampilkan overlay popup
-            popup.classList.remove('hidden');
-
-            // Trigger animasi masuk
-            setTimeout(() => {
-                popupContent.classList.remove('scale-75', 'opacity-0');
-                popupContent.classList.add('scale-100', 'opacity-100');
-            }, 50); // Delay kecil untuk transisi berjalan
-
-            // Tombol OK untuk menutup
-            document.getElementById('popup-ok-btn').addEventListener('click', () => {
-                popup.classList.add('hidden');
-                window.location.href = '/home';
-            });
-        });
-    }
 </script>

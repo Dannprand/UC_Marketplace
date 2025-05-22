@@ -87,32 +87,22 @@ class CartController extends Controller
 
         return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
-    public function update(Request $request, $itemId)
-    {
-        $request->validate([
-            'quantity' => 'required|integer|min:1|max:10',
-        ]);
 
-        $cartItem = CartItem::findOrFail($itemId);
-        $cartItem->update(['quantity' => $request->quantity]);
 
-        return redirect()->route('cart')->with('success', 'Cart updated!');
-    }
-
-    public function remove($id) {
-        $cartItem = CartItem::findOrFail($id);
-        $cartItem->delete();
-        return redirect()->back()->with('success', 'Item removed from cart.');
-    }
-    
-   public function payment(Request $request)
+    public function payment(Request $request)
 {
     $user = Auth::user();
     if (!$user) {
         return redirect()->route('login');
     }
 
+    // Ambil order success dari session biasa, bukan flash
     $orderSuccess = session('order_success', false);
+    $orderNumber = session('order_number');
+
+    // Hapus agar tidak muncul terus-menerus
+    session()->forget('order_success');
+    session()->forget('order_number');
 
     $cart = Cart::with('items.product.store')->where('user_id', $user->id)->first();
 
@@ -147,19 +137,18 @@ class CartController extends Controller
 
     $addresses = $user->addresses ?? collect();
     $paymentMethods = $user->paymentMethods ?? collect();
-
     $totalPrice = $items->sum(fn($item) => $item->product->price * $item->quantity);
 
     return view('user_view.payment', [
         'cart' => $cart,
-        'items' => $items,  // ini yang dipakai di blade
+        'items' => $items,
         'totalPrice' => $totalPrice,
         'addresses' => $addresses,
         'paymentMethods' => $paymentMethods,
         'orderSuccess' => $orderSuccess,
+        'orderNumber' => $orderNumber,
     ]);
 }
-
 
 
    public function processCheckout(Request $request)
@@ -217,9 +206,8 @@ class CartController extends Controller
     // Hapus item dari cart
     $cart->items()->delete();
 
-     return redirect()->route('payment')
-        ->with('order_success', true)
-        ->with('order_number', $order->order_number);
+    return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
+
 }
 
 }

@@ -101,7 +101,7 @@
         .no-orders {
             max-width: 600px;
             margin: 3rem auto;
-            background: #faf089;
+            background: white;
             color: #975a16;
             padding: 1rem 1.5rem;
             border-radius: 12px;
@@ -144,7 +144,7 @@
 
                                 {{-- Tampilkan total pembayaran user dari order --}}
                                 <div class="payment-amount">
-                                    Rp {{ number_format($order->total_payment ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                                 </div>
                             </div>
                         @endforeach
