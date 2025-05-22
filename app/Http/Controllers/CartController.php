@@ -88,7 +88,7 @@ class CartController extends Controller
         return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
 
-
+// persiapan ke payment
     public function payment(Request $request)
 {
     $user = Auth::user();
@@ -150,7 +150,7 @@ class CartController extends Controller
     ]);
 }
 
-
+// buat proses checkout produk
    public function processCheckout(Request $request)
 {
     $user = Auth::user();
