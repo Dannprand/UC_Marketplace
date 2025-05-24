@@ -26,6 +26,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/register/address', [AuthController::class, 'processAddress']);
 });
 
+// Admin routes
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/users', [AuthController::class, 'adminUsers'])->name('admin.users');
+    Route::delete('/users/{user}', [AuthController::class, 'adminDeleteUser'])->name('admin.users.delete');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 
