@@ -238,8 +238,8 @@
             @csrf
             <!-- Top Section: Address and Payment Side by Side -->
              @foreach($selectedItemIds as $itemId)
-             <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
-                @endforeach 
+        <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+    @endforeach
             <div class="flex flex-col lg:flex-row gap-4">
                 <!-- Shipping Address (50%) -->
                 <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
