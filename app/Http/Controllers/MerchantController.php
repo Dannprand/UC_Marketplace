@@ -7,7 +7,8 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Order;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MerchantController extends Controller
 {
@@ -97,7 +98,7 @@ class MerchantController extends Controller
         return view('merchant_view.merchant', compact('merchant', 'store', 'products'));
     }
 
-   public function transactions()
+    public function transactions()
 {
     $merchant = Auth::user()->merchant;
 
@@ -111,13 +112,23 @@ class MerchantController extends Controller
         abort(404, 'Store not found for this merchant.');
     }
 
-    $orders = Order::with(['user', 'items.product', 'store'])
-        ->where('store_id', $store->id)
-        ->orderByDesc('created_at')
-        ->get();
+    // Ambil order yang punya item dengan produk dari store ini
+    $orders = Order::whereHas('items.product', function($query) use ($store) {
+        $query->where('store_id', $store->id);
+    })
+    ->with([
+        'user',                    // data pembeli
+        'items' => function($query) use ($store) {
+            // Hanya ambil items yang produk dari store merchant ini
+            $query->whereHas('product', function($q) use ($store) {
+                $q->where('store_id', $store->id);
+            })->with('product.store'); // eager load product dan store
+        }
+    ])
+    ->orderByDesc('created_at')
+    ->get();
 
     return view('merchant_view.transactions', compact('orders'));
 }
-
 
 }
