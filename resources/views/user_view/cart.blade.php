@@ -274,7 +274,7 @@
                                     @method('PATCH')
                                     <button type="button" class="quantity-btn minus" 
                                             onclick="updateQuantity(this, -1, {{ $item->product->price }})">-</button>
-                                    <input type="number" name="quantity" 
+                                    <input type="number" name="quantity"    
                                            value="{{ $item->quantity }}" 
                                            min="1" max="10"
                                            class="quantity-input"
