@@ -43,7 +43,62 @@ class CartController extends Controller
     return view('user_view.cart', compact('cart', 'totalPrice', 'totalItems'));
 }
 
+ public function update(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
+        ]);
 
+        $user = Auth::user();
+
+        // Ambil cart milik user
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (!$cart) {
+            return redirect()->back()->with('error', 'Cart not found.');
+        }
+
+        // Cari CartItem yang punya cart_id sesuai dan id item yang diminta
+        $cartItem = CartItem::where('id', $id)
+            ->where('cart_id', $cart->id)
+            ->first();
+
+        if (!$cartItem) {
+            return redirect()->back()->with('error', 'Cart item not found.');
+        }
+
+        // Update quantity
+        $cartItem->quantity = $request->quantity;
+        $cartItem->save();
+
+        return redirect()->back()->with('success', 'Cart updated successfully.');
+    }
+
+    // Hapus item dari cart
+    public function remove(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (!$cart) {
+            return redirect()->back()->with('error', 'Cart not found.');
+        }
+
+        $cartItem = CartItem::where('id', $id)
+            ->where('cart_id', $cart->id)
+            ->first();
+
+        if (!$cartItem) {
+            return redirect()->back()->with('error', 'Cart item not found.');
+        }
+
+        $cartItem->delete();
+
+        return redirect()->back()->with('success', 'Item removed from cart.');
+    }
+
+    
 
     // Menambahkan produk ke dalam keranjang
     public function addToCart(Request $request, $productId)
