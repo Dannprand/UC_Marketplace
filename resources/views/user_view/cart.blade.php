@@ -254,6 +254,10 @@
                         <div class="cart-item-content">
                             <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
                                 data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
+<div class="cart-item-container" id="item-{{ $item->id }}">
+    <div class="cart-item-content">
+        <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}" 
+               data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
                             <div class="product-info">
                                 <div class="product-image-container">
                                     <img src="{{ asset('storage/' . $item->product->images[0]) }}" 
@@ -372,6 +376,12 @@ function updateQuantity(button, change) {
             if (checkbox) {
                 checkbox.setAttribute('data-quantity', newValue);
             }
+    // Update data di checkbox
+    const itemId = parseInt(form.action.split('/').pop());
+    const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+    if(checkbox) {
+        checkbox.setAttribute('data-quantity', newValue);
+    }
     
             calculateTotal();
             form.submit();
@@ -396,6 +406,25 @@ function updateQuantity(button, change) {
             calculateTotal();
             form.submit();
         }
+    calculateTotal();
+    form.submit();
+}
+
+// Fungsi submit form
+function submitForm(input) {
+    const form = input.closest('form');
+    const itemId = parseInt(form.action.split('/').pop());
+    const quantity = parseInt(input.value);
+
+    // Update data di checkbox
+    const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
+    if(checkbox) {
+        checkbox.setAttribute('data-quantity', quantity);
+    }
+
+    calculateTotal();
+    form.submit();
+}
     
         // Hapus konfirmasi sebelum delete
         document.querySelectorAll('.delete-action button').forEach(btn => {
