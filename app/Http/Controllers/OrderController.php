@@ -44,21 +44,21 @@ class OrderController extends Controller
 
     // Tampilkan daftar order user
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            return redirect()->route('login');
-        }
-
-        // Ambil semua order user beserta relasi item, product, dan merchant/store
-        $orders = $user->orders('orderItems.product', 'store', 'shippingAddress', 'paymentMethod')
-            ->with('items.product.store.merchant')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('user_view.order', compact('orders'));
+    if (!$user) {
+        return redirect()->route('login');
     }
+
+    // Perbaikan query untuk mengambil order dengan item yang relevan
+    $orders = Order::with(['items.product.store.merchant', 'shippingAddress', 'paymentMethod'])
+        ->where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('user_view.order', compact('orders'));
+}
 
 
 }
