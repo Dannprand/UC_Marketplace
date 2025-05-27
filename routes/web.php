@@ -90,6 +90,7 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
 
     // Transactions Page
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
+    Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
 
     // Add this inside the merchant group
     Route::get('/detail', function () {

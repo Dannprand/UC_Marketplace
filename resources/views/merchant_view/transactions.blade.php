@@ -60,14 +60,39 @@
             color: #718096;
         }
 
-        .order-status {
+        .status-dropdown {
             padding: 0.3rem 0.75rem;
             font-size: 0.75rem;
             font-weight: 600;
             border-radius: 9999px;
-            background-color: #e6fffa;
-            color: #2c7a7b;
             text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+        }
+
+        .status-dropdown.pending {
+            background-color: #fff5f5;
+            color: #e53e3e;
+        }
+
+        .status-dropdown.processing {
+            background-color: #fefcbf;
+            color: #b7791f;
+        }
+
+        .status-dropdown.shipped {
+            background-color: #bee3f8;
+            color: #3182ce;
+        }
+
+        .status-dropdown.delivered {
+            background-color: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .status-dropdown.cancelled {
+            background-color: #e2e8f0;
+            color: #4a5568;
         }
 
         .buyer-info {
@@ -132,12 +157,8 @@
     <x-navigation />
 
     <section class="transactions-section">
-        @if ($orders->isEmpty())
-            <div class="no-transactions">
-                You currently have no transactions for your store.
-            </div>
-        @else
-          <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
+        @if ($orders->count() > 0)
+            <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
             @foreach ($orders as $order)
                 <div class="transaction-card">
                     <div class="transaction-top">
@@ -145,11 +166,24 @@
                             <div class="order-id">Order #{{ $order->id }}</div>
                             <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</div>
                         </div>
-                        <div class="order-status">{{ strtoupper($order->status) }}</div>
+
+                        <div>
+                            <form action="{{ route('merchant.orders.updateStatus', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <select name="status" onchange="this.form.submit()" class="status-dropdown {{ $order->status }}">
+                                    <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
+                                    <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                    <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                    <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                </select>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="buyer-info">
-                        <strong>{{ $order->user->full_name }}
+                        <strong>{{ $order->user->full_name }}</strong>
                     </div>
 
                     <div class="items-list">
@@ -169,6 +203,10 @@
                     </div>
                 </div>
             @endforeach
+        @else
+            <div class="no-transactions">
+                You currently have no transactions for your store.
+            </div>
         @endif
     </section>
 </body>
