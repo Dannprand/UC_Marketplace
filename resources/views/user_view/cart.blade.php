@@ -252,8 +252,9 @@
                 @forelse($cart->items as $item)
                     <div class="cart-item-container" id="item-{{ $item->id }}">
                         <div class="cart-item-content">
-                            <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
-                                data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
+                            <input type="checkbox" name="selected_items[]" value="{{ $item->id }}"
+                                class="item-checkbox" data-price="{{ $item->product->price }}"
+                                data-quantity="{{ $item->quantity }}" checked>
                             <div class="product-info">
                                 <div class="product-image-container">
                                     <img src="{{ asset('storage/' . $item->product->images[0]) }}" 

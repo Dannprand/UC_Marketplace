@@ -43,6 +43,24 @@ class CartController extends Controller
     return view('user_view.cart', compact('cart', 'totalPrice', 'totalItems'));
 }
 
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'quantity' => 'required|integer|min:1'
+    ]);
+
+    $cartItem = CartItem::findOrFail($id);
+
+    // Pastikan item milik user yang login
+    if ($cartItem->cart->user_id !== Auth::id()) {
+        abort(403);
+    }
+
+    $cartItem->quantity = $request->quantity;
+    $cartItem->save();
+
+    return back()->with('success', 'Jumlah item berhasil diperbarui.');
+}
 
 
     // Menambahkan produk ke dalam keranjang
@@ -88,7 +106,7 @@ class CartController extends Controller
         return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
 
-// persiapan ke payment
+
     public function payment(Request $request)
 {
     $user = Auth::user();
@@ -150,50 +168,131 @@ class CartController extends Controller
     ]);
 }
 
-// buat proses checkout produk
-   public function processCheckout(Request $request)
+
+//    public function processCheckout(Request $request)
+// {
+//     $user = Auth::user();
+
+//     // Validasi form input
+//     $request->validate([
+//         'shipping_address_id' => 'required|exists:addresses,id',
+//         'type' => 'required|string|in:bank_transfer,e-wallet',
+//         'provider' => 'required|string',
+//     ]);
+
+   
+//     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+
+//     if (!$cart || $cart->items->isEmpty()) {
+//         return back()->withErrors('Your cart is empty.');
+//     }
+
+//     $firstStoreId = $cart->items->first()->product->store_id;
+
+//     // Simpan metode pembayaran baru
+//     $paymentMethod = PaymentMethod::create([
+//         'user_id' => $user->id,
+//         'type' => $request->type,
+//         'provider' => $request->provider,
+//         'account_name' => $user->email,
+//         'account_number' => $user->phone_number, 
+//     ]);
+
+
+//     // Buat order baru
+//     $order = Order::create([
+//         'user_id' => $user->id,
+//         'order_number' => 'INV-' . strtoupper(Str::random(8)),
+//         'status' => 'pending',
+//         'total_amount' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
+//         'shipping_address_id' => $request->shipping_address_id,
+//         'payment_method_id' => $paymentMethod->id,
+//         'store_id' => $firstStoreId,
+//     ]);
+
+//     // Tambahkan item ke order
+//     foreach ($cart->items as $item) {
+//         OrderItem::create([
+//             'order_id' => $order->id,
+//             'product_id' => $item->product_id,
+//             'quantity' => $item->quantity,
+//             'unit_price' => $item->product->price,
+//             'total_price' => $item->product->price * $item->quantity,
+//         ]);
+//     }
+
+//     // Hapus item dari cart
+//     $cart->items()->delete();
+
+//     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
+
+// }
+
+public function processCheckout(Request $request)
 {
     $user = Auth::user();
 
-    // Validasi form input
+    // Validasi input
     $request->validate([
         'shipping_address_id' => 'required|exists:addresses,id',
         'type' => 'required|string|in:bank_transfer,e-wallet',
         'provider' => 'required|string',
+        'selected_items' => 'required|array|min:1', // validasi tambahan
+        'selected_items.*' => 'integer|exists:cart_items,id',
     ]);
 
-   
+    // Ambil cart user
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
 
     if (!$cart || $cart->items->isEmpty()) {
         return back()->withErrors('Your cart is empty.');
     }
 
-    $firstStoreId = $cart->items->first()->product->store_id;
+    // Ambil ID item yang dipilih
+    $selectedItemIds = $request->input('selected_items', []);
 
-    // Simpan metode pembayaran baru
+    // Filter item yang dipilih dari cart
+    $selectedItems = $cart->items->filter(function ($item) use ($selectedItemIds) {
+        return in_array($item->id, $selectedItemIds);
+    });
+
+    if ($selectedItems->isEmpty()) {
+        return back()->withErrors('Item yang dipilih tidak valid.');
+    }
+
+    // Pastikan semua item dari toko yang sama
+    $storeIds = $selectedItems->pluck('product.store_id')->unique();
+    if ($storeIds->count() > 1) {
+        return back()->withErrors('Hanya bisa checkout item dari satu toko.');
+    }
+
+    $firstStoreId = $storeIds->first();
+
+    // Simpan payment method
     $paymentMethod = PaymentMethod::create([
         'user_id' => $user->id,
         'type' => $request->type,
         'provider' => $request->provider,
         'account_name' => $user->email,
-        'account_number' => $user->phone_number, 
+        'account_number' => $user->phone_number,
     ]);
 
+    // Hitung total pembayaran
+    $totalAmount = $selectedItems->sum(fn($item) => $item->product->price * $item->quantity);
 
-    // Buat order baru
+    // Buat order
     $order = Order::create([
         'user_id' => $user->id,
         'order_number' => 'INV-' . strtoupper(Str::random(8)),
         'status' => 'pending',
-        'total_amount' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
+        'total_amount' => $totalAmount,
         'shipping_address_id' => $request->shipping_address_id,
         'payment_method_id' => $paymentMethod->id,
         'store_id' => $firstStoreId,
     ]);
 
     // Tambahkan item ke order
-    foreach ($cart->items as $item) {
+    foreach ($selectedItems as $item) {
         OrderItem::create([
             'order_id' => $order->id,
             'product_id' => $item->product_id,
@@ -203,12 +302,12 @@ class CartController extends Controller
         ]);
     }
 
-    // Hapus item dari cart
-    $cart->items()->delete();
+    // Hapus item yang dipilih dari cart
+    $cart->items()->whereIn('id', $selectedItemIds)->delete();
 
     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
-
 }
+
 
 }
 

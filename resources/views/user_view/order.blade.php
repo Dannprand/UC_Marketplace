@@ -140,15 +140,20 @@
                                     @if($item->product->store && $item->product->store->merchant)
                                         <p class="product-store">From: {{ $item->product->store->merchant->merchant_name }}</p>
                                     @endif
-                                </div>
-
-                                {{-- Tampilkan total pembayaran user dari order --}}
-                                <div class="payment-amount">
-                                    Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
+                                    <p class="product-price">
+                                        Harga Satuan: Rp {{ number_format($item->unit_price, 0, ',', '.') }} <br>
+                                        Subtotal: Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
+
+                        {{-- Total Pembayaran Ditampilkan Sekali Saja --}}
+                        <div class="order-total mt-4 font-semibold text-lg text-right">
+                            Total Pembayaran: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
+                        </div>
                     </div>
+
                 </article>
             @endforeach
         @else
