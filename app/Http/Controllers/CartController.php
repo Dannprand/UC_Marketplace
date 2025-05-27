@@ -43,8 +43,7 @@ class CartController extends Controller
     return view('user_view.cart', compact('cart', 'totalPrice', 'totalItems'));
 }
 
-// Update quantity cart item
-    public function update(Request $request, $id)
+ public function update(Request $request, $id)
     {
         $request->validate([
             'quantity' => 'required|integer|min:1|max:10',
@@ -99,6 +98,7 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
 
+    
 
     // Menambahkan produk ke dalam keranjang
     public function addToCart(Request $request, $productId)
@@ -143,7 +143,7 @@ class CartController extends Controller
         return redirect()->route('cart')->with('success', 'Product added to cart successfully!');
     }
 
-
+// persiapan ke payment
     public function payment(Request $request)
 {
     $user = Auth::user();
@@ -205,131 +205,50 @@ class CartController extends Controller
     ]);
 }
 
-
-//    public function processCheckout(Request $request)
-// {
-//     $user = Auth::user();
-
-//     // Validasi form input
-//     $request->validate([
-//         'shipping_address_id' => 'required|exists:addresses,id',
-//         'type' => 'required|string|in:bank_transfer,e-wallet',
-//         'provider' => 'required|string',
-//     ]);
-
-   
-//     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
-
-//     if (!$cart || $cart->items->isEmpty()) {
-//         return back()->withErrors('Your cart is empty.');
-//     }
-
-//     $firstStoreId = $cart->items->first()->product->store_id;
-
-//     // Simpan metode pembayaran baru
-//     $paymentMethod = PaymentMethod::create([
-//         'user_id' => $user->id,
-//         'type' => $request->type,
-//         'provider' => $request->provider,
-//         'account_name' => $user->email,
-//         'account_number' => $user->phone_number, 
-//     ]);
-
-
-//     // Buat order baru
-//     $order = Order::create([
-//         'user_id' => $user->id,
-//         'order_number' => 'INV-' . strtoupper(Str::random(8)),
-//         'status' => 'pending',
-//         'total_amount' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
-//         'shipping_address_id' => $request->shipping_address_id,
-//         'payment_method_id' => $paymentMethod->id,
-//         'store_id' => $firstStoreId,
-//     ]);
-
-//     // Tambahkan item ke order
-//     foreach ($cart->items as $item) {
-//         OrderItem::create([
-//             'order_id' => $order->id,
-//             'product_id' => $item->product_id,
-//             'quantity' => $item->quantity,
-//             'unit_price' => $item->product->price,
-//             'total_price' => $item->product->price * $item->quantity,
-//         ]);
-//     }
-
-//     // Hapus item dari cart
-//     $cart->items()->delete();
-
-//     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
-
-// }
-
-public function processCheckout(Request $request)
+// buat proses checkout produk
+   public function processCheckout(Request $request)
 {
     $user = Auth::user();
 
-    // Validasi input
+    // Validasi form input
     $request->validate([
         'shipping_address_id' => 'required|exists:addresses,id',
         'type' => 'required|string|in:bank_transfer,e-wallet',
         'provider' => 'required|string',
-        'selected_items' => 'required|array|min:1', // validasi tambahan
-        'selected_items.*' => 'integer|exists:cart_items,id',
     ]);
 
-    // Ambil cart user
+   
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
 
     if (!$cart || $cart->items->isEmpty()) {
         return back()->withErrors('Your cart is empty.');
     }
 
-    // Ambil ID item yang dipilih
-    $selectedItemIds = $request->input('selected_items', []);
+    $firstStoreId = $cart->items->first()->product->store_id;
 
-    // Filter item yang dipilih dari cart
-    $selectedItems = $cart->items->filter(function ($item) use ($selectedItemIds) {
-        return in_array($item->id, $selectedItemIds);
-    });
-
-    if ($selectedItems->isEmpty()) {
-        return back()->withErrors('Item yang dipilih tidak valid.');
-    }
-
-    // Pastikan semua item dari toko yang sama
-    $storeIds = $selectedItems->pluck('product.store_id')->unique();
-    if ($storeIds->count() > 1) {
-        return back()->withErrors('Hanya bisa checkout item dari satu toko.');
-    }
-
-    $firstStoreId = $storeIds->first();
-
-    // Simpan payment method
+    // Simpan metode pembayaran baru
     $paymentMethod = PaymentMethod::create([
         'user_id' => $user->id,
         'type' => $request->type,
         'provider' => $request->provider,
         'account_name' => $user->email,
-        'account_number' => $user->phone_number,
+        'account_number' => $user->phone_number, 
     ]);
 
-    // Hitung total pembayaran
-    $totalAmount = $selectedItems->sum(fn($item) => $item->product->price * $item->quantity);
 
-    // Buat order
+    // Buat order baru
     $order = Order::create([
         'user_id' => $user->id,
         'order_number' => 'INV-' . strtoupper(Str::random(8)),
         'status' => 'pending',
-        'total_amount' => $totalAmount,
+        'total_amount' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
         'shipping_address_id' => $request->shipping_address_id,
         'payment_method_id' => $paymentMethod->id,
         'store_id' => $firstStoreId,
     ]);
 
     // Tambahkan item ke order
-    foreach ($selectedItems as $item) {
+    foreach ($cart->items as $item) {
         OrderItem::create([
             'order_id' => $order->id,
             'product_id' => $item->product_id,
@@ -339,12 +258,12 @@ public function processCheckout(Request $request)
         ]);
     }
 
-    // Hapus item yang dipilih dari cart
-    $cart->items()->whereIn('id', $selectedItemIds)->delete();
+    // Hapus item dari cart
+    $cart->items()->delete();
 
     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
-}
 
+}
 
 }
 

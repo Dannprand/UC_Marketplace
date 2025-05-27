@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Events\Registered;
 
-class AuthController extends Controller
+class AuthController extends Controller 
 {
     // Show login form
     public function showLoginForm()
@@ -19,24 +19,48 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+ //Check if user is admin
+ 
+    private function isAdminUser($email, $password)
+    {
+        return $email === 'admin@gmail.com' && $password === '123';
+    }
+
     // Handle login request
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    // Admin login check (add this at the start)
+    if ($this->isAdminUser($request->email, $request->password)) {
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'full_name' => 'Admin',
+                'phone_number' => '0000000000',
+                'password' => Hash::make('123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            return redirect('/home');
-        }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        Auth::login($admin);
+        $request->session()->regenerate();
+        return redirect()->route('admin.dashboard');
     }
+
+    // Rest of your existing login method remains the same...
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect('/home');
+    }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ])->onlyInput('email');
+}
 
     // Show registration form
     public function showRegistrationForm()
@@ -134,4 +158,82 @@ public function processAddress(Request $request)
 
     return redirect()->route('home')->with('success', 'Registration complete!');
 }
+/**
+ * Admin dashboard
+ */
+public function adminDashboard(Request $request)
+{
+    if (!Auth::check() || Auth::user()->email !== 'admin@gmail.com') {
+        abort(403, 'Unauthorized access');
+    }
+
+    $search = $request->input('search');
+    
+    $query = User::where('email', '!=', 'admin@gmail.com')
+                ->orderBy('created_at', 'desc');
+
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('full_name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone_number', 'like', "%{$search}%");
+        });
+    }
+
+    $userCount = User::where('email', '!=', 'admin@gmail.com')->count();
+    $newUsersToday = User::whereDate('created_at', today())->count();
+    $recentUsers = $query->paginate(15);
+
+    return view('admin.dashboard', [
+        'userCount' => $userCount,
+        'newUsersToday' => $newUsersToday,
+        'recentUsers' => $recentUsers,
+        'search' => $search
+    ]);
+}
+
+/**
+ * Show all users for admin
+ */
+public function adminUsers()
+{
+    // Validasi admin menggunakan session auth
+    if (!Auth::check() || Auth::user()->email !== 'admin@gmail.com') {
+        abort(403, 'Unauthorized access');
+    }
+
+    $users = User::where('email', '!=', 'admin@gmail.com')
+                ->with('address') // Jika ingin menampilkan data alamat juga
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+    return view('admin.users', compact('users'));
+}
+
+/**
+ * Delete user by admin
+ */
+public function adminDeleteUser(Request $request, $id)
+{
+    // Validasi admin menggunakan session auth
+    if (!Auth::check() || Auth::user()->email !== 'admin@gmail.com') {
+        abort(403, 'Unauthorized access');
+    }
+
+    $user = User::findOrFail($id);
+
+    // Prevent deleting admin
+    if ($user->email === 'admin@gmail.com') {
+        return back()->with('error', 'Cannot delete admin user.');
+    }
+
+    // Hapus alamat terkait jika ada
+    if ($user->address) {
+        $user->address->delete();
+    }
+
+    $user->delete();
+    return back()->with('success', 'User deleted successfully.');
+}
+
 }
