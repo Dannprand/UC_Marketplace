@@ -52,7 +52,7 @@ class OrderController extends Controller
         }
 
         // Ambil semua order user beserta relasi item, product, dan merchant/store
-        $orders = $user->orders()
+        $orders = $user->orders('orderItems.product', 'store', 'shippingAddress', 'paymentMethod')
             ->with('items.product.store.merchant')
             ->orderBy('created_at', 'desc')
             ->get();
