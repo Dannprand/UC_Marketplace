@@ -210,24 +210,33 @@ class CartController extends Controller
    public function processCheckout(Request $request)
 {
     $user = Auth::user();
-
-    // Validasi form input
+    
+    // Validasi input
     $request->validate([
         'shipping_address_id' => 'required|exists:addresses,id',
         'type' => 'required|string|in:bank_transfer,e-wallet',
         'provider' => 'required|string',
+        'selected_items' => 'required|array', // Tambahkan validasi ini
+        'selected_items.*' => 'integer|exists:cart_items,id'
     ]);
 
-   
     $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
+    
+    // Ambil hanya item yang dipilih
+    $selectedItems = $cart->items->whereIn('id', $request->selected_items);
 
-    if (!$cart || $cart->items->isEmpty()) {
-        return back()->withErrors('Your cart is empty.');
+    // Validasi item
+    if($selectedItems->isEmpty()) {
+        return back()->withErrors('Tidak ada item yang dipilih!');
     }
 
-    $firstStoreId = $cart->items->first()->product->store_id;
+    // Validasi toko
+    $storeIds = $selectedItems->pluck('product.store_id')->unique();
+    if($storeIds->count() > 1) {
+        return back()->withErrors('Hanya boleh checkout dari 1 toko!');
+    }
 
-    // Simpan metode pembayaran baru
+    // Simpan metode pembayaran
     $paymentMethod = PaymentMethod::create([
         'user_id' => $user->id,
         'type' => $request->type,
@@ -236,34 +245,37 @@ class CartController extends Controller
         'account_number' => $user->phone_number, 
     ]);
 
+    // Hitung total dari item yang dipilih
+    $totalAmount = $selectedItems->sum(function($item) {
+        return $item->product->price * $item->quantity;
+    });
 
     // Buat order baru
     $order = Order::create([
         'user_id' => $user->id,
         'order_number' => 'INV-' . strtoupper(Str::random(8)),
         'status' => 'pending',
-        'total_amount' => $cart->items->sum(fn($item) => $item->product->price * $item->quantity),
+        'total_amount' => $totalAmount,
         'shipping_address_id' => $request->shipping_address_id,
         'payment_method_id' => $paymentMethod->id,
-        'store_id' => $firstStoreId,
+        'store_id' => $storeIds->first(),
     ]);
 
-    // Tambahkan item ke order
-    foreach ($cart->items as $item) {
+    // Tambahkan item yang dipilih ke order
+    foreach($selectedItems as $cartItem) {
         OrderItem::create([
             'order_id' => $order->id,
-            'product_id' => $item->product_id,
-            'quantity' => $item->quantity,
-            'unit_price' => $item->product->price,
-            'total_price' => $item->product->price * $item->quantity,
+            'product_id' => $cartItem->product_id,
+            'quantity' => $cartItem->quantity,
+            'unit_price' => $cartItem->product->price,
+            'total_price' => $cartItem->product->price * $cartItem->quantity,
         ]);
     }
 
-    // Hapus item dari cart
-    $cart->items()->delete();
+    // Hapus hanya item yang dipilih dari cart
+    CartItem::whereIn('id', $request->selected_items)->delete();
 
     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
-
 }
 
 }
