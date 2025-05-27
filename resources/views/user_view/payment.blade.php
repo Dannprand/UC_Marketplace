@@ -237,6 +237,9 @@
         <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
             @csrf
             <!-- Top Section: Address and Payment Side by Side -->
+             @foreach($selectedItemIds as $itemId)
+             <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+                @endforeach 
             <div class="flex flex-col lg:flex-row gap-4">
                 <!-- Shipping Address (50%) -->
                 <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
@@ -282,31 +285,31 @@
 
             <!-- Bottom Section: Order Summary (100%) -->
             <div class="bg-white p-4 rounded-xl shadow">
-                <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
-                <div class="order-items space-y-2">
-                    @foreach($items as $item)
-                        <div class="order-item flex justify-between">
-                            <span class="item-name">
-                                {{ $item->product->name }} x{{ $item->quantity }}
-                            </span>
-                            <span class="item-price">
-                                Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
+    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+    <div class="order-items space-y-2">
+        @foreach($items as $item)
+            <div class="order-item flex justify-between">
+                <span class="item-name">
+                    {{ $item->product->name }} x{{ $item->quantity }}
+                </span>
+                <span class="item-price">
+                    Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
+                </span>
             </div>
+        @endforeach
+    </div>
+    
+    <!-- Pindahkan total dan tombol ke dalam div ini -->
+    <div class="order-total mt-4 flex justify-between font-bold text-lg">
+        <span class="total-label">Total Amount</span>
+        <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+    </div>
 
-                <div class="order-total mt-4 flex justify-between font-bold text-lg">
-                    <span class="total-label">Total Amount</span>
-                    <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
-                </div>
-
-                <button type="submit"
-                        class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
-                    Confirm Payment
-                </button>
-            </div>
+    <button type="submit" 
+            class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+        Confirm Payment
+    </button>
+</div>
         </form>
     </div>
 </div>

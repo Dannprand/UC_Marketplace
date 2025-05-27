@@ -202,6 +202,7 @@ class CartController extends Controller
         'paymentMethods' => $paymentMethods,
         'orderSuccess' => $orderSuccess,
         'orderNumber' => $orderNumber,
+        'selectedItemIds' => $selectedItemIds
     ]);
 }
 
