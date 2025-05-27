@@ -117,10 +117,8 @@
     <x-navigation></x-navigation>
 
     <section class="order-section">
-
-        <h1 class="text-2xl font-bold text-gray-800 mb-8">Order History</h1>
-
         @if($orders->count() > 0)
+        <h1 class="text-2xl font-bold text-gray-800 mb-8">Order History</h1>
             @foreach($orders as $order)
                 <article class="order-card" data-order-id="{{ $order->id }}">
                     <header class="order-header">
@@ -141,16 +139,16 @@
                                         <p class="product-store">From: {{ $item->product->store->merchant->merchant_name }}</p>
                                     @endif
                                     <p class="product-price">
-                                        Harga Satuan: Rp {{ number_format($item->unit_price, 0, ',', '.') }} <br>
-                                        Subtotal: Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                        Price: Rp {{ number_format($item->unit_price, 0, ',', '.') }} <br>
+                                        Total Price: Rp {{ number_format($item->total_price, 0, ',', '.') }}
                                     </p>
                                 </div>
                             </div>
                         @endforeach
 
                         {{-- Total Pembayaran Ditampilkan Sekali Saja --}}
-                        <div class="order-total mt-4 font-semibold text-lg text-right">
-                            Total Pembayaran: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
+                        <div class="order-total mt-4 font-semibold text-lg text-right text-green-400">
+                            Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                         </div>
                     </div>
 

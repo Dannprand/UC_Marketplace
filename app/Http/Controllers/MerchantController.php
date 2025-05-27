@@ -7,8 +7,7 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
+use App\Models\Order;
 
 class MerchantController extends Controller
 {
@@ -97,4 +96,28 @@ class MerchantController extends Controller
         // return view('merchant', compact('merchant', 'store', 'products'));
         return view('merchant_view.merchant', compact('merchant', 'store', 'products'));
     }
+
+   public function transactions()
+{
+    $merchant = Auth::user()->merchant;
+
+    if (!$merchant) {
+        abort(404, 'Merchant not found for this user.');
+    }
+
+    $store = $merchant->store;
+
+    if (!$store) {
+        abort(404, 'Store not found for this merchant.');
+    }
+
+    $orders = Order::with(['user', 'items.product', 'store'])
+        ->where('store_id', $store->id)
+        ->orderByDesc('created_at')
+        ->get();
+
+    return view('merchant_view.transactions', compact('orders'));
+}
+
+
 }

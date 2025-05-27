@@ -53,4 +53,6 @@ class StoreController extends Controller
 
         return redirect()->route('merchant.dashboard');
     }
+
+    
 }
