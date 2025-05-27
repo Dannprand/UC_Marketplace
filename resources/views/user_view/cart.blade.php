@@ -254,10 +254,6 @@
                         <div class="cart-item-content">
                             <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
                                 data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
-<div class="cart-item-container" id="item-{{ $item->id }}">
-    <div class="cart-item-content">
-        <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}" 
-               data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
                             <div class="product-info">
                                 <div class="product-image-container">
                                     <img src="{{ asset('storage/' . $item->product->images[0]) }}" 
@@ -270,21 +266,23 @@
                                 </div>
                             </div>
 
-                             <div class="quantity-control">
-            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="update-form">
-    @csrf
-    @method('PATCH')
-    <button type="button" class="quantity-btn minus" 
-            onclick="updateQuantity(this, -1)">-</button>
-    <input type="number" name="quantity" 
-           value="{{ $item->quantity }}"
-           min="1" max="10" 
-           class="quantity-input"
-           onchange="submitForm(this)">
-    <button type="button" class="quantity-btn plus" 
-            onclick="updateQuantity(this, 1)">+</button>
-</form>
-        </div>
+                            <div class="quantity-control">
+                                <form action="{{ route('cart.update', $item->id) }}" method="POST" class="update-form" 
+                                      onsubmit="updateCartTotal(this, {{ $item->product->price }})">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="button" class="quantity-btn minus" 
+                                            onclick="updateQuantity(this, -1, {{ $item->product->price }})">-</button>
+                                    <input type="number" name="quantity" 
+                                           value="{{ $item->quantity }}" 
+                                           min="1" max="10"
+                                           class="quantity-input"
+                                           data-price="{{ $item->product->price }}"
+                                           onchange="submitForm(this)">
+                                    <button type="button" class="quantity-btn plus" 
+                                            onclick="updateQuantity(this, 1, {{ $item->product->price }})">+</button>
+                                </form>
+                            </div>
                         </div>
 
                         <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="delete-action">
@@ -342,28 +340,32 @@
     
         // Fungsi hitung total berdasarkan item yang dichecklist
         function calculateTotal() {
-        let total = 0;
-        let itemCount = 0;
-        
-        document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
-            const price = parseFloat(checkbox.getAttribute('data-price'));
-            const quantity = parseInt(checkbox.getAttribute('data-quantity'));
-            total += price * quantity;
-            itemCount++;
-        });
-        
-        document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
-        document.querySelector('#item-count').textContent = itemCount;
-    }
+            let total = 0;
+            let itemCount = 0;
     
-        // Fungsi update quantity
-function updateQuantity(button, change) {
-    const form = button.closest('.update-form');
-    const input = form.querySelector('.quantity-input');
-    let newValue = parseInt(input.value) + change;
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    const id = parseInt(cb.getAttribute('data-id'));
+                    const item = cartItems.find(i => i.id === id);
+                    if (item) {
+                        total += item.price * item.quantity;
+                        itemCount++;
+                    }
+                }
+            });
     
-    newValue = Math.max(1, Math.min(newValue, 10));
-    input.value = newValue;
+            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
+            document.querySelector('#item-count').textContent = itemCount;
+        }
+    
+        // Update quantity saat tombol +/- ditekan
+        function updateQuantity(button, change, price) {
+            const form = button.closest('.update-form');
+            const input = form.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) + change;
+    
+            newValue = Math.max(1, Math.min(newValue, 10)); // batas 1 - 10
+            input.value = newValue;
     
             const itemId = parseInt(form.action.split('/').pop());
             const itemIndex = cartItems.findIndex(item => item.id === itemId);
@@ -376,12 +378,6 @@ function updateQuantity(button, change) {
             if (checkbox) {
                 checkbox.setAttribute('data-quantity', newValue);
             }
-    // Update data di checkbox
-    const itemId = parseInt(form.action.split('/').pop());
-    const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
-    if(checkbox) {
-        checkbox.setAttribute('data-quantity', newValue);
-    }
     
             calculateTotal();
             form.submit();
@@ -406,25 +402,6 @@ function updateQuantity(button, change) {
             calculateTotal();
             form.submit();
         }
-    calculateTotal();
-    form.submit();
-}
-
-// Fungsi submit form
-function submitForm(input) {
-    const form = input.closest('form');
-    const itemId = parseInt(form.action.split('/').pop());
-    const quantity = parseInt(input.value);
-
-    // Update data di checkbox
-    const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
-    if(checkbox) {
-        checkbox.setAttribute('data-quantity', quantity);
-    }
-
-    calculateTotal();
-    form.submit();
-}
     
         // Hapus konfirmasi sebelum delete
         document.querySelectorAll('.delete-action button').forEach(btn => {
