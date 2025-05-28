@@ -65,11 +65,13 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
 });
-    //Page Awal User Masuk!!
+    // Page awal user masuk!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
+
+    //Product page
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
     Route::get('/live-search', [ProductController::class, 'liveSearch'])->name('live.search');
-
+    
 
 // Merchant Routes
 Route::prefix('merchant')->middleware(['auth'])->group(function () {

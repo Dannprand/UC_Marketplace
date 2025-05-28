@@ -359,7 +359,7 @@
     <section class="best-seller-section rounded-2xl mx-8">
         <div class="best-seller-container">
             <div class="best-seller-header">
-                <h2 class="best-seller-title">Best Seller</h2>
+                <h2 class="best-seller-title">Top Rated</h2>
                 <div class="best-seller-scroll">
                     <div class="best-seller-items">
                         <!-- Product Card Template -->

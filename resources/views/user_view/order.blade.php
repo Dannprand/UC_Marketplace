@@ -53,15 +53,34 @@
 
         .order-status {
             display: inline-block;
-            background-color: #bee3f8;
-            color: #2b6cb0;
             font-weight: 600;
             font-size: 0.75rem;
-            padding: 0.2rem 0.7rem;
-            border-radius: 12px;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
             text-transform: uppercase;
             margin-bottom: 1rem;
         }
+        .status-pending {
+            background-color: #fefcbf;
+            color: #744210;
+        }
+        .status-processing {
+            background-color: #bee3f8;
+            color: #2b6cb0;
+        }
+        .status-shipped {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+        .status-delivered {
+            background-color: #9ae6b4;
+            color: #22543d;
+        }
+        .status-cancelled {
+            background-color: #fed7d7;
+            color: #c53030;
+        }
+
 
         .order-items {
             border-top: 1px solid #cbd5e0;
@@ -82,6 +101,10 @@
             border-bottom: none;
         }
 
+        .order-total{
+            color: #2f855a
+        }
+        
         .product-name {
             font-weight: 600;
         }
@@ -111,22 +134,32 @@
         }
     </style>
 </head>
-
-<bod>
-
+<body>
     <x-navigation></x-navigation>
 
     <section class="order-section">
         @if($orders->count() > 0)
         <h1 class="text-2xl font-bold text-gray-800 mb-8">Order History</h1>
             @foreach($orders as $order)
+
+            @php
+                $statusClass = match($order->status) {
+                    'pending' => 'status-pending',
+                    'processing' => 'status-processing',
+                    'shipped' => 'status-shipped',
+                    'delivered' => 'status-delivered',
+                    'cancelled' => 'status-cancelled',
+                    default => '',
+                };
+            @endphp
+
                 <article class="order-card" data-order-id="{{ $order->id }}">
                     <header class="order-header">
                         <div class="order-id">Order #{{ $order->id }}</div>
                         <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</div>
                     </header>
 
-                    <div class="order-status">
+                    <div class="order-status {{ $statusClass }}">
                         {{ ucfirst($order->status) }}
                     </div>
 
@@ -147,7 +180,7 @@
                         @endforeach
 
                         {{-- Total Pembayaran Ditampilkan Sekali Saja --}}
-                        <div class="order-total mt-4 font-semibold text-lg text-right text-green-400">
+                        <div class="order-total mt-4 font-bold text-lg text-right">
                             Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                         </div>
                     </div>

@@ -136,7 +136,7 @@
             text-align: right;
             margin-top: 1rem;
             font-weight: 700;
-            color: #2d3748;
+            color: #2f855a;
             font-size: 1.05rem;
         }
 
