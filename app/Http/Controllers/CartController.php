@@ -190,6 +190,15 @@ class CartController extends Controller
         return redirect()->route('cart')->with('error', 'Anda hanya dapat melakukan checkout untuk satu toko saja.');
     }
 
+    // Cek jika user adalah merchant dan mencoba membeli dari toko sendiri
+    if ($user->merchant && $user->merchant->store) {
+        $ownStoreId = $user->merchant->store->id;
+
+        if ($storeIds->contains($ownStoreId)) {
+            return redirect()->route('cart')->with('error', 'Anda tidak dapat membeli produk dari toko milik Anda sendiri.');
+        }
+    }
+
     $addresses = $user->addresses ?? collect();
     $paymentMethods = $user->paymentMethods ?? collect();
     $totalPrice = $items->sum(fn($item) => $item->product->price * $item->quantity);

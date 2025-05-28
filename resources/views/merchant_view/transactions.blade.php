@@ -191,7 +191,7 @@
                             <div class="item">
                                 <div>
                                     <div class="item-name">{{ $item->product->name }}</div>
-                                    <div class="item-details">Qty: {{ $item->quantity }} × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
+                                    <div class="item-details">Quantity: {{ $item->quantity }} × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
                                 </div>
                                 <div class="item-price">Rp {{ number_format($item->total_price, 0, ',', '.') }}</div>
                             </div>
