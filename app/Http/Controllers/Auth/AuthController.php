@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Order;
 use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -208,6 +209,20 @@ public function adminUsers()
                 ->get();
 
     return view('admin.users', compact('users'));
+}
+
+public function userOrders(User $user)
+{
+    // Eager load orders dengan relasi yang diperlukan
+    $orders = Order::with(['items.product.store.merchant', 'shippingAddress', 'paymentMethod'])
+        ->where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('admin.user_orders', [
+        'user' => $user,
+        'orders' => $orders
+    ]);
 }
 
 /**
