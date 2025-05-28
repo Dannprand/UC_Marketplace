@@ -2,99 +2,214 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Order - UCMarketPlace</title>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite('resources/css/app.css')
+    <style>
+       body {
+            font-family: 'Poppins', sans-serif;
+             background: #e0f3fe;
+        }
 
+        .order-section {
+            max-width: 1200px;
+            margin: 8rem auto;
+            padding: 0 1.25rem;
+        }
+
+        .order-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .order-id {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #2b6cb0;
+        }
+
+        .order-date {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            display: inline-block;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .status-pending {
+           background-color: #fff5f5;
+           color: #e53e3e;
+        }
+        .status-processing {
+           background-color: #fefcbf;
+            color: #b7791f;
+        }
+        .status-shipped {
+           background-color: #bee3f8;
+            color: #3182ce;
+        }
+        .status-delivered {
+            background-color: #c6f6d5;
+            color: #2f855a;
+        }
+        .status-cancelled {
+           background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+
+        .order-items {
+            border-top: 1px solid #cbd5e0;
+            border-bottom: 1px solid #cbd5e0;
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            font-size: 0.95rem;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-total{
+            color: #2f855a
+        }
+        
+        .product-name {
+            font-weight: 600;
+        }
+
+        .product-store {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 0.15rem;
+        }
+
+        .payment-amount {
+            font-weight: 700;
+            color: #2b6cb0;
+            white-space: nowrap;
+        }
+
+        .no-orders {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: white;
+            color: #975a16;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
 <body>
     <x-navigation></x-navigation>
-    @extends('layouts.app')
 
-@section('content')
-<div class="pt-16 px-4 md:px-10 min-h-screen bg-gradient-to-b from-blue-50 via-blue-100 to-blue-200">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">🧾 Order History</h1>
-
-    @if($orders->count() > 0)
-        <div class="grid gap-6">
+    <section class="order-section">
+        @if($orders->count() > 0)
+        <h1 class="text-2xl font-bold text-gray-800 mb-8">Order History</h1>
             @foreach($orders as $order)
-                <div class="bg-white p-6 rounded-2xl shadow-lg transition-transform transform hover:scale-[1.01]">
-                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-3">
-                        <h2 class="text-xl font-semibold text-blue-800">Order #{{ $order->id }}</h2>
-                        <span class="text-sm text-gray-600 mt-2 md:mt-0">
-                            {{ $order->created_at->format('d M Y, H:i') }}
-                        </span>
+
+            @php
+                $statusClass = match($order->status) {
+                    'pending' => 'status-pending',
+                    'processing' => 'status-processing',
+                    'shipped' => 'status-shipped',
+                    'delivered' => 'status-delivered',
+                    'cancelled' => 'status-cancelled',
+                    default => '',
+                };
+            @endphp
+
+                <article class="order-card" data-order-id="{{ $order->id }}">
+                    <header class="order-header">
+                        <div class="order-id">Order #{{ $order->id }}</div>
+                        <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</div>
+                    </header>
+
+                    <div class="order-status {{ $statusClass }}">
+                        {{ ucfirst($order->status) }}
                     </div>
 
-                    <div class="text-sm mb-4">
-                        <span class="font-medium text-gray-700">Status:</span>
-                        <span class="inline-block px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs uppercase font-semibold">
-                            {{ ucfirst($order->status) }}
-                        </span>
-                    </div>
-
-                    <div class="divide-y divide-gray-200 mb-4">
+                    <div class="order-items">
                         @foreach($order->items as $item)
-                            <div class="py-2 flex justify-between text-sm">
+                            <div class="order-item">
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ $item->product->name }} x{{ $item->quantity }}</p>
-                                    @if($item->product->merchant)
-                                        <p class="text-xs text-gray-500">From: {{ $item->product->merchant->store_name }}</p>
+                                    <p class="product-name">{{ $item->product->name }} x{{ $item->quantity }}</p>
+                                    @if($item->product->store && $item->product->store->merchant)
+                                        <p class="product-store">From: {{ $item->product->store->merchant->merchant_name }}</p>
                                     @endif
-                                </div>
-                                <div class="text-gray-700">
-                                    Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                    <p class="product-price">
+                                        Price: Rp {{ number_format($item->unit_price, 0, ',', '.') }} <br>
+                                        Total Price: Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
+
+                        {{-- Total Pembayaran Ditampilkan Sekali Saja --}}
+                        <div class="order-total mt-4 font-bold text-lg text-right">
+                            Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
+                        </div>
                     </div>
 
-                    <div class="flex justify-between items-center">
-                        <div class="text-lg font-bold text-green-600">
-                            Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}
-                        </div>
-                        <div class="flex gap-2">
-                            <a href="{{ route('orders.invoice', $order->id) }}" 
-                               class="bg-blue-600 text-white text-sm px-3 py-1.5 rounded hover:bg-blue-700 transition">
-                                Download Invoice
-                            </a>
-                            <button onclick="printOrder({{ $order->id }})"
-                               class="bg-gray-700 text-white text-sm px-3 py-1.5 rounded hover:bg-gray-800 transition">
-                                Print
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                </article>
             @endforeach
-        </div>
-    @else
-        <div class="bg-yellow-100 text-yellow-800 px-4 py-3 rounded shadow text-center">
-            You haven't made any orders yet. Go shopping now!
-        </div>
-    @endif
-</div>
+        @else
+            <div class="no-orders">
+                You haven't made any orders yet. Go shopping now!
+            </div>
+        @endif
+    </section>
 
-<script>
-    function printOrder(orderId) {
-        const content = document.querySelector(`[data-order-id="${orderId}"]`);
-        if (content) {
-            const printWindow = window.open('', '', 'width=900,height=600');
-            printWindow.document.write('<html><head><title>Order Print</title>');
-            printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">');
-            printWindow.document.write('</head><body class="p-6">');
-            printWindow.document.write(content.innerHTML);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
+    <script>
+        function printOrder(orderId) {
+            const content = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (content) {
+                const printWindow = window.open('', '', 'width=900,height=600');
+                printWindow.document.write('<html><head><title>Order Print</title>');
+                printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">');
+                printWindow.document.write('</head><body class="p-6">');
+                printWindow.document.write(content.innerHTML);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            }
         }
-    }
-</script>
-@endsection
+    </script>
 
-    
 </body>
 
 </html>

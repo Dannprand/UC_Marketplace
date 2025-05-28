@@ -26,6 +26,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/register/address', [AuthController::class, 'processAddress']);
 });
 
+// Admin routes
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/users', [AuthController::class, 'adminUsers'])->name('admin.users');
+    Route::delete('/users/{user}', [AuthController::class, 'adminDeleteUser'])->name('admin.users.delete');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 //Route payment and cart
@@ -63,10 +70,6 @@ Route::middleware('auth')->prefix('user')->group(function () {
         return view('user_view.balance');
     })->name('balance');
 
-    Route::get('/order', function () {
-        return view('user_view.order');
-    })->name('order');
-
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
@@ -77,15 +80,20 @@ Route::middleware('auth')->prefix('user')->group(function () {
     // Route::get('/payment', [CartController::class, 'payment'])->name('payment');
     Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
-    Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
+    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
-    Route::get('/order/confirmation/{order}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
+
+    // Order Routes 
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
 });
-    //Page Awal User Masuk!!
+    // Page awal user masuk!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
+
+    //Product page
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
     Route::get('/live-search', [ProductController::class, 'liveSearch'])->name('live.search');
-
+    
 
 // Merchant Routes
 Route::prefix('merchant')->middleware(['auth'])->group(function () {
@@ -104,6 +112,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
 
+    // Transactions Page
+    Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
+    Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
+
     // Add this inside the merchant group
     Route::get('/detail', function () {
         return view('merchant_view.detailMerchant');
@@ -119,10 +131,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     });
 });
 
-// View-only routes (if still needed for legacy links)
-Route::get('/merchant', function () {
-    return redirect()->route('merchant.dashboard');
-});
+// // View-only routes (if still needed for legacy links)
+// Route::get('/merchant', function () {
+//     return redirect()->route('merchant.dashboard');
+// });
 
 Route::get('/detailMerchant', function () {
     return redirect()->route('merchant.detail');
