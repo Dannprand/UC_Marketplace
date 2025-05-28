@@ -94,12 +94,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
     Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
 
-    // Add this inside the merchant group
-    Route::get('/detail', function () {
-        return view('merchant_view.detailMerchant');
-    })->name('merchant.detail');
-     Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant.dashboard');
-      Route::get('/merchant/income-data', [MerchantController::class, 'getIncomeData']);
+        // Add this inside the merchant group
+        Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
+        Route::get('/detail', [MerchantController::class, 'showDetail'])->name('merchant.detail');
+        Route::get('/merchant/income-data', [MerchantController::class, 'getIncomeData']);
     
     // Product Management
     Route::prefix('/products')->group(function () {
@@ -111,28 +109,6 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     });
 });
 
-// // View-only routes (if still needed for legacy links)
-// Route::get('/merchant', function () {
-//     return redirect()->route('merchant.dashboard');
-// });
-
-Route::get('/detailMerchant', function () {
-    return redirect()->route('merchant.detail');
-});
-
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
-
-
-// Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
-
-
-// Route::get('/merchant', function () {
-//     return view('merchant_view.merchant'); // Updated path
-// })->name('merchant.legacy');
-
-// Route::get('/detailMerchant', function () {
-//     return view('merchant_view.detailMerchant'); // Updated path
-// })->name('detailMerchant.legacy');
-

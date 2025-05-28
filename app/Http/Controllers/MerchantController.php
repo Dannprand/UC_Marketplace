@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Merchant;
+use App\Models\Store;
+use App\Models\StoreAnalytic;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -147,55 +149,82 @@ public function updateStatus(Request $request, Order $order)
     return redirect()->back()->with('success', 'Order status updated.');
 }
 
-    public function index()
+        public function index()
     {
-        $merchant = Auth::user();
-        $store = $merchant->store;
+        $user = Auth::user();
+        $merchant = $user->merchant; // relasi User -> Merchant
+        $store = $merchant?->store; // relasi Merchant -> Store
 
-        // Ambil produk dari store merchant
-        $products = $store->products()->select('name', 'stock', 'initial_stock')->get();
-
-        return view('merchant.dashboard', compact('products'));
-    }
-
-    // Opsional: API untuk data income harian/mingguan/bulanan
-    public function getIncomeData(Request $request)
-    {
-        $merchant = Auth::user();
-        $store = $merchant->store;
-
-        $view = $request->get('view', 'daily'); // daily, weekly, monthly
-        $offset = intval($request->get('offset', 0));
-
-        $labels = [];
-        $data = [];
-
-        if ($view === 'daily') {
-            for ($i = -2; $i <= 0; $i++) {
-                $date = Carbon::today()->addDays($offset + $i);
-                $labels[] = $date->format('M d');
-                $data[] = rand(1000000, 4000000); // Ganti dengan data asli nanti
-            }
-        } elseif ($view === 'weekly') {
-            $start = Carbon::now()->startOfWeek()->addWeeks($offset);
-            for ($i = 0; $i < 7; $i++) {
-                $day = $start->copy()->addDays($i);
-                $labels[] = $day->format('D');
-                $data[] = rand(1000000, 4000000);
-            }
-        } elseif ($view === 'monthly') {
-            $monthStart = Carbon::now()->startOfMonth()->addMonths($offset);
-            $daysInMonth = $monthStart->daysInMonth;
-
-            for ($i = 1; $i <= $daysInMonth; $i++) {
-                $labels[] = "Day $i";
-                $data[] = rand(1000000, 4000000);
-            }
+        if (!$store) {
+            return redirect()->route('some.route')->with('error', 'Store tidak ditemukan.');
         }
+        $products = $store->products()->select('id', 'name', 'quantity', 'price', 'images')->get();
 
-        return response()->json([
-            'labels' => $labels,
-            'data' => $data
-        ]);
+        return view('merchant_view.merchant', compact('products','store','merchant'));
     }
+
+    
+//     public function showDetail()
+// {
+//     $user = Auth::user();
+//     $merchant = $user->merchant;
+
+//     if (!$merchant) {
+//         return redirect()->route('merchant.dashboard')->with('error', 'Merchant tidak ditemukan.');
+//     }
+
+//     $store = $merchant->store;
+
+//     if (!$store) {
+//         return redirect()->route('merchant.dashboard')->with('error', 'Store tidak ditemukan.');
+//     }
+
+//     // Ambil data store analytic terkait store ini
+//     $storeAnalytic = $store->storeAnalytic; // Asumsi relasi sudah ada di model Store
+
+//     return view('merchant_view.detailMerchant', compact('store', 'storeAnalytic'));
+// }
+
+
+
+    // // Opsional: API untuk data income harian/mingguan/bulanan
+    // public function getIncomeData(Request $request)
+    // {
+    //     $merchant = Auth::user();
+    //     $store = $merchant->store;
+
+    //     $view = $request->get('view', 'daily'); // daily, weekly, monthly
+    //     $offset = intval($request->get('offset', 0));
+
+    //     $labels = [];
+    //     $data = [];
+
+    //     if ($view === 'daily') {
+    //         for ($i = -2; $i <= 0; $i++) {
+    //             $date = Carbon::today()->addDays($offset + $i);
+    //             $labels[] = $date->format('M d');
+    //             $data[] = rand(1000000, 4000000); // Ganti dengan data asli nanti
+    //         }
+    //     } elseif ($view === 'weekly') {
+    //         $start = Carbon::now()->startOfWeek()->addWeeks($offset);
+    //         for ($i = 0; $i < 7; $i++) {
+    //             $day = $start->copy()->addDays($i);
+    //             $labels[] = $day->format('D');
+    //             $data[] = rand(1000000, 4000000);
+    //         }
+    //     } elseif ($view === 'monthly') {
+    //         $monthStart = Carbon::now()->startOfMonth()->addMonths($offset);
+    //         $daysInMonth = $monthStart->daysInMonth;
+
+    //         for ($i = 1; $i <= $daysInMonth; $i++) {
+    //             $labels[] = "Day $i";
+    //             $data[] = rand(1000000, 4000000);
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'labels' => $labels,
+    //         'data' => $data
+    //     ]);
+    // }
 }
