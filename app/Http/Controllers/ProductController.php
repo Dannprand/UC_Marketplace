@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    // Show all products with categories filtering (user view)
     public function index(Request $request)
     {
         $categoryFilter = $request->input('category');
@@ -25,9 +24,13 @@ class ProductController extends Controller
             $products = Product::all();
         }
 
+        // Ambil produk best seller
+        $bestSellers = Product::orderBy('sold_amount', 'desc')->limit(6)->get();
+
         return view('user_view.home', [
-            'categories' => $categories,
-            'products' => $products,
+            'categories'   => $categories,
+            'products'     => $products,
+            'bestSellers'  => $bestSellers,
         ]);
     }
 
