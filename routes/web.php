@@ -94,10 +94,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
     Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
 
-        // Add this inside the merchant group
-        Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
-        Route::get('/detail', [MerchantController::class, 'showDetail'])->name('merchant.detail');
-        Route::get('/merchant/income-data', [MerchantController::class, 'getIncomeData']);
+    // Add this inside the merchant group
+    Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
+     Route::get('/detail/{id}', [MerchantController::class, 'showDetail'])->name('merchant.detail');
+     Route::get('/income-data', [MerchantController::class, 'getIncomeData']);
     
     // Product Management
     Route::prefix('/products')->group(function () {

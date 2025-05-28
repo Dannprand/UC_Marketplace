@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentMethod;
+use App\Models\Store;
+use App\Models\StoreAnalytic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 

@@ -162,9 +162,8 @@ public function updateStatus(Request $request, Order $order)
 
         return view('merchant_view.merchant', compact('products','store','merchant'));
     }
-
-    
-//     public function showDetail()
+ 
+//     public function showDetail($id)
 // {
 //     $user = Auth::user();
 //     $merchant = $user->merchant;
@@ -173,7 +172,8 @@ public function updateStatus(Request $request, Order $order)
 //         return redirect()->route('merchant.dashboard')->with('error', 'Merchant tidak ditemukan.');
 //     }
 
-//     $store = $merchant->store;
+//     // Pastikan hanya mengambil store milik merchant yang sesuai dengan ID
+//     $store = $merchant->store()->where('id', $id)->first();
 
 //     if (!$store) {
 //         return redirect()->route('merchant.dashboard')->with('error', 'Store tidak ditemukan.');
@@ -185,46 +185,75 @@ public function updateStatus(Request $request, Order $order)
 //     return view('merchant_view.detailMerchant', compact('store', 'storeAnalytic'));
 // }
 
+public function showDetail($id)
+{
+    $user = Auth::user();
+    $merchant = $user->merchant;
+
+    if (!$merchant) {
+        return redirect()->route('merchant.dashboard')->with('error', 'Merchant tidak ditemukan.');
+    }
+
+    // Ambil store (boleh dummy saja kalau mau)
+    $store = $merchant->store()->where('id', $id)->first();
+
+    if (!$store) {
+        return redirect()->route('merchant.dashboard')->with('error', 'Store tidak ditemukan.');
+    }
+
+    // Buat data dummy storeAnalytic kalau belum ada data asli
+    $storeAnalytic = $store->storeAnalytic;
+    if (!$storeAnalytic) {
+        // Contoh buat stdClass dengan properti yang diperlukan
+        $storeAnalytic = new \stdClass();
+        $storeAnalytic->total_income = 15000000;  // 15 juta
+        $storeAnalytic->total_products = 120;
+        $storeAnalytic->total_orders = 80;
+
+        // Bisa juga buat properti data grafik jika diperlukan
+        $storeAnalytic->daily_sales = [
+            ['date' => '2025-05-20', 'total' => 1000000],
+            ['date' => '2025-05-21', 'total' => 1200000],
+            ['date' => '2025-05-22', 'total' => 900000],
+            ['date' => '2025-05-23', 'total' => 1500000],
+            ['date' => '2025-05-24', 'total' => 1100000],
+            ['date' => '2025-05-25', 'total' => 1300000],
+            ['date' => '2025-05-26', 'total' => 1700000],
+        ];
+    }
+
+    return view('merchant_view.detailMerchant', compact('store', 'storeAnalytic'));
+}
 
 
-    // // Opsional: API untuk data income harian/mingguan/bulanan
-    // public function getIncomeData(Request $request)
-    // {
-    //     $merchant = Auth::user();
-    //     $store = $merchant->store;
+    // Opsional: API untuk data income harian/mingguan/bulanan
+    public function getIncomeData(Request $request)
+{
+    $view = $request->input('view', 'daily');
+    $offset = (int) $request->input('offset', 0);
 
-    //     $view = $request->get('view', 'daily'); // daily, weekly, monthly
-    //     $offset = intval($request->get('offset', 0));
+    // Simulasi respons
+    $labels = [];
+    $data = [];
 
-    //     $labels = [];
-    //     $data = [];
+    if ($view === 'daily') {
+        for ($i = 0; $i < 3; $i++) {
+            $labels[] = now()->subDays(2 - $i)->format('d M');
+            $data[] = rand(1000000, 3000000);
+        }
+    } elseif ($view === 'weekly') {
+        $labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        $data = array_map(fn() => rand(1000000, 3000000), $labels);
+    } elseif ($view === 'monthly') {
+        $days = now()->daysInMonth;
+        for ($i = 1; $i <= $days; $i++) {
+            $labels[] = "Day $i";
+            $data[] = rand(1000000, 3000000);
+        }
+    }
 
-    //     if ($view === 'daily') {
-    //         for ($i = -2; $i <= 0; $i++) {
-    //             $date = Carbon::today()->addDays($offset + $i);
-    //             $labels[] = $date->format('M d');
-    //             $data[] = rand(1000000, 4000000); // Ganti dengan data asli nanti
-    //         }
-    //     } elseif ($view === 'weekly') {
-    //         $start = Carbon::now()->startOfWeek()->addWeeks($offset);
-    //         for ($i = 0; $i < 7; $i++) {
-    //             $day = $start->copy()->addDays($i);
-    //             $labels[] = $day->format('D');
-    //             $data[] = rand(1000000, 4000000);
-    //         }
-    //     } elseif ($view === 'monthly') {
-    //         $monthStart = Carbon::now()->startOfMonth()->addMonths($offset);
-    //         $daysInMonth = $monthStart->daysInMonth;
+    return response()->json(compact('labels', 'data'));
+}
 
-    //         for ($i = 1; $i <= $daysInMonth; $i++) {
-    //             $labels[] = "Day $i";
-    //             $data[] = rand(1000000, 4000000);
-    //         }
-    //     }
 
-    //     return response()->json([
-    //         'labels' => $labels,
-    //         'data' => $data
-    //     ]);
-    // }
 }
