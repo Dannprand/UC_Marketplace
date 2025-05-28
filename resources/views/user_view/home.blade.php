@@ -361,84 +361,28 @@
             <div class="best-seller-header">
                 <h2 class="best-seller-title">Best Seller</h2>
                 <div class="best-seller-scroll">
-                    <div class="best-seller-items">
-                        <!-- Product Card Template -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Nasi Kremes</div>
-                                <div class="product-price">Rp 20.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">JS</div>
-                                    <div class="seller-name">John Smith</div>
+                   <div class="best-seller-items">
+                        @foreach($bestSellers as $product)
+                            @php
+                                $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
+                                $logo = $product->store->logo ?? 'https://via.placeholder.com/40x40?text=Logo';
+                                $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
+                            @endphp
+
+                            <div class="best-seller-item">
+                                <img src="{{ $image }}" alt="{{ $product->name }}" class="product-image" />
+                                <div class="product-details">
+                                    <div class="product-name">{{ $product->name }}</div>
+                                    <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                                    <div class="seller-info">
+                                        <div class="seller-avatar">
+                                            <img src="{{ $logo }}" alt="Logo {{ $sellerName }}" class="w-full h-full object-cover rounded-full" />
+                                        </div>
+                                        <div class="seller-name">{{ $sellerName }}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Second Product -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Sandwicth</div>
-                                <div class="product-price">Rp 14.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">MJ</div>
-                                    <div class="seller-name">Mary Johnson</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Third Product -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Babi Guling</div>
-                                <div class="product-price">Rp 25.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">DB</div>
-                                    <div class="seller-name">David Brown</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Fourth Product -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Sosis bakar</div>
-                                <div class="product-price">Rp 9.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">SW</div>
-                                    <div class="seller-name">Sarah Wilson</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Fifth Product -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Nasi Goreng</div>
-                                <div class="product-price">Rp 15.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">TM</div>
-                                    <div class="seller-name">Thomas Miller</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Sixth Product -->
-                        <div class="best-seller-item">
-                            <img src="https://via.placeholder.com/180x120" alt="Product" class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">Siomay Dimsum</div>
-                                <div class="product-price">Rp 15.000</div>
-                                <div class="seller-info">
-                                    <div class="seller-avatar">ED</div>
-                                    <div class="seller-name">Emily Davis</div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>

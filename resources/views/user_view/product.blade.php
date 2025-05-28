@@ -112,6 +112,13 @@
             color: #636e72;
         }
 
+        .seller-card img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         .order-card {
             background-color: white;
             padding: 24px;
@@ -209,7 +216,7 @@
         }
     </style>
 </head>
-<body style="padding-top: 80px;">
+<body>
     <x-navigation></x-navigation>
 
 <div class="pt-24">
@@ -219,9 +226,19 @@
             <div class="product-image">
                 <img id="mainImage" src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}">
             </div>
-            <div class="seller-card">
-                <h3>{{ $product->store ? $product->store->name : 'No Merchant Name Available' }}</h3>
+            <div class="seller-card flex items-center gap-4">
+                @if ($product->store && $product->store->logo)
+                    <img src="{{ asset('storage/' . $product->store->logo) }}" alt="Store Logo" style="width: 48px; height: 48px; object-fit: cover; border-radius: 9999px;">
+                @else
+                    <div style="width: 48px; height: 48px; border-radius: 9999px; background-color: #dfe6e9;"></div>
+                @endif
+
+                <div>
+                    <h3>{{ $product->store ? $product->store->name : 'No Merchant Name Available' }}</h3>
+                    {{-- Bisa ditambah detail lainnya seperti rating store --}}
+                </div>
             </div>
+
         </div>
     
         <!-- Center Column -->

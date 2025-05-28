@@ -270,6 +270,11 @@ class CartController extends Controller
             'unit_price' => $cartItem->product->price,
             'total_price' => $cartItem->product->price * $cartItem->quantity,
         ]);
+
+        // Tambahkan update sold_amount
+        $product = $cartItem->product;
+        $product->sold_amount += $cartItem->quantity;
+        $product->save();
     }
 
     // Hapus hanya item yang dipilih dari cart

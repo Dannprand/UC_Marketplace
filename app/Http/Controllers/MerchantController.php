@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Merchant;
+use App\Models\Order;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class MerchantController extends Controller
 {
@@ -97,4 +99,55 @@ class MerchantController extends Controller
         // return view('merchant', compact('merchant', 'store', 'products'));
         return view('merchant_view.merchant', compact('merchant', 'store', 'products'));
     }
+
+    public function transactions()
+{
+    $merchant = Auth::user()->merchant;
+
+    if (!$merchant) {
+        abort(404, 'Merchant not found for this user.');
+    }
+
+    $store = $merchant->store;
+
+    if (!$store) {
+        abort(404, 'Store not found for this merchant.');
+    }
+
+    // Ambil semua order yang punya item dari produk milik store ini
+    $orders = Order::whereHas('items.product', function ($query) use ($store) {
+        $query->where('store_id', $store->id);
+    })
+    ->with(['user', 'items' => function ($query) use ($store) {
+        // Hanya ambil item dari store ini
+        $query->whereHas('product', function ($q) use ($store) {
+            $q->where('store_id', $store->id);
+        })->with('product');
+    }])
+    ->orderByDesc('created_at')
+    ->get();
+
+    // dd($orders);
+
+    return view('merchant_view.transactions', compact('orders'));
+}
+
+public function updateStatus(Request $request, Order $order)
+{
+    $request->validate([
+        'status' => ['required', Rule::in(['pending', 'processing', 'shipped', 'delivered', 'cancelled'])],
+    ]);
+
+    $merchant = Auth::user()->merchant;
+    if (!$merchant || $order->store->merchant_id !== $merchant->id) {
+        abort(403, 'Unauthorized');
+    }
+
+    $order->status = $request->status;
+    $order->save();
+
+    return redirect()->back()->with('success', 'Order status updated.');
+}
+
+
 }

@@ -66,11 +66,13 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
 });
-    //Page Awal User Masuk!!
+    // Page awal user masuk!
     Route::get('/home', [ProductController::class, 'index'])->name('home');
+
+    //Product page
     Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
     Route::get('/live-search', [ProductController::class, 'liveSearch'])->name('live.search');
-
+    
 
 // Merchant Routes
 Route::prefix('merchant')->middleware(['auth'])->group(function () {
@@ -89,6 +91,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
 
+    // Transactions Page
+    Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
+    Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
+
     // Add this inside the merchant group
     Route::get('/detail', function () {
         return view('merchant_view.detailMerchant');
@@ -104,10 +110,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     });
 });
 
-// View-only routes (if still needed for legacy links)
-Route::get('/merchant', function () {
-    return redirect()->route('merchant.dashboard');
-});
+// // View-only routes (if still needed for legacy links)
+// Route::get('/merchant', function () {
+//     return redirect()->route('merchant.dashboard');
+// });
 
 Route::get('/detailMerchant', function () {
     return redirect()->route('merchant.detail');
