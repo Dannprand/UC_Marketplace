@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Merchant;
 use App\Models\Order;
-use App\Models\Store;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class MerchantController extends Controller
@@ -149,5 +147,55 @@ public function updateStatus(Request $request, Order $order)
     return redirect()->back()->with('success', 'Order status updated.');
 }
 
+    public function index()
+    {
+        $merchant = Auth::user();
+        $store = $merchant->store;
 
+        // Ambil produk dari store merchant
+        $products = $store->products()->select('name', 'stock', 'initial_stock')->get();
+
+        return view('merchant.dashboard', compact('products'));
+    }
+
+    // Opsional: API untuk data income harian/mingguan/bulanan
+    public function getIncomeData(Request $request)
+    {
+        $merchant = Auth::user();
+        $store = $merchant->store;
+
+        $view = $request->get('view', 'daily'); // daily, weekly, monthly
+        $offset = intval($request->get('offset', 0));
+
+        $labels = [];
+        $data = [];
+
+        if ($view === 'daily') {
+            for ($i = -2; $i <= 0; $i++) {
+                $date = Carbon::today()->addDays($offset + $i);
+                $labels[] = $date->format('M d');
+                $data[] = rand(1000000, 4000000); // Ganti dengan data asli nanti
+            }
+        } elseif ($view === 'weekly') {
+            $start = Carbon::now()->startOfWeek()->addWeeks($offset);
+            for ($i = 0; $i < 7; $i++) {
+                $day = $start->copy()->addDays($i);
+                $labels[] = $day->format('D');
+                $data[] = rand(1000000, 4000000);
+            }
+        } elseif ($view === 'monthly') {
+            $monthStart = Carbon::now()->startOfMonth()->addMonths($offset);
+            $daysInMonth = $monthStart->daysInMonth;
+
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $labels[] = "Day $i";
+                $data[] = rand(1000000, 4000000);
+            }
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data
+        ]);
+    }
 }

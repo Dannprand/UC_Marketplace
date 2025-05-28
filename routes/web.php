@@ -89,7 +89,7 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
-
+    
     // Transactions Page
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
     Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
@@ -98,6 +98,8 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     Route::get('/detail', function () {
         return view('merchant_view.detailMerchant');
     })->name('merchant.detail');
+     Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant.dashboard');
+      Route::get('/merchant/income-data', [MerchantController::class, 'getIncomeData']);
     
     // Product Management
     Route::prefix('/products')->group(function () {
