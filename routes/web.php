@@ -44,7 +44,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
 });
 
 // User Routes
-Route::middleware('auth')->prefix('user')->group(function () {  
+// Route::middleware('auth')->prefix('user')->group(function () {  
 
 Route::middleware('auth')->prefix('user')->group(function () {
     // Route::get('/payment', function () {
