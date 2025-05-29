@@ -97,7 +97,7 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     // Add this inside the merchant group
     Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
      Route::get('/detail/{id}', [MerchantController::class, 'showDetail'])->name('merchant.detail');
-     Route::get('/income-data', [MerchantController::class, 'getIncomeData']);
+     Route::get('/income-data', [MerchantController::class, 'getIncomeData'])->name('income.data');
     
     // Product Management
     Route::prefix('/products')->group(function () {

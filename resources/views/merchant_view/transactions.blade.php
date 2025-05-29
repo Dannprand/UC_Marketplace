@@ -157,6 +157,7 @@
     <x-navigation />
 
     <section class="transactions-section">
+        <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
         @if ($orders->count() > 0)
             <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
             @foreach ($orders as $order)

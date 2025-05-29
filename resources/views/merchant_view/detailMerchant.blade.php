@@ -77,24 +77,25 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="bg-white shadow-md rounded-2xl p-4">
-                <h2 class="text-lg font-semibold mb-2">Total Income</h2>
+                <h2 class="text-lg font-semibold mb-2">Total Revenue</h2>
                 <p class="text-2xl font-bold text-green-700">
-                    Rp {{ number_format(optional($storeAnalytic)->total_income ?? 0, 0, ',', '.') }}
+                    Rp {{ number_format(optional($store->analytics)->total_revenue ?? 0, 0, ',', '.') }}
                 </p>
             </div>
             <div class="bg-white shadow-md rounded-2xl p-4">
-                <h2 class="text-lg font-semibold mb-2">Total Products</h2>
+                <h2 class="text-lg font-semibold mb-2">Total Sales</h2>
                 <p class="text-2xl font-bold text-blue-400">
-                    {{ optional($storeAnalytic)->total_products ?? 0 }}
+                    {{ optional($store->analytics)->total_sales ?? 0 }}
                 </p>
             </div>
             <div class="bg-white shadow-md rounded-2xl p-4">
-                <h2 class="text-lg font-semibold mb-2">Total Orders</h2>
+                <h2 class="text-lg font-semibold mb-2">Average Order</h2>
                 <p class="text-2xl font-bold text-blue-400">
-                    {{ optional($storeAnalytic)->total_orders ?? 0 }}
+                    {{ optional($store->analytics)->average_order_value ?? 0 }}
                 </p>
             </div>
         </div>
+
 
 
         <div class="bg-white shadow-md rounded-2xl p-6">
@@ -116,89 +117,96 @@
         </div>
     </div>
 
-    <script>
-        let currentView = 'daily';
-        let offset = 0;
-        const ctx = document.getElementById('incomeChart').getContext('2d');
+   <script>
+    let currentView = 'daily';
+    let offset = 0;
+    const ctx = document.getElementById('incomeChart').getContext('2d');
 
-        const salesData = @json($storeAnalytic->daily_sales ?? []);
-        const incomeChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Income',
-                    data: [],
-                    borderColor: 'rgb(34, 197, 94)', // green-500
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)', // green-500 with opacity
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        ticks: {
-                            callback: value => 'Rp ' + value.toLocaleString()
-                        }
+    const incomeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Income',
+                data: [],
+                borderColor: 'rgb(34, 197, 94)', // green-500
+                backgroundColor: 'rgba(34, 197, 94, 0.1)', // green-500 with opacity
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: value => 'Rp ' + value.toLocaleString()
                     }
                 }
             }
-        });
-
-        async function fetchChartData(view, offset = 0) {
-            const res = await fetch(`/merchant/income-data?view=${view}&offset=${offset}`);
-            return res.json();
         }
+    });
 
-        async function renderChart() {
-            const { labels, data } = await fetchChartData(currentView, offset);
-            incomeChart.data.labels = labels;
-            incomeChart.data.datasets[0].data = data;
-            incomeChart.update();
-            updateDateLabel();
+    async function fetchChartData(view, offset = 0) {
+        const res = await fetch(`/merchant/income-data?view=${view}&offset=${offset}`);
+        if (!res.ok) {
+            console.error('Failed to fetch income data');
+            return { labels: [], data: [] };
         }
+        return res.json();
+    }
 
-        function setView(view) {
-            currentView = view;
-            offset = 0;
-            renderChart();
-            document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('bg-orange-500', 'text-white'));
-            document.getElementById(`btn-${view}`).classList.add('bg-orange-500', 'text-white');
+
+    async function renderChart() {
+        const { labels, data } = await fetchChartData(currentView, offset);
+        incomeChart.data.labels = labels;
+        incomeChart.data.datasets[0].data = data;
+        incomeChart.update();
+        updateDateLabel();
+    }
+
+    function setView(view) {
+        currentView = view;
+        offset = 0;
+        renderChart();
+        document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('bg-orange-500', 'text-white'));
+        const activeBtn = document.getElementById(`btn-${view}`);
+        if (activeBtn) activeBtn.classList.add('bg-orange-500', 'text-white');
+    }
+
+    function adjustOffset(value) {
+        offset += value;
+        renderChart();
+    }
+
+    function updateDateLabel() {
+        const label = document.getElementById('date-label');
+        if (!label) return;
+
+        if (currentView === 'daily') {
+            const today = new Date();
+            today.setDate(today.getDate() - offset);
+            label.textContent = today.toDateString();
+        } else if (currentView === 'weekly') {
+            const base = new Date();
+            base.setDate(base.getDate() - offset * 7);
+            const start = new Date(base);
+            start.setDate(start.getDate() - start.getDay()); // minggu mulai dari minggu lalu
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            label.textContent = `${start.toDateString()} - ${end.toDateString()}`;
+        } else if (currentView === 'monthly') {
+            const now = new Date();
+            now.setMonth(now.getMonth() - offset);
+            label.textContent = now.toLocaleString('default', { month: 'long', year: 'numeric' });
         }
+    }
 
-        function adjustOffset(value) {
-            offset += value;
-            renderChart();
-        }
-
-        function updateDateLabel() {
-            const label = document.getElementById('date-label');
-            if (currentView === 'daily') {
-                const today = new Date();
-                today.setDate(today.getDate() + offset);
-                label.textContent = today.toDateString();
-            } else if (currentView === 'weekly') {
-                const base = new Date();
-                base.setDate(base.getDate() + offset * 7);
-                const start = new Date(base);
-                start.setDate(start.getDate() - start.getDay());
-                const end = new Date(start);
-                end.setDate(end.getDate() + 6);
-                label.textContent = `${start.toDateString()} - ${end.toDateString()}`;
-            } else if (currentView === 'monthly') {
-                const now = new Date();
-                now.setMonth(now.getMonth() + offset);
-                label.textContent = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setView('daily');
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setView('daily');
+    });
+</script>
 
 </body>
 </html>
