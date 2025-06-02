@@ -117,3 +117,5 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
+
+Route::get('/qr', [PaymentController::class, 'showQr']);

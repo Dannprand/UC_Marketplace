@@ -7,6 +7,7 @@ use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PaymentController extends Controller
 {
@@ -85,4 +86,11 @@ class PaymentController extends Controller
 
         return redirect()->route('orders.history')->with('success', 'Order placed successfully!');
     }
+
+    // show qr test
+    public function showQr()
+{
+    $qr = QrCode::size(200)->generate('Halo Laravel');
+    return view('qr', compact('qr'));
+}
 }
