@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentMethod;
+use App\Models\Store;
+use App\Models\StoreAnalytic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -188,6 +190,15 @@ class CartController extends Controller
 
     if ($storeIds->count() > 1) {
         return redirect()->route('cart')->with('error', 'Anda hanya dapat melakukan checkout untuk satu toko saja.');
+    }
+
+    // Cek jika user adalah merchant dan mencoba membeli dari toko sendiri
+    if ($user->merchant && $user->merchant->store) {
+        $ownStoreId = $user->merchant->store->id;
+
+        if ($storeIds->contains($ownStoreId)) {
+            return redirect()->route('cart')->with('error', 'Anda tidak dapat membeli produk dari toko milik Anda sendiri.');
+        }
     }
 
     $addresses = $user->addresses ?? collect();

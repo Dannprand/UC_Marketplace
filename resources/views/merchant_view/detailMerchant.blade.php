@@ -66,275 +66,147 @@
     </style>
 </head>
 
-<body>
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold text-[#2d3436]">Merchant Dashboard</h1>
-            {{-- <a href="{{ route('merchant') }}" class="text-[#2d3436] hover:text-[#535757] font-bold flex items-center"> --}}
-            <a href="{{ route('merchant.dashboard') }}" class="text-[#2d3436] hover:text-[#535757] font-bold flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                        clip-rule="evenodd" />
-                </svg>
-                Back to Merchant
-            </a>
+<body class="bg-gray-50 text-gray-800">
+
+    
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Detail Merchant - {{ $store->name }}</h1>
+            <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
         </div>
 
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- Income Section -->
-            <div class="metric-card">
-                <h2 class="text-xl font-semibold mb-4">Today Profit: <span class="text-[#2ecc71]">Rp 3,000,000</span>
-                </h2>
-
-                <!-- Dropdown -->
-                <div class="mb-4">
-                    <label for="timeSelect" class="mr-2 font-medium">View:</label>
-                    <select id="timeSelect" class="p-2 border rounded-lg">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center justify-between mb-2">
-                    <button id="prevBtn" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">←
-                        Previous</button>
-                    <span id="dateLabel" class="font-semibold"></span>
-                    <button id="nextBtn" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Next
-                        →</button>
-                </div>
-
-
-
-                <!-- Chart -->
-                <div class="scroll-container">
-                    <canvas id="incomeChart" class="mt-4 animate__animated"></canvas>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white shadow-md rounded-2xl p-4">
+                <h2 class="text-lg font-semibold mb-2">Total Revenue</h2>
+                <p class="text-2xl font-bold text-green-700">
+                    Rp {{ number_format(optional($store->analytics)->total_revenue ?? 0, 0, ',', '.') }}
+                </p>
             </div>
-
-            <!-- Fundraising Target -->
-            <div class="metric-card">
-                <h2 class="text-xl font-semibold mb-4">Fundraising Target</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="targetAmount" class="block font-medium mb-1">Target Amount (Rp)</label>
-                        <input id="targetAmount" type="number" placeholder="e.g. 5000000"
-                            class="w-full p-2 border rounded-lg">
-                    </div>
-
-                    <div>
-                        <label for="currentAmount" class="block font-medium mb-1">Current Amount (Rp)</label>
-                        <input id="currentAmount" type="number" placeholder="e.g. 1500000"
-                            class="w-full p-2 border rounded-lg">
-                    </div>
-
-                    <div>
-                        <label for="itemPrice" class="block font-medium mb-1">Price per Item (Rp)</label>
-                        <input id="itemPrice" type="number" placeholder="e.g. 20000"
-                            class="w-full p-2 border rounded-lg">
-                    </div>
-
-                    <div class="flex justify-between mb-2">
-                        <span>Current Progress</span>
-                        <span id="progressText">0%</span>
-                    </div>
-
-                    <div class="progress-bar">
-                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
-                    </div>
-
-                    <div id="itemsNeededInfo" class="text-sm text-gray-700 font-medium mt-2">
-                        <!-- jumlah barang yang perlu dijual akan muncul di sini -->
-                    </div>
-
-                    <button id="calculateBtn" class="w-full bg-[#2ecc71] text-white py-2 rounded-lg hover:bg-[#27ae60]">
-                        Set Target
-                    </button>
-                </div>
-
-
+            <div class="bg-white shadow-md rounded-2xl p-4">
+                <h2 class="text-lg font-semibold mb-2">Total Sales</h2>
+                <p class="text-2xl font-bold text-blue-400">
+                    {{ optional($store->analytics)->total_sales ?? 0 }}
+                </p>
+            </div>
+            <div class="bg-white shadow-md rounded-2xl p-4">
+                <h2 class="text-lg font-semibold mb-2">Average Order</h2>
+                <p class="text-2xl font-bold text-blue-400">
+                    {{ optional($store->analytics)->average_order_value ?? 0 }}
+                </p>
             </div>
         </div>
 
-        <!-- Full width stock -->
-        <div class="full-width">
-            <div class="metric-card">
-                <h2 class="text-xl font-semibold mb-4">Current Stock</h2>
-                <div class="space-y-4">
-                    <div class="stock-item">
-                        <div class="flex justify-between mb-2">
-                            <span>Rawon Daging</span>
-                            <span class="text-[#2ecc71]">45 left</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 75%"></div>
-                        </div>
-                    </div>
+
+
+        <div class="bg-white shadow-md rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Income Overview</h2>
+                <div class="space-x-2">
+                    <button onclick="setView('daily')" class="btn-view text-sm py-1 px-3 rounded-full border text-gray-700" id="btn-daily">Daily</button>
+                    <button onclick="setView('weekly')" class="btn-view text-sm py-1 px-3 rounded-full border text-gray-700" id="btn-weekly">Weekly</button>
+                    <button onclick="setView('monthly')" class="btn-view text-sm py-1 px-3 rounded-full border text-gray-700" id="btn-monthly">Monthly</button>
                 </div>
             </div>
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="adjustOffset(-1)" class="text-orange-500 hover:font-semibold">&larr; Prev</button>
+                <span id="date-label" class="text-gray-600"></span>
+                <button onclick="adjustOffset(1)" class="text-orange-500 hover:font-semibold">Next &rarr;</button>
+            </div>
+            <canvas id="incomeChart" class="w-full h-64"></canvas>
+            
         </div>
     </div>
 
-    <script>
-        const ctx = document.getElementById('incomeChart').getContext('2d');
+   <script>
+    let currentView = 'daily';
+    let offset = 0;
+    const ctx = document.getElementById('incomeChart').getContext('2d');
 
-        let offset = 0; // untuk sliding waktu
-        let currentView = 'daily'; // default
-
-        const generateDataSets = (view, offset) => {
-            const today = new Date();
-            const data = [];
-            const labels = [];
-
-            if (view === 'daily') {
-                const base = new Date();
-                base.setDate(base.getDate() + offset);
-
-                for (let i = 0; i < 3; i++) {
-                    const d = new Date(base);
-                    d.setDate(d.getDate() - 2 + i);
-                    labels.push(d.toDateString().slice(4, 10));
-                    data.push(Math.floor(Math.random() * 4000000) + 1000000);
-                }
-
-            } else if (view === 'weekly') {
-                const base = new Date();
-                base.setDate(base.getDate() + (offset * 7));
-                labels.push(...['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
-                for (let i = 0; i < 7; i++) {
-                    data.push(Math.floor(Math.random() * 4000000) + 1000000);
-                }
-
-            } else if (view === 'monthly') {
-                const base = new Date();
-                base.setMonth(base.getMonth() + offset);
-                const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
-                for (let i = 0; i < daysInMonth; i++) {
-                    labels.push(`Day ${i + 1}`);
-                    data.push(Math.floor(Math.random() * 4000000) + 1000000);
-                }
-            }
-
-            return { labels, data };
-        };
-
-        const updateDateLabel = () => {
-            const now = new Date();
-            let label = '';
-
-            if (currentView === 'daily') {
-                const target = new Date();
-                target.setDate(target.getDate() + offset);
-                label = target.toDateString();
-            } else if (currentView === 'weekly') {
-                const start = new Date();
-                start.setDate(start.getDate() + offset * 7);
-                const end = new Date(start);
-                end.setDate(start.getDate() + 6);
-                label = `${start.toDateString().slice(4, 10)} - ${end.toDateString().slice(4, 10)}`;
-            } else if (currentView === 'monthly') {
-                const target = new Date();
-                target.setMonth(target.getMonth() + offset);
-                label = target.toLocaleString('default', { month: 'long', year: 'numeric' });
-            }
-
-            document.getElementById('dateLabel').textContent = label;
-        };
-
-        const renderChart = () => {
-            const dataset = generateDataSets(currentView, offset);
-            incomeChart.data.labels = dataset.labels;
-            incomeChart.data.datasets[0].data = dataset.data;
-            incomeChart.update();
-            updateDateLabel();
-        };
-
-        const initialDataset = generateDataSets('daily', 0);
-
-        let incomeChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: initialDataset.labels,
-                datasets: [{
-                    label: 'Income',
-                    data: initialDataset.data,
-                    borderColor: '#2ecc71',
-                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: value => 'Rp' + value.toLocaleString()
-                        }
-                    },
-                    x: {
-                        ticks: { autoSkip: false }
+    const incomeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Income',
+                data: [],
+                borderColor: 'rgb(34, 197, 94)', // green-500
+                backgroundColor: 'rgba(34, 197, 94, 0.1)', // green-500 with opacity
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: value => 'Rp ' + value.toLocaleString()
                     }
                 }
             }
-        });
+        }
+    });
 
-        document.getElementById('timeSelect').addEventListener('change', (e) => {
-            currentView = e.target.value;
-            offset = 0;
-            renderChart();
-        });
+    async function fetchChartData(view, offset = 0) {
+        const res = await fetch(`/merchant/income-data?view=${view}&offset=${offset}`);
+        if (!res.ok) {
+            console.error('Failed to fetch income data');
+            return { labels: [], data: [] };
+        }
+        return res.json();
+    }
 
-        document.getElementById('prevBtn').addEventListener('click', () => {
-            offset--;
-            renderChart();
-        });
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            offset++;
-            renderChart();
-        });
-
+    async function renderChart() {
+        const { labels, data } = await fetchChartData(currentView, offset);
+        incomeChart.data.labels = labels;
+        incomeChart.data.datasets[0].data = data;
+        incomeChart.update();
         updateDateLabel();
+    }
 
-        document.getElementById('calculateBtn').addEventListener('click', () => {
-            const target = parseFloat(document.getElementById('targetAmount').value);
-            const current = parseFloat(document.getElementById('currentAmount').value);
-            const pricePerItem = parseFloat(document.getElementById('itemPrice').value);
-            const progressText = document.getElementById('progressText');
-            const progressFill = document.getElementById('progressFill');
-            const itemsNeededInfo = document.getElementById('itemsNeededInfo');
+    function setView(view) {
+        currentView = view;
+        offset = 0;
+        renderChart();
+        document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('bg-orange-500', 'text-white'));
+        const activeBtn = document.getElementById(`btn-${view}`);
+        if (activeBtn) activeBtn.classList.add('bg-orange-500', 'text-white');
+    }
 
-            if (isNaN(target) || isNaN(current) || isNaN(pricePerItem) || target <= 0 || pricePerItem <= 0) {
-                alert('Please enter valid numbers for all fields.');
-                return;
-            }
+    function adjustOffset(value) {
+        offset += value;
+        renderChart();
+    }
 
-            const progressPercent = Math.min((current / target) * 100, 100).toFixed(1);
-            progressText.textContent = `${progressPercent}%`;
-            progressFill.style.width = `${progressPercent}%`;
+    function updateDateLabel() {
+        const label = document.getElementById('date-label');
+        if (!label) return;
 
-            const remaining = Math.max(target - current, 0);
-            const itemsNeeded = Math.ceil(remaining / pricePerItem);
+        if (currentView === 'daily') {
+            const today = new Date();
+            today.setDate(today.getDate() - offset);
+            label.textContent = today.toDateString();
+        } else if (currentView === 'weekly') {
+            const base = new Date();
+            base.setDate(base.getDate() - offset * 7);
+            const start = new Date(base);
+            start.setDate(start.getDate() - start.getDay()); // minggu mulai dari minggu lalu
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            label.textContent = `${start.toDateString()} - ${end.toDateString()}`;
+        } else if (currentView === 'monthly') {
+            const now = new Date();
+            now.setMonth(now.getMonth() - offset);
+            label.textContent = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+        }
+    }
 
-            if (progressPercent >= 100) {
-                itemsNeededInfo.textContent = `🎉 Target achieved!`;
-            } else {
-                itemsNeededInfo.textContent = `You need to sell approximately ${itemsNeeded} more item(s) to reach your target.`;
-            }
-        });
-
-
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setView('daily');
+    });
+</script>
 
 </body>
-
 </html>

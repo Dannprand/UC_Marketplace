@@ -157,6 +157,7 @@
     <x-navigation />
 
     <section class="transactions-section">
+        <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
         @if ($orders->count() > 0)
             <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
             @foreach ($orders as $order)
@@ -191,7 +192,7 @@
                             <div class="item">
                                 <div>
                                     <div class="item-name">{{ $item->product->name }}</div>
-                                    <div class="item-details">Qty: {{ $item->quantity }} × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
+                                    <div class="item-details">Quantity: {{ $item->quantity }} × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</div>
                                 </div>
                                 <div class="item-price">Rp {{ number_format($item->total_price, 0, ',', '.') }}</div>
                             </div>

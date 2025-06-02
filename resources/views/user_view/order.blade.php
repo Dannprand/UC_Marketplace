@@ -61,24 +61,24 @@
             margin-bottom: 1rem;
         }
         .status-pending {
-            background-color: #fefcbf;
-            color: #744210;
+           background-color: #fff5f5;
+           color: #e53e3e;
         }
         .status-processing {
-            background-color: #bee3f8;
-            color: #2b6cb0;
+           background-color: #fefcbf;
+            color: #b7791f;
         }
         .status-shipped {
-            background-color: #c6f6d5;
-            color: #276749;
+           background-color: #bee3f8;
+            color: #3182ce;
         }
         .status-delivered {
-            background-color: #9ae6b4;
-            color: #22543d;
+            background-color: #c6f6d5;
+            color: #2f855a;
         }
         .status-cancelled {
-            background-color: #fed7d7;
-            color: #c53030;
+           background-color: #e2e8f0;
+            color: #4a5568;
         }
 
 
