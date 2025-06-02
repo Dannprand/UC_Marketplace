@@ -191,7 +191,7 @@
                         </div>
 
                         @if (!in_array($order->status, ['pending', 'processing', 'cancelled']))
-                            <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800">
+                            <div class="mt-4 p-4 bg-[#fffcea] border border-gray-200 rounded-lg text-sm text-gray-800">
                                 <h3 class="font-semibold text-base text-[#212842] mb-2">Shipping Information</h3>
                                 <p class="mb-1"><span class="font-medium">Shipping Provider:</span>
                                     {{ $order->shipping_provider ?? '-' }}</p>

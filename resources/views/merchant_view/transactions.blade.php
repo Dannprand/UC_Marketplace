@@ -204,10 +204,23 @@
                     </div>
                     {{-- Shipping Info --}}
                     @if ($order->shipping_provider && $order->tracking_number)
-                        <div class="mt-4 text-sm text-[#212842]">
-                            <div><strong>Shipping Provider:</strong> {{ $order->shipping_provider }}</div>
-                            <div><strong>Tracking Number:</strong> {{ $order->tracking_number }}</div>
-                        </div>
+                        <div class="mt-4 p-4 bg-[#fffcea] border border-gray-200 rounded-lg text-sm text-gray-800">
+                                <h3 class="font-semibold text-base text-[#212842] mb-2">Shipping Information</h3>
+                                <p class="mb-1"><span class="font-semibold">Shipping Provider:</span>
+                                    {{ $order->shipping_provider ?? '-' }}</p>
+                                <p class="mb-1"><span class="font-semibold">Estimated Delivery:</span>
+                                    {{ $order->estimated_delivery ? \Carbon\Carbon::parse($order->estimated_delivery)->format('d M Y') : '-' }}
+                                </p>
+
+                                @if ($order->notes)
+                                    <p class="mb-1"><span class="font-medium">Note:</span> {{ $order->notes }}</p>
+                                @endif
+
+                                @if ($order->status === 'delivered' && $order->delivered_at)
+                                    <p class="mt-2 text-green-700"><span class="font-medium">Delivered At:</span>
+                                        {{ \Carbon\Carbon::parse($order->delivered_at)->format('d M Y, H:i') }}</p>
+                                @endif
+                            </div>
                     @else
                         <div class="mt-4">
                             <a href="{{ route('merchant.orders.shipping', $order->id) }}"
