@@ -1,96 +1,208 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\OrderItem; // Added missing import
+use App\Models\OrderItem;
 use App\Models\PaymentMethod;
+use App\Models\CartItem;
+use App\Models\Cart;
+use App\Models\Product;
+use App\Models\Store;
+use App\Models\Merchant;
+use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PaymentController extends Controller
 {
-    public function index()
+    // Menampilkan halaman pembayaran
+    public function showPayment(Request $request)
     {
-        $cart = session()->get('cart', []);
-        $total = 0;
-    
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
         }
-    
-        $user = Auth::user();
 
-        $address = $user->addresses()->where('is_primary', true)->first();
-        $paymentMethod = $user->paymentMethods()->where('is_default', true)->first();
+        $selectedItemIds = $request->input('selected_items', []);
 
-        return view('payment.index', compact('cart', 'total', 'address', 'paymentMethod'));
-    }
+        // Dapatkan cart user
+        $cart = Cart::with('items.product.store.merchant')
+            ->where('user_id', $user->id)
+            ->first();
 
-    public function show(Order $order)
-    {
-        return view('payment', [
-            'order' => $order->load('items.product', 'paymentMethod')
-        ]);
-    }
+        // Filter item yang dipilih
+        $items = $cart ? $cart->items->filter(function ($item) use ($selectedItemIds) {
+            return in_array($item->id, $selectedItemIds);
+        }) : collect();
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'type' => 'required|string|in:credit_card,bank_transfer,e-wallet',
-            'provider' => 'required|string|max:50',
-            'account_name' => 'required|string|max:100',
-            'account_number' => 'required|string|max:30',
-            'expiry_date' => 'nullable|date',
-        ]);
+        if ($items->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Item yang dipilih tidak valid atau keranjang kosong.');
+        }
 
-        PaymentMethod::create([
-            'user_id' => Auth::id(),
-            'type' => $request->type,
-            'provider' => $request->provider,
-            'account_name' => $request->account_name,
-            'account_number' => $request->account_number,
-            'expiry_date' => $request->expiry_date,
-            'is_default' => false,
-        ]);
+        $storeIds = $items->pluck('product.store_id')->unique();
 
-        return redirect()->back()->with('success', 'Payment method saved successfully!');
-    }
+        if ($storeIds->count() > 1) {
+            return redirect()->route('cart')->with('error', 'Anda hanya dapat melakukan checkout untuk satu toko saja.');
+        }
 
-    public function confirmPayment(Request $request)
-    {
-        $user = Auth::user();
-        $cart = session()->get('cart', []);
-        $groupedByMerchant = collect($cart)->groupBy('merchant_id');
-        
-        foreach ($groupedByMerchant as $merchantId => $items) {
-            $order = Order::create([
-                'user_id' => $user->id,
-                'merchant_id' => $merchantId,
-                'payment_method_id' => $user->paymentMethods()->where('is_default', true)->value('id'),
-                'total' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
-            ]);
-
-            foreach ($items as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                ]);
+        // Cek jika user adalah merchant dan mencoba membeli dari toko sendiri
+        if ($user->merchant && $user->merchant->store) {
+            $ownStoreId = $user->merchant->store->id;
+            if ($storeIds->contains($ownStoreId)) {
+                return redirect()->route('cart')->with('error', 'Anda tidak dapat membeli produk dari toko milik Anda sendiri.');
             }
         }
 
-        session()->forget('cart');
+        $merchant = null;
+        $qrCodeData = '';
+        $totalPrice = $items->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
 
-        return redirect()->route('orders.history')->with('success', 'Order placed successfully!');
+        if ($storeIds->isNotEmpty()) {
+            $storeId = $storeIds->first();
+            $store = Store::with('merchant')->find($storeId);
+
+            if ($store && $store->merchant) {
+                $merchant = $store->merchant;
+
+                $qrCodeContent = json_encode([
+                    'bank' => $merchant->bank_name,
+                    'account_number' => $merchant->account_number,
+                    'account_name' => $merchant->merchant_name,
+                    'amount' => number_format($totalPrice, 0, '', '')
+                ]);
+
+                try {
+                    $qrCodeData = base64_encode(QrCode::format('png')->size(220)->generate($qrCodeContent));
+                } catch (\Exception $e) {
+                    Log::error("QR Code Generation Error: " . $e->getMessage());
+                }
+            }
+        }
+
+        $addresses = $user->addresses()->get();
+        
+        return view('user_view.payment', [
+            'cart' => $cart,
+            'items' => $items,
+            'totalPrice' => $totalPrice,
+            'addresses' => $addresses,
+            'selectedItemIds' => $selectedItemIds,
+            'merchant' => $merchant,
+            'qrCodeData' => $qrCodeData,
+        ]);
     }
 
-    // show qr test
-    public function showQr()
-{
-    $qr = QrCode::size(200)->generate('Halo Laravel');
-    return view('qr', compact('qr'));
-}
+    // Proses checkout produk
+    public function processCheckout(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Validasi input
+        $request->validate([
+            'shipping_address_id' => 'required|exists:addresses,id',
+            'selected_items' => 'required|array',
+            'selected_items.*' => 'integer|exists:cart_items,id'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $cart = Cart::with('items.product.store.merchant')
+                ->where('user_id', $user->id)
+                ->first();
+            
+            if (!$cart) {
+                throw new \Exception('Cart not found');
+            }
+
+            $selectedItems = $cart->items->whereIn('id', $request->selected_items);
+
+            if ($selectedItems->isEmpty()) {
+                throw new \Exception('No items selected for checkout');
+            }
+
+            $storeIds = $selectedItems->pluck('product.store_id')->unique();
+            if ($storeIds->count() > 1) {
+                throw new \Exception('Only one store allowed per checkout');
+            }
+
+            $storeId = $storeIds->first();
+            $store = Store::with('merchant')->find($storeId);
+
+            if (!$store || !$store->merchant) {
+                throw new \Exception('Merchant data not found');
+            }
+
+            $merchant = $store->merchant;
+
+            // Buat payment method untuk merchant (dengan user_id = null)
+            $paymentMethod = PaymentMethod::create([
+                'user_id' => null,
+                'type' => 'bank_transfer',
+                'provider' => $merchant->bank_name,
+                'account_name' => $merchant->merchant_name,
+                'account_number' => $merchant->account_number,
+                'is_default' => false,
+            ]);
+
+            $totalAmount = $selectedItems->sum(function ($item) {
+                return $item->product->price * $item->quantity;
+            });
+
+            // Buat order baru
+            $order = Order::create([
+                'user_id' => $user->id,
+                'order_number' => 'INV-' . strtoupper(Str::random(8)),
+                'status' => 'pending_payment',
+                'total_amount' => $totalAmount,
+                'shipping_address_id' => $request->shipping_address_id,
+                'payment_method_id' => $paymentMethod->id,
+                'store_id' => $storeId,
+            ]);
+
+            // Tambahkan item ke order
+            foreach ($selectedItems as $cartItem) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'quantity' => $cartItem->quantity,
+                    'unit_price' => $cartItem->product->price,
+                    'total_price' => $cartItem->product->price * $cartItem->quantity,
+                ]);
+
+                // Update sold_amount produk
+                $product = $cartItem->product;
+                $product->sold_amount += $cartItem->quantity;
+                $product->save();
+            }
+
+            // Hapus item dari cart
+            CartItem::whereIn('id', $request->selected_items)->delete();
+
+            DB::commit();
+
+            return redirect()->route('orders.history')
+                ->with([
+                    'success' => 'Pesanan Anda telah dibuat! Mohon selesaikan pembayaran.',
+                    'order_number' => $order->order_number
+                ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Checkout Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // Metode lainnya yang tidak diperlukan dihapus
 }
