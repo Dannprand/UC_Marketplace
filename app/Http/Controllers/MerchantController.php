@@ -23,7 +23,7 @@ class MerchantController extends Controller
         if (Auth::user()->merchant) {
             return redirect()->route('merchant.manage');
         }
-        
+
         return view('openMerchant');
     }
 
@@ -68,7 +68,7 @@ class MerchantController extends Controller
         if (!Auth::user()->merchant) {
             return redirect()->route('merchant.open');
         }
-        
+
         return view('manageMerchant');
     }
 
@@ -91,161 +91,120 @@ class MerchantController extends Controller
     {
         $merchant = Auth::user()->merchant;
         $store = $merchant->store;
-        
+
         if (!$store) {
             return redirect()->route('store.create');
         }
-        
+
         $products = $store->products()->with('category')->get();
-        
+
         // return view('merchant', compact('merchant', 'store', 'products'));
         return view('merchant_view.merchant', compact('merchant', 'store', 'products'));
     }
 
     public function transactions()
-{
-    $merchant = Auth::user()->merchant;
+    {
+        $merchant = Auth::user()->merchant;
 
-    if (!$merchant) {
-        abort(404, 'Merchant not found for this user.');
-    }
-
-    $store = $merchant->store;
-
-    if (!$store) {
-        abort(404, 'Store not found for this merchant.');
-    }
-
-    // Ambil semua order yang punya item dari produk milik store ini
-    $orders = Order::whereHas('items.product', function ($query) use ($store) {
-        $query->where('store_id', $store->id);
-    })
-    ->with(['user', 'items' => function ($query) use ($store) {
-        // Hanya ambil item dari store ini
-        $query->whereHas('product', function ($q) use ($store) {
-            $q->where('store_id', $store->id);
-        })->with('product');
-    }])
-    ->orderByDesc('created_at')
-    ->get();
-
-    // dd($orders);
-
-    return view('merchant_view.transactions', compact('orders'));
-}
-
-// public function updateStatus(Request $request, Order $order)
-// {
-//     $request->validate([
-//         'status' => ['required', Rule::in(['pending', 'processing', 'shipped', 'delivered', 'cancelled'])],
-//     ]);
-
-//     $merchant = Auth::user()->merchant;
-//     if (!$merchant || $order->store->merchant_id !== $merchant->id) {
-//         abort(403, 'Unauthorized');
-//     }
-
-//     $oldStatus = $order->status;
-//     $newStatus = $request->status;
-
-//     $order->status = $newStatus;
-//     $order->save();
-
-//     // Update analytic hanya jika status berubah jadi 'shipped' dari status selain 'shipped'
-//     if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
-//         $storeAnalytic = $order->store->analytics;
-
-//         if (!$storeAnalytic) {
-//             $storeAnalytic = new StoreAnalytic();
-//             $storeAnalytic->store_id = $order->store->id;
-//             $storeAnalytic->total_views = 0;
-//             $storeAnalytic->unique_visitors = 0;
-//             $storeAnalytic->conversion_rate = 0;
-//             $storeAnalytic->total_sales = 0;
-//             $storeAnalytic->total_revenue = 0;
-//             $storeAnalytic->average_order_value = 0;
-//         }
-
-//         // Tambahkan 1 pada total_sales
-//         $storeAnalytic->total_sales += 1;
-
-//         // Tambahkan total_amount order ke total_revenue
-//         $storeAnalytic->total_revenue += $order->total_amount;
-
-//         // Hitung average_order_value
-//         if ($storeAnalytic->total_sales > 0) {
-//             $storeAnalytic->average_order_value = $storeAnalytic->total_revenue / $storeAnalytic->total_sales;
-//         }
-
-//         $storeAnalytic->save();
-//     }
-
-//     return redirect()->back()->with('success', 'Order status updated.');
-// }
-
-// for debugging
-public function updateStatus(Request $request, Order $order)
-{
-    $request->validate([
-        'status' => ['required', Rule::in(['pending', 'processing', 'shipped', 'delivered', 'cancelled'])],
-    ]);
-
-    $merchant = Auth::user()->merchant;
-    if (!$merchant || $order->store->merchant_id !== $merchant->id) {
-        abort(403, 'Unauthorized');
-    }
-
-    $oldStatus = $order->status;
-    $newStatus = $request->status;
-
-    $order->status = $newStatus;
-    $order->save();
-
-    if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
-        // Hitung total revenue dari order items
-        $totalRevenue = $order->items()->sum('total_price');
-        logger("Total revenue from order items: " . $totalRevenue);
-
-        // Ambil atau buat StoreAnalytic
-        $store = $order->store;
-        $storeAnalytic = $store->analytics;
-
-        if (!$storeAnalytic) {
-            $storeAnalytic = new StoreAnalytic();
-            $storeAnalytic->store_id = $store->id;
-            $storeAnalytic->total_views = 0;
-            $storeAnalytic->unique_visitors = 0;
-            $storeAnalytic->conversion_rate = 0;
-            $storeAnalytic->total_sales = 0;
-            $storeAnalytic->total_revenue = 0;
-            $storeAnalytic->average_order_value = 0;
-            logger('StoreAnalytic not found, creating new one');
-        } else {
-            logger('StoreAnalytic found: ' . $storeAnalytic->id);
+        if (!$merchant) {
+            abort(404, 'Merchant not found for this user.');
         }
 
-        // Update data analitik
-        $storeAnalytic->total_sales += 1;
-        $storeAnalytic->total_revenue += $totalRevenue;
+        $store = $merchant->store;
 
-        if ($storeAnalytic->total_sales > 0) {
-            $storeAnalytic->average_order_value = $storeAnalytic->total_revenue / $storeAnalytic->total_sales;
+        if (!$store) {
+            abort(404, 'Store not found for this merchant.');
         }
 
-        $storeAnalytic->save();
+        // Ambil semua order yang punya item dari produk milik store ini
+        $orders = Order::whereHas('items.product', function ($query) use ($store) {
+            $query->where('store_id', $store->id);
+        })
+            ->with(['user', 'items' => function ($query) use ($store) {
+                // Hanya ambil item dari store ini
+                $query->whereHas('product', function ($q) use ($store) {
+                    $q->where('store_id', $store->id);
+                })->with('product');
+            }])
+            ->orderByDesc('created_at')
+            ->get();
 
-        logger('Updated StoreAnalytic:');
-        logger([
-            'total_sales' => $storeAnalytic->total_sales,
-            'total_revenue' => $storeAnalytic->total_revenue,
-            'average_order_value' => $storeAnalytic->average_order_value,
+        // dd($orders);
+
+        return view('merchant_view.transactions', compact('orders'));
+    }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => ['required', Rule::in(['pending', 'processing', 'shipped', 'delivered', 'cancelled'])],
         ]);
+
+        $merchant = Auth::user()->merchant;
+        if (!$merchant || $order->store->merchant_id !== $merchant->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $oldStatus = $order->status;
+        $newStatus = $request->status;
+
+        $order->status = $newStatus;
+
+        if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
+            $order->shipped_at = now();
+        }
+
+        if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
+            $order->delivered_at = now();
+        }
+
+        $order->save();
+
+        if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
+            // Hitung total revenue dari order items
+            $totalRevenue = $order->items()->sum('total_price');
+            logger("Total revenue from order items: " . $totalRevenue);
+
+            // Ambil atau buat StoreAnalytic
+            $store = $order->store;
+            $storeAnalytic = $store->analytics;
+
+            if (!$storeAnalytic) {
+                $storeAnalytic = new StoreAnalytic();
+                $storeAnalytic->store_id = $store->id;
+                $storeAnalytic->total_views = 0;
+                $storeAnalytic->unique_visitors = 0;
+                $storeAnalytic->conversion_rate = 0;
+                $storeAnalytic->total_sales = 0;
+                $storeAnalytic->total_revenue = 0;
+                $storeAnalytic->average_order_value = 0;
+                logger('StoreAnalytic not found, creating new one');
+            } else {
+                logger('StoreAnalytic found: ' . $storeAnalytic->id);
+            }
+
+            // Update data analitik
+            $storeAnalytic->total_sales += 1;
+            $storeAnalytic->total_revenue += $totalRevenue;
+
+            if ($storeAnalytic->total_sales > 0) {
+                $storeAnalytic->average_order_value = $storeAnalytic->total_revenue / $storeAnalytic->total_sales;
+            }
+
+            $storeAnalytic->save();
+
+            logger('Updated StoreAnalytic:');
+            logger([
+                'total_sales' => $storeAnalytic->total_sales,
+                'total_revenue' => $storeAnalytic->total_revenue,
+                'average_order_value' => $storeAnalytic->average_order_value,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Order status updated.');
     }
 
-    return redirect()->back()->with('success', 'Order status updated.');
-}
-
-        public function index()
+    public function index()
     {
         $user = Auth::user();
         $merchant = $user->merchant; // relasi User -> Merchant
@@ -256,29 +215,161 @@ public function updateStatus(Request $request, Order $order)
         }
         $products = $store->products()->select('id', 'name', 'quantity', 'price', 'images')->get();
 
-        return view('merchant_view.merchant', compact('products','store','merchant'));
+        return view('merchant_view.merchant', compact('products', 'store', 'merchant'));
     }
 
+    // For Details merchant
+    public function showDetail($id)
+    {
+        $user = Auth::user();
+        $merchant = $user->merchant;
 
-public function showDetail($id)
+        if (!$merchant) {
+            return redirect()->route('merchant.dashboard')->with('error', 'Merchant tidak ditemukan.');
+        }
+
+        // Eager load analytics agar $store->analytics tersedia di Blade
+        $store = $merchant->store()->with('analytics')->where('id', $id)->first();
+
+        if (!$store) {
+            return redirect()->route('merchant.dashboard')->with('error', 'Store tidak ditemukan.');
+        }
+
+        // Jika belum ada analytics, buatkan default-nya
+        if (!$store->analytics) {
+            $storeAnalytic = StoreAnalytic::create([
+                'store_id' => $store->id,
+                'total_views' => 0,
+                'unique_visitors' => 0,
+                'conversion_rate' => 0,
+                'total_sales' => 0,
+                'total_revenue' => 0,
+                'average_order_value' => 0,
+            ]);
+
+            // Reload relasi agar $store->analytics tidak null di view
+            $store->setRelation('analytics', $storeAnalytic);
+        }
+
+        return view('merchant_view.detailMerchant', compact('store'));
+    }
+
+    public function getIncomeData(Request $request)
+    {
+        $view = $request->query('view', 'daily');
+        $offset = (int) $request->query('offset', 0);
+
+        $user = Auth::user();
+        $store = optional($user->merchant)->store;
+
+        if (!$store) {
+            return response()->json(['labels' => [], 'data' => []]);
+        }
+
+        $startDate = now();
+        $labels = [];
+        $data = [];
+
+        if ($view === 'daily') {
+            // Mulai dari 6 hari lalu + offset mingguan (offset * 7)
+            $startDate = now()->subDays(6 + ($offset * 7));
+
+            for ($i = 0; $i < 7; $i++) {
+                $date = $startDate->copy()->addDays($i)->format('Y-m-d');
+                $labels[] = $date;
+
+                $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
+                    ->whereHas('order', fn($q) => $q->whereDate('created_at', $date)
+                        ->where('status', 'shipped'))
+                    ->select(DB::raw('SUM(quantity * unit_price) as total'))
+                    ->value('total') ?? 0;
+
+                $data[] = (float) $total;
+            }
+        }
+
+        if ($view === 'weekly') {
+            // Mulai dari 4 minggu lalu + offset mingguan
+            $startDate = now()->subWeeks(4 + $offset);
+
+            for ($i = 0; $i < 5; $i++) {
+                $weekStart = $startDate->copy()->addWeeks($i)->startOfWeek();
+                $weekEnd = $weekStart->copy()->endOfWeek();
+
+                $labels[] = "Minggu ke-" . ($i + 1);
+
+                $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
+                    ->whereHas('order', fn($q) => $q->whereBetween('created_at', [$weekStart, $weekEnd])
+                        ->where('status', 'shipped'))
+                    ->select(DB::raw('SUM(quantity * unit_price) as total'))
+                    ->value('total') ?? 0;
+
+                $data[] = (float) $total;
+            }
+        }
+
+        if ($view === 'monthly') {
+            // Mulai dari 5 bulan lalu + offset bulanan
+            $startDate = now()->subMonths(5 + $offset);
+
+            for ($i = 0; $i < 6; $i++) {
+                $month = $startDate->copy()->addMonths($i);
+                $labels[] = $month->format('F Y');
+
+                $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
+                    ->whereHas('order', fn($q) => $q->whereYear('created_at', $month->year)
+                        ->whereMonth('created_at', $month->month)
+                        ->where('status', 'shipped'))
+                    ->select(DB::raw('SUM(quantity * unit_price) as total'))
+                    ->value('total') ?? 0;
+
+                $data[] = (float) $total;
+            }
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
+    }
+
+    // For Shipping
+    public function showShippingForm(Order $order)
+    {
+        return view('merchant_view.shipping', compact('order'));
+    }
+
+    public function storeShipping(Request $request, Order $order)
 {
-    $user = Auth::user();
-    $merchant = $user->merchant;
+    $request->validate([
+        'shipping_provider' => 'required|string|max:255',
+        'tracking_number' => 'required|string|max:255',
+        'estimated_delivery' => 'required|date',
+        'notes' => 'nullable|string|max:1000',
+    ]);
 
-    if (!$merchant) {
-        return redirect()->route('merchant.dashboard')->with('error', 'Merchant tidak ditemukan.');
+    $merchant = Auth::user()->merchant;
+    if (!$merchant || $order->store->merchant_id !== $merchant->id) {
+        abort(403, 'Unauthorized');
     }
 
-    // Eager load analytics agar $store->analytics tersedia di Blade
-    $store = $merchant->store()->with('analytics')->where('id', $id)->first();
+    $order->shipping_provider = $request->shipping_provider;
+    $order->tracking_number = $request->tracking_number;
+    $order->estimated_delivery = $request->estimated_delivery;
+     $order->notes = $request->note;
 
-    if (!$store) {
-        return redirect()->route('merchant.dashboard')->with('error', 'Store tidak ditemukan.');
+    // Update status jadi 'shipped' kalau belum 'shipped'
+    if ($order->status !== 'shipped') {
+        $order->status = 'shipped';
+        $order->shipped_at = now(); // catat waktu shipped
     }
 
-    // Jika belum ada analytics, buatkan default-nya
-    if (!$store->analytics) {
-        $storeAnalytic = StoreAnalytic::create([
+    $order->save();
+
+    // Logika analitik hanya jika status adalah "shipped"
+    if ($order->status === 'shipped') {
+        $store = $order->store;
+        $storeAnalytic = $store->analytics ?? new \App\Models\StoreAnalytic([
             'store_id' => $store->id,
             'total_views' => 0,
             'unique_visitors' => 0,
@@ -288,91 +379,18 @@ public function showDetail($id)
             'average_order_value' => 0,
         ]);
 
-        // Reload relasi agar $store->analytics tidak null di view
-        $store->setRelation('analytics', $storeAnalytic);
+        $totalRevenue = $order->items()->sum('total_price');
+        $storeAnalytic->total_sales += 1;
+        $storeAnalytic->total_revenue += $totalRevenue;
+        $storeAnalytic->average_order_value = $storeAnalytic->total_sales > 0
+            ? $storeAnalytic->total_revenue / $storeAnalytic->total_sales
+            : 0;
+
+        $storeAnalytic->save();
     }
 
-    return view('merchant_view.detailMerchant', compact('store'));
+    return redirect()->route('merchant.transactions')->with('success', 'Shipping information saved successfully.');
+
 }
-
-public function getIncomeData(Request $request)
-{
-    $view = $request->query('view', 'daily');
-    $offset = (int) $request->query('offset', 0);
-
-    $user = Auth::user();
-    $store = optional($user->merchant)->store;
-
-    if (!$store) {
-        return response()->json(['labels' => [], 'data' => []]);
-    }
-
-    $startDate = now();
-    $labels = [];
-    $data = [];
-
-    if ($view === 'daily') {
-        // Mulai dari 6 hari lalu + offset mingguan (offset * 7)
-        $startDate = now()->subDays(6 + ($offset * 7));
-
-        for ($i = 0; $i < 7; $i++) {
-            $date = $startDate->copy()->addDays($i)->format('Y-m-d');
-            $labels[] = $date;
-
-            $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
-                ->whereHas('order', fn($q) => $q->whereDate('created_at', $date)
-                    ->where('status', 'shipped'))
-                ->select(DB::raw('SUM(quantity * unit_price) as total'))
-                ->value('total') ?? 0;
-
-            $data[] = (float) $total;
-        }
-    }
-
-    if ($view === 'weekly') {
-        // Mulai dari 4 minggu lalu + offset mingguan
-        $startDate = now()->subWeeks(4 + $offset);
-
-        for ($i = 0; $i < 5; $i++) {
-            $weekStart = $startDate->copy()->addWeeks($i)->startOfWeek();
-            $weekEnd = $weekStart->copy()->endOfWeek();
-
-            $labels[] = "Minggu ke-" . ($i + 1);
-
-            $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
-                ->whereHas('order', fn($q) => $q->whereBetween('created_at', [$weekStart, $weekEnd])
-                    ->where('status', 'shipped'))
-                ->select(DB::raw('SUM(quantity * unit_price) as total'))
-                ->value('total') ?? 0;
-
-            $data[] = (float) $total;
-        }
-    }
-
-    if ($view === 'monthly') {
-        // Mulai dari 5 bulan lalu + offset bulanan
-        $startDate = now()->subMonths(5 + $offset);
-
-        for ($i = 0; $i < 6; $i++) {
-            $month = $startDate->copy()->addMonths($i);
-            $labels[] = $month->format('F Y');
-
-            $total = OrderItem::whereHas('product', fn($q) => $q->where('store_id', $store->id))
-                ->whereHas('order', fn($q) => $q->whereYear('created_at', $month->year)
-                    ->whereMonth('created_at', $month->month)
-                    ->where('status', 'shipped'))
-                ->select(DB::raw('SUM(quantity * unit_price) as total'))
-                ->value('total') ?? 0;
-
-            $data[] = (float) $total;
-        }
-    }
-
-    return response()->json([
-        'labels' => $labels,
-        'data' => $data,
-    ]);
-}
-
 
 }

@@ -202,6 +202,21 @@
                     <div class="total-section">
                         Total: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                     </div>
+                    {{-- Shipping Info --}}
+                    @if ($order->shipping_provider && $order->tracking_number)
+                        <div class="mt-4 text-sm text-[#212842]">
+                            <div><strong>Shipping Provider:</strong> {{ $order->shipping_provider }}</div>
+                            <div><strong>Tracking Number:</strong> {{ $order->tracking_number }}</div>
+                        </div>
+                    @else
+                        <div class="mt-4">
+                            <a href="{{ route('merchant.orders.shipping', $order->id) }}"
+                            class="inline-block bg-[#212842] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#3b4b91]">
+                                Input Shipping Info
+                            </a>
+                        </div>
+                    @endif
+
                 </div>
             @endforeach
         @else

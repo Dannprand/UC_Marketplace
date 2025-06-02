@@ -5,13 +5,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Order - UCMarketPlace</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite('resources/css/app.css')
     <style>
-       body {
+        body {
             font-family: 'Poppins', sans-serif;
-             background: #f0e7d5;
+            background: #f0e7d5;
         }
 
         .order-section {
@@ -60,24 +60,29 @@
             text-transform: uppercase;
             margin-bottom: 1rem;
         }
+
         .status-pending {
-           background-color: #fff5f5;
-           color: #e53e3e;
+            background-color: #fff5f5;
+            color: #e53e3e;
         }
+
         .status-processing {
-           background-color: #fefcbf;
+            background-color: #fefcbf;
             color: #b7791f;
         }
+
         .status-shipped {
-           background-color: #bee3f8;
+            background-color: #bee3f8;
             color: #3182ce;
         }
+
         .status-delivered {
             background-color: #c6f6d5;
             color: #2f855a;
         }
+
         .status-cancelled {
-           background-color: #e2e8f0;
+            background-color: #e2e8f0;
             color: #4a5568;
         }
 
@@ -101,10 +106,10 @@
             border-bottom: none;
         }
 
-        .order-total{
+        .order-total {
             color: #5363a0;
         }
-        
+
         .product-name {
             font-weight: 600;
         }
@@ -134,24 +139,24 @@
         }
     </style>
 </head>
+
 <body>
     <x-navigation></x-navigation>
 
     <section class="order-section">
-        @if($orders->count() > 0)
-        <h1 class="text-2xl font-bold text-[#212842] mb-8">Order History</h1>
-            @foreach($orders as $order)
-
-            @php
-                $statusClass = match($order->status) {
-                    'pending' => 'status-pending',
-                    'processing' => 'status-processing',
-                    'shipped' => 'status-shipped',
-                    'delivered' => 'status-delivered',
-                    'cancelled' => 'status-cancelled',
-                    default => '',
-                };
-            @endphp
+        @if ($orders->count() > 0)
+            <h1 class="text-2xl font-bold text-[#212842] mb-8">Order History</h1>
+            @foreach ($orders as $order)
+                @php
+                    $statusClass = match ($order->status) {
+                        'pending' => 'status-pending',
+                        'processing' => 'status-processing',
+                        'shipped' => 'status-shipped',
+                        'delivered' => 'status-delivered',
+                        'cancelled' => 'status-cancelled',
+                        default => '',
+                    };
+                @endphp
 
                 <article class="order-card" data-order-id="{{ $order->id }}">
                     <header class="order-header">
@@ -164,12 +169,13 @@
                     </div>
 
                     <div class="order-items">
-                        @foreach($order->items as $item)
+                        @foreach ($order->items as $item)
                             <div class="order-item">
                                 <div>
                                     <p class="product-name">{{ $item->product->name }} x{{ $item->quantity }}</p>
-                                    @if($item->product->store && $item->product->store->merchant)
-                                        <p class="product-store">From: {{ $item->product->store->merchant->merchant_name }}</p>
+                                    @if ($item->product->store && $item->product->store->merchant)
+                                        <p class="product-store">From:
+                                            {{ $item->product->store->merchant->merchant_name }}</p>
                                     @endif
                                     <p class="product-price">
                                         Price: Rp {{ number_format($item->unit_price, 0, ',', '.') }} <br>
@@ -183,6 +189,27 @@
                         <div class="order-total mt-4 font-bold text-lg text-right">
                             Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                         </div>
+
+                        @if (!in_array($order->status, ['pending', 'processing', 'cancelled']))
+                            <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800">
+                                <h3 class="font-semibold text-base text-[#212842] mb-2">Shipping Information</h3>
+                                <p class="mb-1"><span class="font-medium">Shipping Provider:</span>
+                                    {{ $order->shipping_provider ?? '-' }}</p>
+                                <p class="mb-1"><span class="font-medium">Estimated Delivery:</span>
+                                    {{ $order->estimated_delivery ? \Carbon\Carbon::parse($order->estimated_delivery)->format('d M Y') : '-' }}
+                                </p>
+
+                                @if ($order->notes)
+                                    <p class="mb-1"><span class="font-medium">Note:</span> {{ $order->notes }}</p>
+                                @endif
+
+                                @if ($order->status === 'delivered' && $order->delivered_at)
+                                    <p class="mt-2 text-green-700"><span class="font-medium">Delivered At:</span>
+                                        {{ \Carbon\Carbon::parse($order->delivered_at)->format('d M Y, H:i') }}</p>
+                                @endif
+                            </div>
+                        @endif
+
                     </div>
 
                 </article>
@@ -200,7 +227,9 @@
             if (content) {
                 const printWindow = window.open('', '', 'width=900,height=600');
                 printWindow.document.write('<html><head><title>Order Print</title>');
-                printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">');
+                printWindow.document.write(
+                    '<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">'
+                    );
                 printWindow.document.write('</head><body class="p-6">');
                 printWindow.document.write(content.innerHTML);
                 printWindow.document.write('</body></html>');
