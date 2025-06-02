@@ -504,13 +504,13 @@
             <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
                     {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-            <div id="qr-code-container">
-                @if ($qrCodeData)
-                    <img src="data:image/png;base64,{{ $qrCodeData }}" alt="QR Code Payment">
-                @else
-                    <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
-                @endif
-            </div>
+            <div id="qr-code-container" class="my-4">
+    @if ($qrCodeData)
+        <img src="data:image/png;base64,{{ $qrCodeData }}" alt="QR Code Payment">
+    @else
+        <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
+    @endif
+</div>
 
             <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your
                 payment.</p>
