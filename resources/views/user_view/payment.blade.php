@@ -375,7 +375,6 @@
         <div class="payment-container">
             <div class="payment-header">Checkout Process</div>
 
-            {{-- Error Messages --}}
             @if ($errors->any())
                 <div class="alert alert-danger col-span-full">
                     <ul>
@@ -391,7 +390,6 @@
                 </div>
             @endif
 
-            {{-- Form Add New Address (hidden by default) --}}
             <div id="new-address-form" class="payment-column my-4 hidden col-span-full">
                 <h3 class="font-semibold mb-4 text-lg">Add a New Address</h3>
                 <form action="{{ route('address.store') }}" method="POST" class="space-y-4">
@@ -421,19 +419,13 @@
                 </form>
             </div>
 
-            {{-- Checkout Form --}}
             <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST"
                 class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
                 @csrf
+                @foreach ($selectedItemIds as $itemId)
+                    <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+                @endforeach
 
-                {{-- Selected Items as Hidden Inputs --}}
-                @if (!empty($selectedItemIds))
-                    @foreach ($selectedItemIds as $itemId)
-                        <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
-                    @endforeach
-                @endif
-
-                {{-- Shipping Address Section --}}
                 <div class="payment-column address-section">
                     <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
                     <div class="mb-4">
@@ -458,7 +450,6 @@
                     </a>
                 </div>
 
-                {{-- Payment Details (Merchant) --}}
                 <div class="payment-column payment-section">
                     <h2 class="text-lg font-semibold mb-4">Payment Details (Merchant)</h2>
                     @if ($merchant)
@@ -473,12 +464,11 @@
                     @endif
                 </div>
 
-                {{-- Order Summary --}}
                 <div class="payment-column order-section col-span-full">
                     <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
                     <div class="order-items">
                         @forelse ($items as $item)
-                            <div class="order-item flex justify-between border-b py-2">
+                            <div class="order-item">
                                 <span class="item-name">{{ $item->product->name }} (x{{ $item->quantity }})</span>
                                 <span class="item-price">Rp.
                                     {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
@@ -487,13 +477,12 @@
                             <p class="text-gray-600">No items selected for checkout.</p>
                         @endforelse
                     </div>
-                    <div class="order-total flex justify-between items-center font-bold text-xl mt-4">
+                    <div class="order-total flex justify-between items-center font-bold text-xl">
                         <span class="total-label">Total:</span>
                         <span class="total-value">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </div>
 
-                    <button type="button" id="open-payment-popup"
-                        class="pay-button mt-6 bg-blue-600 text-white py-3 rounded-lg w-full hover:bg-blue-700 transition-colors">
+                    <button type="button" id="open-payment-popup" class="pay-button">
                         Complete Payment
                     </button>
                 </div>
@@ -501,48 +490,45 @@
         </div>
     </div>
 
-    {{-- Payment Confirmation Popup --}}
-    <div class="popup-overlay fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
-        id="payment-popup-overlay">
-        <div class="popup-content bg-white rounded-lg p-6 max-w-md w-full relative">
-            <h2 class="text-xl font-semibold mb-4">Confirm Payment</h2>
+    <div class="popup-overlay" id="payment-popup-overlay">
+        <div class="popup-content">
+            <h2>Confirm Payment</h2>
             <p>Please transfer the total amount to the following merchant account:</p>
             @if ($merchant)
                 <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span>
                 </p>
                 <p><strong>Nomor Rekening:</strong> <span
-                        id="popup-account-number">{{ $merchant->account_number }}</span></p>
+                        id="popup-account-number">{{ $merchant->account_number }}</span>
+                </p>
                 <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
             @else
                 <p class="text-red-500">Merchant details are not available.</p>
             @endif
-            <p class="mt-2"><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
+            <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
                     {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-            <div id="qr-code-container" class="my-4 flex justify-center">
-                {{-- @if (session('qr_code'))
-                      <img src="data:image/png;base64,{{ session('qr_code') }}" alt="QR Code" width="220" height="220">
+            <div id="qr-code-container" class="my-4">
+                @if ($qrCodeData)
+                    <img src="data:image/png;base64,{{ $qrCodeData }}" alt="QR Code Payment">
                 @else
                     <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
-                @endif --}}
-                @if (session('qr_code'))
-                    <img src="data:image/png;base64,{{ session('qr_code') }}" alt="QR Code">
-                @else
-                    <p>QR Code tidak tersedia karena informasi merchant belum lengkap.</p>
                 @endif
-
             </div>
 
             <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your
                 payment.</p>
 
-            <div class="flex justify-end space-x-3 mt-6">
-                <button type="button" id="close-popup-button"
-                    class="btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Close</button>
-                <button type="submit" form="checkout-form" id="proceed-to-payment-processing"
-                    class="btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">I have
-                    paid</button>
-            </div>
+            <form id="confirm-payment-form" method="POST" action="{{ route('payment.confirm') }}">
+                @csrf
+                <input type="hidden" name="order_id" value="{{ session('order_id') }}"> {{-- atau ID lain jika dibutuhkan --}}
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="close-popup-button"
+                        class="btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Close</button>
+                    <button type="submit"
+                        class="btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">I have paid</button>
+                </div>
+            </form>
+
         </div>
     </div>
 
@@ -593,13 +579,13 @@
                 }
             });
 
-            // Submit form on confirm payment
-            proceedButton.addEventListener('click', () => {
-                // Optionally disable button to prevent double submit
-                proceedButton.disabled = true;
-                proceedButton.textContent = 'Processing...';
-                checkoutForm.submit();
-            });
+            // // Submit form on confirm payment
+            // proceedButton.addEventListener('click', () => {
+            //     // Optionally disable button to prevent double submit
+            //     proceedButton.disabled = true;
+            //     proceedButton.textContent = 'Processing...';
+            //     checkoutForm.submit();
+            // });
         });
     </script>
 </body>

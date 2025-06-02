@@ -45,17 +45,11 @@ Route::middleware('auth')->prefix('user')->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/balance', function () {
-        return view('user_view.balance');
-    })->name('balance');
-
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-
-    Route::get('/buy-now', [CartController::class, 'buyNow'])->name('buy.now');
 
     // Payment routes   
     Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');

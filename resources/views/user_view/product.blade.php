@@ -268,7 +268,8 @@
                             <button type="submit" class="btn add-to-cart">Add to Cart</button>
                         </form>
                     
-                        <form method="GET" action="{{ route('buy.now') }}">
+                        <form method="POST" action="{{ route('checkout.payment') }}">
+                            @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <input type="hidden" name="quantity" id="formQuantityBuyNow" value="1">
                             <button type="submit" class="btn buy-now">Buy Now</button>

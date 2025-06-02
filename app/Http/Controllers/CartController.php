@@ -241,7 +241,10 @@ class CartController extends Controller
             $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
             if (!$cart) throw new \Exception('Cart not found');
 
-            $selectedItems = $cart->items->whereIn('id', $request->selected_items);
+            $selectedItems = CartItem::with('product')
+                ->where('cart_id', $cart->id)
+                ->whereIn('id', $request->selected_items)
+                ->get();
             if ($selectedItems->isEmpty()) throw new \Exception('No items selected for checkout');
 
             $storeIds = $selectedItems->pluck('product.store_id')->unique();
@@ -267,12 +270,13 @@ class CartController extends Controller
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => 'INV-' . strtoupper(Str::random(8)),
-                'status' => 'pending_payment',
+                'status' => 'pending',
                 'total_amount' => $totalAmount,
                 'shipping_address_id' => $request->shipping_address_id,
                 'payment_method_id' => $paymentMethod->id,
                 'store_id' => $storeId,
             ]);
+ Log::info('Order created:', $order->toArray());
 
             foreach ($selectedItems as $cartItem) {
                 OrderItem::create([
@@ -282,6 +286,7 @@ class CartController extends Controller
                     'unit_price' => $cartItem->product->price,
                     'total_price' => $cartItem->product->price * $cartItem->quantity,
                 ]);
+                Log::info('OrderItem created:', $orderItem->toArray());
 
                 $product = $cartItem->product;
                 $product->sold_amount += $cartItem->quantity;
