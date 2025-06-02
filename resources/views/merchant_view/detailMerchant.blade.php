@@ -12,7 +12,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
             min-height: 100vh;
             padding: 2rem;
         }
@@ -66,13 +66,13 @@
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-[#273157]">
 
     
     <div class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-semibold">Detail Merchant - {{ $store->name }}</h1>
-            <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
+            <a href="{{ route('merchant.dashboard') }}" class="text-[#273157] font-medium hover:font-semibold">&larr; Back to Merchant</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -84,13 +84,13 @@
             </div>
             <div class="bg-white shadow-md rounded-2xl p-4">
                 <h2 class="text-lg font-semibold mb-2">Total Sales</h2>
-                <p class="text-2xl font-bold text-blue-400">
+                <p class="text-2xl font-bold text-[#5363a0]">
                     {{ optional($store->analytics)->total_sales ?? 0 }}
                 </p>
             </div>
             <div class="bg-white shadow-md rounded-2xl p-4">
                 <h2 class="text-lg font-semibold mb-2">Average Order</h2>
-                <p class="text-2xl font-bold text-blue-400">
+                <p class="text-2xl font-bold text-[#5363a0]">
                     {{ optional($store->analytics)->average_order_value ?? 0 }}
                 </p>
             </div>
@@ -108,9 +108,9 @@
                 </div>
             </div>
             <div class="flex justify-between items-center mb-4">
-                <button onclick="adjustOffset(-1)" class="text-orange-500 hover:font-semibold">&larr; Prev</button>
+                <button onclick="adjustOffset(-1)" class="text-[#273157] hover:font-semibold">&larr; Prev</button>
                 <span id="date-label" class="text-gray-600"></span>
-                <button onclick="adjustOffset(1)" class="text-orange-500 hover:font-semibold">Next &rarr;</button>
+                <button onclick="adjustOffset(1)" class="text-[#273157] hover:font-semibold">Next &rarr;</button>
             </div>
             <canvas id="incomeChart" class="w-full h-64"></canvas>
             
@@ -170,9 +170,9 @@
         currentView = view;
         offset = 0;
         renderChart();
-        document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('bg-orange-500', 'text-white'));
+        document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('bg-[#273157]', 'text-white'));
         const activeBtn = document.getElementById(`btn-${view}`);
-        if (activeBtn) activeBtn.classList.add('bg-orange-500', 'text-white');
+        if (activeBtn) activeBtn.classList.add('bg-[#273157]', 'text-white');
     }
 
     function adjustOffset(value) {
