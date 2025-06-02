@@ -185,7 +185,7 @@
                             </div>
                         @endforeach
 
-                        {{-- Total Pembayaran Ditampilkan Sekali Saja --}}
+                        {{-- Total Pembayaran --}}
                         <div class="order-total mt-4 font-bold text-lg text-right">
                             Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                         </div>

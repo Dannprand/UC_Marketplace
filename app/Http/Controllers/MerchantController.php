@@ -344,7 +344,7 @@ class MerchantController extends Controller
     $request->validate([
         'shipping_provider' => 'required|string|max:255',
         'tracking_number' => 'required|string|max:255',
-        'estimated_delivery' => 'required|date',
+        'estimated_delivery' => 'required|date|after_or_equal:today',
         'notes' => 'nullable|string|max:1000',
     ]);
 
