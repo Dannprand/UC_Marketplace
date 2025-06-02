@@ -16,8 +16,7 @@
         }
 
         body {
-            background: #e0f3fe;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -45,7 +44,8 @@
         .payment-header {
             grid-column: 1 / -1;
             font-size: 28px;
-            color: #2c3e50;
+            color: #212842;
+            /* Dark blue-ish color */
             font-weight: 700;
             margin-bottom: 25px;
             text-align: center;
@@ -60,7 +60,8 @@
             transform: translateX(-50%);
             width: 100px;
             height: 4px;
-            background-color: #3498db;
+            background-color: #5363a0;
+            /* Blueish underline */
             border-radius: 2px;
         }
 
@@ -69,9 +70,9 @@
             background: white;
             padding: 2.5rem;
             border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             height: fit-content;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #ddd;
         }
 
         .address-section {
@@ -133,7 +134,7 @@
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 25px;
-            color: #2d3748;
+            color: #212842;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
@@ -142,21 +143,22 @@
             display: flex;
             align-items: center;
             padding: 15px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #ddd;
             border-radius: 12px;
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: #212842;
         }
 
         .payment-option:hover {
-            border-color: #96C2DB;
-            background-color: #f8fafc;
+            border-color: #5363a0;
+            background-color: #f0f0f0;
         }
 
         .payment-option.active {
-            border-color: #96C2DB;
-            background-color: #f0f9ff;
+            border-color: #5363a0;
+            background-color: #d9e0f0;
         }
 
         .order-items {
@@ -190,8 +192,9 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px dashed #edf2f7;
+            border-bottom: 1px dashed #ddd;
             font-size: 15px;
+            color: #212842;
         }
 
         .order-item:last-child {
@@ -204,29 +207,30 @@
         }
 
         .item-price {
-            color: #555;
+            color: #333;
+            /* red accent from second CSS */
             font-weight: 400;
         }
 
         .order-total {
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
+            border-top: 2px solid #ddd;
         }
 
         .total-label {
-            color: #2c3e50;
+            color: #212842;
         }
 
         .total-value {
-            color: #2ecc71;
+            color: #5363a0;
             font-size: 22px;
         }
 
         .pay-button {
             width: 100%;
             padding: 18px;
-            background-color: #2ecc71;
+            background-color: #212842;
             color: white;
             border: none;
             border-radius: 10px;
@@ -235,11 +239,11 @@
             cursor: pointer;
             margin-top: 30px;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 4px 10px rgba(33, 40, 66, 0.3);
         }
 
         .pay-button:hover {
-            background-color: #27ae60;
+            background-color: #5363a0;
             transform: translateY(-2px);
         }
 
@@ -256,9 +260,9 @@
         }
 
         .alert-danger {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fca5a5;
+            background-color: #fcecea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
         }
 
         /* Popup Styling */
@@ -268,7 +272,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(33, 40, 66, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
@@ -283,7 +287,7 @@
             text-align: center;
             max-width: 450px;
             width: 90%;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 30px rgba(33, 40, 66, 0.2);
             transform: scale(0.8);
             opacity: 0;
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
@@ -295,7 +299,7 @@
         }
 
         .popup-content h2 {
-            color: #2ecc71;
+            color: #5363a0;
             margin-bottom: 20px;
             font-size: 28px;
             font-weight: 700;
@@ -309,7 +313,7 @@
         }
 
         .popup-content p strong {
-            color: #222;
+            color: #212842;
         }
 
         /* Style for the QR Code container */
@@ -343,12 +347,12 @@
         }
 
         #proceed-to-payment-processing {
-            background-color: #3498db;
+            background-color: #5363a0;
             margin-left: 15px;
         }
 
         #proceed-to-payment-processing:hover {
-            background-color: #2980b9;
+            background-color: #414e7a;
         }
 
         /* Animation Keyframes */
@@ -404,8 +408,7 @@
                         class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
 
                     <label class="flex items-center text-gray-700">
-                        <input type="checkbox" name="is_primary" value="1"
-                            class="mr-2 h-4 w-4 text-blue-600 rounded">
+                        <input type="checkbox" name="is_primary" value="1" class="mr-2 h-4 w-4 text-blue-600 rounded">
                         Set as primary address
                     </label>
 
@@ -466,7 +469,8 @@
                         @forelse ($items as $item)
                             <div class="order-item">
                                 <span class="item-name">{{ $item->product->name }} (x{{ $item->quantity }})</span>
-                                <span class="item-price">Rp. {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
+                                <span class="item-price">Rp.
+                                    {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
                             </div>
                         @empty
                             <p class="text-gray-600">No items selected for checkout.</p>
@@ -491,12 +495,14 @@
             <p>Please transfer the total amount to the following merchant account:</p>
             @if ($merchant)
                 <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span></p>
-                <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span></p>
+                <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span>
+                </p>
                 <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
             @else
                 <p class="text-red-500">Merchant details are not available.</p>
             @endif
-            <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
+            <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
+                    {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
             <div id="qr-code-container">
                 @if ($qrCodeData)
@@ -506,68 +512,70 @@
                 @endif
             </div>
 
-            <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment.</p>
+            <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your
+                payment.</p>
 
             <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
-            <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have paid</button>
+            <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have
+                paid</button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const toggleAddressFormButton = document.getElementById('toggle-address-form');
-    const newAddressForm = document.getElementById('new-address-form');
-    const shippingAddressSelect = document.getElementById('shipping_address_id');
-    const openPaymentPopupButton = document.getElementById('open-payment-popup');
-    const paymentPopupOverlay = document.getElementById('payment-popup-overlay');
-    const popupContent = paymentPopupOverlay.querySelector('.popup-content');
-    const closePopupButton = document.getElementById('close-popup-button');
-    const proceedButton = document.getElementById('proceed-to-payment-processing');
-    const checkoutForm = document.getElementById('checkout-form');
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleAddressFormButton = document.getElementById('toggle-address-form');
+            const newAddressForm = document.getElementById('new-address-form');
+            const shippingAddressSelect = document.getElementById('shipping_address_id');
+            const openPaymentPopupButton = document.getElementById('open-payment-popup');
+            const paymentPopupOverlay = document.getElementById('payment-popup-overlay');
+            const popupContent = paymentPopupOverlay.querySelector('.popup-content');
+            const closePopupButton = document.getElementById('close-popup-button');
+            const proceedButton = document.getElementById('proceed-to-payment-processing');
+            const checkoutForm = document.getElementById('checkout-form');
 
-    // Toggle new address form visibility
-    toggleAddressFormButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        newAddressForm.classList.toggle('hidden');
-        shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
-    });
+            // Toggle new address form visibility
+            toggleAddressFormButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                newAddressForm.classList.toggle('hidden');
+                shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
+            });
 
-    // Validate form before showing popup
-    openPaymentPopupButton.addEventListener('click', function() {
-        if (checkoutForm.checkValidity()) {
-            paymentPopupOverlay.style.display = 'flex';
-            // Trigger animation
-            setTimeout(() => {
-                popupContent.classList.add('active');
-            }, 10);
-        } else {
-            checkoutForm.reportValidity();
-        }
-    });
+            // Validate form before showing popup
+            openPaymentPopupButton.addEventListener('click', function () {
+                if (checkoutForm.checkValidity()) {
+                    paymentPopupOverlay.style.display = 'flex';
+                    // Trigger animation
+                    setTimeout(() => {
+                        popupContent.classList.add('active');
+                    }, 10);
+                } else {
+                    checkoutForm.reportValidity();
+                }
+            });
 
-    // Close popup
-    closePopupButton.addEventListener('click', () => {
-        popupContent.classList.remove('active');
-        setTimeout(() => {
-            paymentPopupOverlay.style.display = 'none';
-        }, 300);
-    });
+            // Close popup
+            closePopupButton.addEventListener('click', () => {
+                popupContent.classList.remove('active');
+                setTimeout(() => {
+                    paymentPopupOverlay.style.display = 'none';
+                }, 300);
+            });
 
-    // Close popup if clicked outside popup content
-    paymentPopupOverlay.addEventListener('click', (e) => {
-        if (e.target === paymentPopupOverlay) {
-            closePopupButton.click();
-        }
-    });
+            // Close popup if clicked outside popup content
+            paymentPopupOverlay.addEventListener('click', (e) => {
+                if (e.target === paymentPopupOverlay) {
+                    closePopupButton.click();
+                }
+            });
 
-    // Submit form on confirm payment
-    proceedButton.addEventListener('click', () => {
-        // Optionally disable button to prevent double submit
-        proceedButton.disabled = true;
-        proceedButton.textContent = 'Processing...';
-        checkoutForm.submit();
-    });
-});
+            // Submit form on confirm payment
+            proceedButton.addEventListener('click', () => {
+                // Optionally disable button to prevent double submit
+                proceedButton.disabled = true;
+                proceedButton.textContent = 'Processing...';
+                checkoutForm.submit();
+            });
+        });
 
     </script>
 </body>
