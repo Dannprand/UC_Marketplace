@@ -87,7 +87,7 @@ class PaymentController extends Controller
         }
 
         $addresses = $user->addresses()->get();
-
+        
         return view('user_view.payment', [
             'cart' => $cart,
             'items' => $items,
@@ -97,22 +97,5 @@ class PaymentController extends Controller
             'merchant' => $merchant,
             'qrCodeData' => $qrCodeData,
         ]);
-    }
-
-    public function confirmPayment(Request $request)
-    {
-        $orderId = $request->input('order_id');
-
-        $order = Order::find($orderId);
-
-        if (!$order || $order->user_id !== auth()->id()) {
-            return redirect()->route('orders.index')->with('error', 'Order not found or access denied.');
-        }
-
-        // Update status order
-        $order->status = 'pending';
-        $order->save();
-
-        return redirect()->route('orders.index')->with('success', 'Thank you! Your payment has been confirmed.');
-    }
+}
 }
