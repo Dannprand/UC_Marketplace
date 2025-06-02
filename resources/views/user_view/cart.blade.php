@@ -15,9 +15,7 @@
         }
 
         body {
-            background: #e0f3fe;
-            background: -webkit-linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -42,7 +40,7 @@
             grid-column: 1 / -1;
             padding: 20px;
             font-size: 24px;
-            color: #333;
+            color: #212842;
             margin-bottom: 20px;
             font-weight: 600;
             border-bottom: 2px solid black;
@@ -64,19 +62,6 @@
             margin-bottom: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .cart-item h3 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .cart-item p {
-            font-size: 16px;
-            color: #e74c3c;
-            margin-bottom: 5px;
         }
 
         .product-image-container {
@@ -108,7 +93,7 @@
             height: 32px;
             border: none;
             border-radius: 6px;
-            background: #2ecc71;
+            background: #273157;
             color: white;
             font-size: 16px;
             cursor: pointer;
@@ -116,7 +101,7 @@
         }
 
         .quantity-btn:hover {
-            background: #27ae60;
+            background: #5363a0;
         }
 
         .quantity-input {
@@ -152,12 +137,12 @@
         .total-price {
             font-size: 20px;
             font-weight: bold;
-            color: #e74c3c;
+            color: #5363a0;
             margin-bottom: 20px;
         }
 
         .buy-button {
-            background: #2ecc71;
+            background: #212842;
             color: white;
             border: none;
             width: 100%;
@@ -167,10 +152,10 @@
             font-size: 16px;
             transition: background 0.3s;
         }
-
+/* 
         .buy-button:hover {
-            background: #27ae60;
-        }
+            background: #5363a0:
+        } */
 
         .cart-item-container {
             position: relative;
@@ -260,9 +245,9 @@
                                         alt="{{ $item->product->name }}" class="rounded object-cover w-20 h-20">
                                 </div>
                                 <div>
-                                    <h3>{{ $item->product->name }}</h3>
-                                    <p class="seller-name">{{ $item->product->store->name }}</p>
-                                    <p>Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                    <h3 class="text-lg font-semibold">{{ $item->product->name }}</h3>
+                                    <p class="text-sm text-[#878a96]">{{ $item->product->store->name }}</p>
+                                    <p class="text-xl text-[#5363a0] font-bold">Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
                                 </div>
                             </div>
 

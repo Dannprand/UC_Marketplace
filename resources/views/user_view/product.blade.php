@@ -14,11 +14,7 @@
         }
 
         body {
-            background: linear-gradient(
-                180deg,
-                #e0f3fe 70%,
-                #a1d4f6 100%
-            );
+            background: #f0e7d5;
         }
 
         .product-container {
@@ -69,7 +65,7 @@
         .product-price {
             font-size: 24px;
             font-weight: 700;
-            color: #e74c3c;
+            color: #5363a0;
             margin-bottom: 24px;
         }
 
@@ -174,23 +170,23 @@
 
         .add-to-cart {
             background-color: white;
-            color: #2ecc71;
-            border: 2px solid #2ecc71;
+            color: #212842;
+            border: 2px solid #212842;
         }
 
         .add-to-cart:hover {
-            background-color: #e8f8f0;
-            color: #27ae60;
-            border-color: #27ae60;
+            background-color: #eaeeff;
+            color: #212842;
+            border-color: #212842;
         }
 
         .buy-now {
-            background-color: #2ecc71;
+            background-color: #212842;
             color: white;
         }
 
         .buy-now:hover {
-            background-color: #27ae60;
+            background-color: #3b4b91;
         }
 
         .subtotal {
@@ -262,7 +258,7 @@
                 </div>
                 <div class="subtotal">
                     <span>Subtotal:</span>
-                    <div id="subtotalDisplay">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                    <div id="subtotalDisplay" class="text-[#5363a0]">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 </div>
                 <div class="buttons">
                     @auth
