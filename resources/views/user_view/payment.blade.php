@@ -375,6 +375,7 @@
         <div class="payment-container">
             <div class="payment-header">Checkout Process</div>
 
+            {{-- Error Messages --}}
             @if ($errors->any())
                 <div class="alert alert-danger col-span-full">
                     <ul>
@@ -390,6 +391,7 @@
                 </div>
             @endif
 
+            {{-- Form Add New Address (hidden by default) --}}
             <div id="new-address-form" class="payment-column my-4 hidden col-span-full">
                 <h3 class="font-semibold mb-4 text-lg">Add a New Address</h3>
                 <form action="{{ route('address.store') }}" method="POST" class="space-y-4">
@@ -408,7 +410,8 @@
                         class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
 
                     <label class="flex items-center text-gray-700">
-                        <input type="checkbox" name="is_primary" value="1" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                        <input type="checkbox" name="is_primary" value="1"
+                            class="mr-2 h-4 w-4 text-blue-600 rounded">
                         Set as primary address
                     </label>
 
@@ -418,13 +421,19 @@
                 </form>
             </div>
 
+            {{-- Checkout Form --}}
             <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST"
                 class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
                 @csrf
-                @foreach ($selectedItemIds as $itemId)
-                    <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
-                @endforeach
 
+                {{-- Selected Items as Hidden Inputs --}}
+                @if (!empty($selectedItemIds))
+                    @foreach ($selectedItemIds as $itemId)
+                        <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+                    @endforeach
+                @endif
+
+                {{-- Shipping Address Section --}}
                 <div class="payment-column address-section">
                     <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
                     <div class="mb-4">
@@ -433,7 +442,7 @@
                         <select name="shipping_address_id" id="shipping_address_id"
                             class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                             required>
-                            @forelse ($addresses as $address)
+                            @forelse ($shippingAddresses as $address)
                                 <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
                                     {{ $address->street }}, {{ $address->city }}, {{ $address->province }} -
                                     {{ $address->postal_code }}
@@ -449,6 +458,7 @@
                     </a>
                 </div>
 
+                {{-- Payment Details (Merchant) --}}
                 <div class="payment-column payment-section">
                     <h2 class="text-lg font-semibold mb-4">Payment Details (Merchant)</h2>
                     @if ($merchant)
@@ -463,11 +473,12 @@
                     @endif
                 </div>
 
+                {{-- Order Summary --}}
                 <div class="payment-column order-section col-span-full">
                     <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
                     <div class="order-items">
                         @forelse ($items as $item)
-                            <div class="order-item">
+                            <div class="order-item flex justify-between border-b py-2">
                                 <span class="item-name">{{ $item->product->name }} (x{{ $item->quantity }})</span>
                                 <span class="item-price">Rp.
                                     {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
@@ -476,12 +487,13 @@
                             <p class="text-gray-600">No items selected for checkout.</p>
                         @endforelse
                     </div>
-                    <div class="order-total flex justify-between items-center font-bold text-xl">
+                    <div class="order-total flex justify-between items-center font-bold text-xl mt-4">
                         <span class="total-label">Total:</span>
                         <span class="total-value">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </div>
 
-                    <button type="button" id="open-payment-popup" class="pay-button">
+                    <button type="button" id="open-payment-popup"
+                        class="pay-button mt-6 bg-blue-600 text-white py-3 rounded-lg w-full hover:bg-blue-700 transition-colors">
                         Complete Payment
                     </button>
                 </div>
@@ -489,40 +501,53 @@
         </div>
     </div>
 
-    <div class="popup-overlay" id="payment-popup-overlay">
-        <div class="popup-content">
-            <h2>Confirm Payment</h2>
+    {{-- Payment Confirmation Popup --}}
+    <div class="popup-overlay fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+        id="payment-popup-overlay">
+        <div class="popup-content bg-white rounded-lg p-6 max-w-md w-full relative">
+            <h2 class="text-xl font-semibold mb-4">Confirm Payment</h2>
             <p>Please transfer the total amount to the following merchant account:</p>
             @if ($merchant)
-                <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span></p>
-                <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span>
+                <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span>
                 </p>
+                <p><strong>Nomor Rekening:</strong> <span
+                        id="popup-account-number">{{ $merchant->account_number }}</span></p>
                 <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
             @else
                 <p class="text-red-500">Merchant details are not available.</p>
             @endif
-            <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
+            <p class="mt-2"><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
                     {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-            <div id="qr-code-container" class="my-4">
-    @if ($qrCodeData)
-        <img src="data:image/png;base64,{{ $qrCodeData }}" alt="QR Code Payment">
-    @else
-        <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
-    @endif
-</div>
+            <div id="qr-code-container" class="my-4 flex justify-center">
+                {{-- @if (session('qr_code'))
+                      <img src="data:image/png;base64,{{ session('qr_code') }}" alt="QR Code" width="220" height="220">
+                @else
+                    <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
+                @endif --}}
+                @if (session('qr_code'))
+                    <img src="data:image/png;base64,{{ session('qr_code') }}" alt="QR Code">
+                @else
+                    <p>QR Code tidak tersedia karena informasi merchant belum lengkap.</p>
+                @endif
+
+            </div>
 
             <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your
                 payment.</p>
 
-            <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
-            <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have
-                paid</button>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" id="close-popup-button"
+                    class="btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Close</button>
+                <button type="submit" form="checkout-form" id="proceed-to-payment-processing"
+                    class="btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">I have
+                    paid</button>
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const toggleAddressFormButton = document.getElementById('toggle-address-form');
             const newAddressForm = document.getElementById('new-address-form');
             const shippingAddressSelect = document.getElementById('shipping_address_id');
@@ -534,14 +559,14 @@
             const checkoutForm = document.getElementById('checkout-form');
 
             // Toggle new address form visibility
-            toggleAddressFormButton.addEventListener('click', function (e) {
+            toggleAddressFormButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 newAddressForm.classList.toggle('hidden');
                 shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
             });
 
             // Validate form before showing popup
-            openPaymentPopupButton.addEventListener('click', function () {
+            openPaymentPopupButton.addEventListener('click', function() {
                 if (checkoutForm.checkValidity()) {
                     paymentPopupOverlay.style.display = 'flex';
                     // Trigger animation
@@ -576,7 +601,6 @@
                 checkoutForm.submit();
             });
         });
-
     </script>
 </body>
 
