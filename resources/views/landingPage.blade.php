@@ -13,7 +13,7 @@
     } 
 
     :root {
-        --primary: #263886;
+        --primary: #273157;
         --primary-dark: #1b2961;
         --secondary: #ece8e6;
         --text-dark: #2d3748;
