@@ -16,9 +16,9 @@
         }
 
         body {
-            background: #e0f3fe;
-            background: -webkit-linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
+            /* background: -webkit-linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%); */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -130,7 +130,7 @@
         .pay-button {
             width: 100%;
             padding: 15px;
-            background-color: #2ecc71;
+            background-color: #212842;
             color: white;
             border: none;
             border-radius: 8px;
@@ -214,7 +214,7 @@
     <div class="payment-container">
         <!-- New Address Form -->
         <div id="new-address-form" class="my-4 bg-white p-4 rounded-xl hidden">
-        <h3 class="font-semibold mb-2">Add a New Address</h3>
+        <h3 class="font-semibold mb-2 ">Add a New Address</h3>
             <form action="{{ route('address.store') }}" method="POST" class="space-y-2">
                  @csrf
                 <input type="hidden" name="from_checkout" value="1">
@@ -244,7 +244,7 @@
                 <!-- Shipping Address (50%) -->
                 <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
                     <div class="mb-4">
-                    <label for="shipping_address_id" class="block mb-1 font-medium">Shipping Address</label>
+                    <label for="shipping_address_id" class="block mb-1 font-semibold text-[#212842]">Shipping Address</label>
                         <select name="shipping_address_id" id="shipping_address_id" class="w-full border rounded px-3 py-2" required>
                             @foreach($addresses as $address)
                                 <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
@@ -254,14 +254,14 @@
                         </select>
                     </div>
 
-                    <a href="#" id="toggle-address-form" class="text-blue-600 underline text-sm">+ Add New Address</a>
+                    <a href="#" id="toggle-address-form" class="text-[#5363a0] underline text-sm">+ Add New Address</a>
 
                     
                 </div>
 
                 <!-- Payment Method (Input Section) -->
                 <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
-                    <h2 class="text-lg font-semibold mb-2">Add Payment Method</h2>
+                    <h2 class="text-lg font-semibold mb-2 text-[#212842]">Add Payment Method</h2>
 
                     <!-- Select Type -->
                     <div class="mb-3">
@@ -285,7 +285,7 @@
 
             <!-- Bottom Section: Order Summary (100%) -->
             <div class="bg-white p-4 rounded-xl shadow">
-    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+    <h2 class="text-lg font-semibold mb-2 text-[#212842]">Order Summary</h2>
     <div class="order-items space-y-2">
         @foreach($items as $item)
             <div class="order-item flex justify-between">
@@ -306,7 +306,7 @@
     </div>
 
     <button type="submit" 
-            class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+            class="mt-4 w-full bg-[#212842] hover:bg-[#5363a0] text-white py-2 px-4 rounded">
         Confirm Payment
     </button>
 </div>

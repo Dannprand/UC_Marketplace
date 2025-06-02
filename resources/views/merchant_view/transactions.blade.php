@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #e0f3fe;
+            background: #f0e7d5;
             margin: 0;
             padding: 0;
         }
@@ -51,8 +51,8 @@
 
         .order-id {
             font-weight: 700;
-            font-size: 1.1rem;
-            color: #2b6cb0;
+            font-size: 1.25rem;
+            color: #680303;
         }
 
         .order-date {
@@ -97,7 +97,7 @@
 
         .buyer-info {
             font-size: 1rem;
-            color: #2b6cb0;
+            color: #212842;
             margin-bottom: 0.75rem;
         }
 
@@ -128,7 +128,7 @@
 
         .item-price {
             font-weight: 700;
-            color: #2b6cb0;
+            color: #212842;
             white-space: nowrap;
         }
 
@@ -136,7 +136,7 @@
             text-align: right;
             margin-top: 1rem;
             font-weight: 700;
-            color: #2f855a;
+            color: #5363a0;
             font-size: 1.05rem;
         }
 
@@ -159,7 +159,7 @@
     <section class="transactions-section">
         <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
         @if ($orders->count() > 0)
-            <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
+            <h1 class="text-2xl font-bold text-[#212842] mb-6">Store Transactions</h1>
             @foreach ($orders as $order)
                 <div class="transaction-card">
                     <div class="transaction-top">

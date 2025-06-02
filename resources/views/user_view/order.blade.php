@@ -11,7 +11,7 @@
     <style>
        body {
             font-family: 'Poppins', sans-serif;
-             background: #e0f3fe;
+             background: #f0e7d5;
         }
 
         .order-section {
@@ -43,7 +43,7 @@
         .order-id {
             font-weight: 700;
             font-size: 1.25rem;
-            color: #2b6cb0;
+            color: #680303;
         }
 
         .order-date {
@@ -102,7 +102,7 @@
         }
 
         .order-total{
-            color: #2f855a
+            color: #5363a0;
         }
         
         .product-name {
@@ -139,7 +139,7 @@
 
     <section class="order-section">
         @if($orders->count() > 0)
-        <h1 class="text-2xl font-bold text-gray-800 mb-8">Order History</h1>
+        <h1 class="text-2xl font-bold text-[#212842] mb-8">Order History</h1>
             @foreach($orders as $order)
 
             @php
