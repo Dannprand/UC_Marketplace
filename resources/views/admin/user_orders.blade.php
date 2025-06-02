@@ -1,12 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>Admin Dashboard - UCMarketPlace</title>
+    <title>User Orders - UCMarketPlace</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -254,110 +254,112 @@
             padding: 20px;
             color: #718096;
         }
+        .order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-completed { background: #dcfce7; color: #16a34a; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
     </style>
 </head>
 <body>
     <div class="pt-12 pb-8">
         <div class="admin-container animate__animated animate__fadeIn">
             <div class="admin-header">
-                <h1 class="text-2xl font-bold text-[#2d3748]">Admin Dashboard</h1>
-                <p class="text-[#718096]">Welcome back, Administrator</p>
-            </div>
-            
-            <div class="admin-nav">
-                <a href="{{ route('admin.dashboard') }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5z"/>
-                        <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6z"/>
-                    </svg>
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.users') }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275z"/>
-                    </svg>
-                    User Management
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white text-red-500 rounded-lg shadow hover:bg-red-50 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                            <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
-                        </svg>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-title">Total Users</div>
-                    <div class="stat-value">{{ $userCount }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">New Users Today</div>
-                    <div class="stat-value">{{ $newUsersToday }}</div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-2xl font-bold text-[#2d3748]">Order History</h1>
+                        <p class="text-[#718096] mt-2">
+                            User: {{ $user->full_name }}<br>
+                            Email: {{ $user->email }}<br>
+                            Phone: {{ $user->phone_number }}
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.dashboard') }}" class="text-blue-500 hover:text-blue-700 transition-colors">
+                        ← Back to Dashboard
+                    </a>
                 </div>
             </div>
 
-            <!-- Search Form -->
-            <div class="search-container">
-                <form method="GET" action="{{ route('admin.dashboard') }}" class="flex w-full">
-                    <input type="text" 
-                           name="search" 
-                           class="search-input" 
-                           placeholder="Search by name, email or phone..." 
-                           value="{{ request('search') }}"
-                           aria-label="Search users">
-                    <button type="submit" class="search-btn">
-                        Search
-                    </button>
-                </form>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-title">Total Orders</div>
+                    <div class="stat-value">{{ $orders->count() }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Spent</div>
+                    <div class="stat-value">Rp {{ number_format($orders->sum('total_amount'), 0, ',', '.') }}</div>
+                </div>
             </div>
-            
-            <h2 class="text-xl font-bold text-[#2d3748] mb-4">Recent Users</h2>
-            <div class="overflow-x-auto">
-                <table class="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentUsers as $user)
-                        <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->full_name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone_number }}</td>
-                            <td>{{ $user->created_at->format('M d, Y') }}</td>
-                            <td class="flex gap-2">
-                                <a href="{{ route('admin.users.orders', $user->id) }}" class="action-btn view-btn">View</a>
-                                <form action="{{ route('admin.users.delete', $user->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-btn delete-btn">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
+
+            <div class="space-y-4">
+                @forelse($orders as $order)
+                <div class="order-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-[#2d3748]">
+                                Order #{{ $order->order_number }}
+                            </h3>
+                            <p class="text-sm text-[#718096]">
+                                {{ $order->created_at->format('d M Y, H:i') }}
+                            </p>
+                        </div>
+                        <span class="text-xl font-bold text-[#2b6cb0]">
+                            Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="order-status status-{{ $order->status }}">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                    </div>
+
+                    <div class="space-y-3">
+                        @foreach($order->items as $item)
+                        <div class="flex justify-between items-start py-2 border-b border-[#edf2f7] last:border-0">
+                            <div>
+                                <p class="font-medium text-[#2d3748]">{{ $item->product->name }}</p>
+                                <p class="text-sm text-[#718096]">
+                                    {{ $item->product->store->name ?? 'No Store' }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#2d3748]">x{{ $item->quantity }}</p>
+                                <p class="text-sm text-[#718096]">
+                                    Rp {{ number_format($item->unit_price, 0, ',', '.') }} each
+                                </p>
+                            </div>
+                        </div>
                         @endforeach
-                    </tbody>
-                </table>
+                    </div>
+                </div>
+                @empty
+                <div class="stat-card text-center text-[#718096]">
+                    No orders found for this user
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
-    <script>
-        // Simple animation for stat cards
-        document.querySelectorAll('.stat-card').forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-            card.classList.add('animate__animated', 'animate__fadeInUp');
-        });
-    </script>
 </body>
 </html>

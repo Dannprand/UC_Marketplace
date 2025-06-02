@@ -31,6 +31,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/users', [AuthController::class, 'adminUsers'])->name('admin.users');
     Route::delete('/users/{user}', [AuthController::class, 'adminDeleteUser'])->name('admin.users.delete');
+    Route::get('/users/{user}/orders', [AuthController::class, 'userOrders'])->name('admin.users.orders');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
