@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('pfp')->nullable();
             $table->boolean('is_merchant')->default(false);
-            $table->string('merchant_password')->nullable();
+            // $table->string('merchant_password')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
