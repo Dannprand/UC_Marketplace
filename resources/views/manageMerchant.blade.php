@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: linear-gradient(180deg, #e0f3fe a70%, #a1d4f6 100%);
             min-height: 100vh;
         }
         

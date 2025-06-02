@@ -33,12 +33,12 @@
                Cart
             </a>
         </li>
-        <li>
+        {{-- <li>
             <a href="{{ route('balance') }}" 
                class="relative hover:text-[#96C2DB] transition-all duration-300 ease-in-out after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#96C2DB] after:transition-all after:duration-300 hover:after:w-full">
                Balance
             </a>
-        </li>
+        </li> --}}
         <li>
             <a href="{{ route('orders.index') }}" 
                class="relative hover:text-[#96C2DB] transition-all duration-300 ease-in-out after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#96C2DB] after:transition-all after:duration-300 hover:after:w-full">

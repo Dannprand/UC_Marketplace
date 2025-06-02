@@ -56,11 +56,16 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
     // Payment routes
-    Route::get('/payment', [CartController::class, 'payment'])->name('payment');
+    Route::get('/payment', [CartController::class, 'payment'])->name('payment');    
     Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
+    // Tambahkan ini untuk menyimpan metode pembayaran
+    Route::post('/payment-method/store', [PaymentController::class, 'store'])->name('payment-method.store');
+
+    // Konfirmasi pembayaran dari halaman payment
+    Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
 
     // Order Routes 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
