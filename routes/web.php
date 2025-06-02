@@ -45,17 +45,22 @@ Route::middleware('auth')->prefix('user')->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::get('/balance', function () {
+        return view('user_view.balance');
+    })->name('balance');
+
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
-    // Payment routes   
+    // Payment routes
+    Route::get('/payment', [CartController::class, 'payment'])->name('payment');    
     Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    Route::post('/payment', [CartController::class, 'payment'])->name('checkout.payment');
+    Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
     // Tambahkan ini untuk menyimpan metode pembayaran
     Route::post('/payment-method/store', [PaymentController::class, 'store'])->name('payment-method.store');
 
@@ -117,5 +122,3 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
-
-Route::get('/qr', [PaymentController::class, 'showQr']);
