@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Address - UC Marketplace</title>
     @vite('resources/css/app.css')
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Add similar styling to registration form */
         body {
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            font-family: 'Poppins', sans-serif;
+            background: #f0e7d5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -25,7 +28,7 @@
         }
 
         .btn-primary {
-            background: #2b6cb0;
+            background: #273157;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -33,14 +36,14 @@
         }
         
         .btn-primary:hover {
-            background: #2c5282;
+            background: #5363a0;
             transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
     <div class="address-card animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-6 text-center">Add Your Address</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-[#273157">Add Your Address</h2>
         
         <form method="POST" action="{{ route('register.address') }}">
             @csrf
@@ -88,7 +91,7 @@
                 </div>
 
                 <button type="submit" 
-                        class="btn-primary w-full font-semibold mt-6"">
+                        class="btn-primary w-full font-semibold mt-6">
                     Complete Registration
                 </button>
             </div>

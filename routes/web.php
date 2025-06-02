@@ -100,6 +100,10 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
     Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
 
+    // Shipping Page
+    Route::get('/merchant/orders/{order}/shipping', [MerchantController::class, 'showShippingForm'])->name('merchant.orders.shipping');
+    Route::post('/merchant/orders/{order}/shipping', [MerchantController::class, 'storeShipping'])->name('merchant.orders.shipping.store');
+
     // Add this inside the merchant group
     Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
      Route::get('/detail/{id}', [MerchantController::class, 'showDetail'])->name('merchant.detail');

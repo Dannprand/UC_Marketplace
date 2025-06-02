@@ -19,11 +19,19 @@ class Order extends Model
         'billing_address_id',
         'payment_method_id',
         'tracking_number',
+        'shipping_provider',       
+        'shipped_at',              
+        'delivered_at',            
+        'estimated_delivery', 
         'notes',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'shipped_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'estimated_delivery' => 'datetime',
+
     ];
 
     public function user()

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use App\Models\User; // <-- Pastikan ini ada: Import model User
+
 
 class MerchantController extends Controller
 {
@@ -35,8 +35,6 @@ class MerchantController extends Controller
             'description' => 'required|string',
             'merchant_password' => 'required|string|min:8|confirmed',
             'pfp' => 'nullable|image|max:2048',
-            'account_number' => 'required|string',
-            'bank_name' => 'required|string',
         ]);
 
         // Handle file upload
@@ -51,26 +49,17 @@ class MerchantController extends Controller
             'merchant_name' => $request->merchant_name,
             'merchant_description' => $request->description,
             'merchant_pfp' => $pfpPath,
-            // 'merchant_password' => Hash::make($request->merchant_password),
-            'account_number' => $request->account_number,
-            'bank_name' => $request->bank_name,
+            'merchant_password' => Hash::make($request->merchant_password),
             'status' => 'active',
         ]);
 
         // Update user's merchant status
-        /** @var \App\Models\User $user */ // <-- Tambahkan PHPDoc ini untuk Intelephense
+        // Auth::user()->update(['is_merchant' => true]);
         $user = Auth::user();
+        $user->is_merchant = true;
+        $user->save();
 
-        // Penting: Pastikan $user tidak null sebelum memanggil save()
-       if ($user) {
-            $user->is_merchant = true;
-            $user->merchant_password = Hash::make($request->merchant_password); // <--- TAMBAHKAN BARIS INI
-            $user->save();
-        } else {
-            return redirect()->route('login')->with('error', 'Anda harus login untuk membuka merchant.');
-        }
-
-        return redirect()->route('store.create')->with('success', 'Merchant account created successfully!');
+        return redirect()->route('store.create');
     }
 
     // Show merchant management login
@@ -131,21 +120,20 @@ class MerchantController extends Controller
         $orders = Order::whereHas('items.product', function ($query) use ($store) {
             $query->where('store_id', $store->id);
         })
-        ->with(['user', 'items' => function ($query) use ($store) {
-            // Hanya ambil item dari store ini
-            $query->whereHas('product', function ($q) use ($store) {
-                $q->where('store_id', $store->id);
-            })->with('product');
-        }])
-        ->orderByDesc('created_at')
-        ->get();
+            ->with(['user', 'items' => function ($query) use ($store) {
+                // Hanya ambil item dari store ini
+                $query->whereHas('product', function ($q) use ($store) {
+                    $q->where('store_id', $store->id);
+                })->with('product');
+            }])
+            ->orderByDesc('created_at')
+            ->get();
 
         // dd($orders);
 
         return view('merchant_view.transactions', compact('orders'));
     }
 
-    // for debugging
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
@@ -161,6 +149,15 @@ class MerchantController extends Controller
         $newStatus = $request->status;
 
         $order->status = $newStatus;
+
+        if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
+            $order->shipped_at = now();
+        }
+
+        if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
+            $order->delivered_at = now();
+        }
+
         $order->save();
 
         if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
@@ -218,10 +215,10 @@ class MerchantController extends Controller
         }
         $products = $store->products()->select('id', 'name', 'quantity', 'price', 'images')->get();
 
-        return view('merchant_view.merchant', compact('products','store','merchant'));
+        return view('merchant_view.merchant', compact('products', 'store', 'merchant'));
     }
 
-
+    // For Details merchant
     public function showDetail($id)
     {
         $user = Auth::user();
@@ -335,4 +332,65 @@ class MerchantController extends Controller
             'data' => $data,
         ]);
     }
+
+    // For Shipping
+    public function showShippingForm(Order $order)
+    {
+        return view('merchant_view.shipping', compact('order'));
+    }
+
+    public function storeShipping(Request $request, Order $order)
+{
+    $request->validate([
+        'shipping_provider' => 'required|string|max:255',
+        'tracking_number' => 'required|string|max:255',
+        'estimated_delivery' => 'required|date|after_or_equal:today',
+        'notes' => 'nullable|string|max:1000',
+    ]);
+
+    $merchant = Auth::user()->merchant;
+    if (!$merchant || $order->store->merchant_id !== $merchant->id) {
+        abort(403, 'Unauthorized');
+    }
+
+    $order->shipping_provider = $request->shipping_provider;
+    $order->tracking_number = $request->tracking_number;
+    $order->estimated_delivery = $request->estimated_delivery;
+     $order->notes = $request->note;
+
+    // Update status jadi 'shipped' kalau belum 'shipped'
+    if ($order->status !== 'shipped') {
+        $order->status = 'shipped';
+        $order->shipped_at = now(); // catat waktu shipped
+    }
+
+    $order->save();
+
+    // Logika analitik hanya jika status adalah "shipped"
+    if ($order->status === 'shipped') {
+        $store = $order->store;
+        $storeAnalytic = $store->analytics ?? new \App\Models\StoreAnalytic([
+            'store_id' => $store->id,
+            'total_views' => 0,
+            'unique_visitors' => 0,
+            'conversion_rate' => 0,
+            'total_sales' => 0,
+            'total_revenue' => 0,
+            'average_order_value' => 0,
+        ]);
+
+        $totalRevenue = $order->items()->sum('total_price');
+        $storeAnalytic->total_sales += 1;
+        $storeAnalytic->total_revenue += $totalRevenue;
+        $storeAnalytic->average_order_value = $storeAnalytic->total_sales > 0
+            ? $storeAnalytic->total_revenue / $storeAnalytic->total_sales
+            : 0;
+
+        $storeAnalytic->save();
+    }
+
+    return redirect()->route('merchant.transactions')->with('success', 'Shipping information saved successfully.');
+
+}
+
 }

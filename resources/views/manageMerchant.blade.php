@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe a70%, #a1d4f6 100%);
+            background: #f0e7d5;
             min-height: 100vh;
         }
         
@@ -33,12 +33,12 @@
         }
         
         .form-input:focus {
-            border-color: #a1d4f6;
+            border-color: #111157;
             box-shadow: 0 0 0 3px rgba(161, 212, 246, 0.2);
         }
         
         .btn-primary {
-            background: #2b6cb0;
+            background: #273157;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -46,7 +46,7 @@
         }
         
         .btn-primary:hover {
-            background: #2c5282;
+            background: #5363a0;
             transform: translateY(-1px);
         }
         

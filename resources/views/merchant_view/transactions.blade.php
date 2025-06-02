@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #e0f3fe;
+            background: #f0e7d5;
             margin: 0;
             padding: 0;
         }
@@ -51,8 +51,8 @@
 
         .order-id {
             font-weight: 700;
-            font-size: 1.1rem;
-            color: #2b6cb0;
+            font-size: 1.25rem;
+            color: #680303;
         }
 
         .order-date {
@@ -97,7 +97,7 @@
 
         .buyer-info {
             font-size: 1rem;
-            color: #2b6cb0;
+            color: #212842;
             margin-bottom: 0.75rem;
         }
 
@@ -128,7 +128,7 @@
 
         .item-price {
             font-weight: 700;
-            color: #2b6cb0;
+            color: #212842;
             white-space: nowrap;
         }
 
@@ -136,7 +136,7 @@
             text-align: right;
             margin-top: 1rem;
             font-weight: 700;
-            color: #2f855a;
+            color: #5363a0;
             font-size: 1.05rem;
         }
 
@@ -159,7 +159,7 @@
     <section class="transactions-section">
         <a href="{{ route('merchant.dashboard') }}" class="text-black font-medium hover:font-semibold">&larr; Back to Merchant</a>
         @if ($orders->count() > 0)
-            <h1 class="text-2xl font-bold text-gray-700 mb-6">Store Transactions</h1>
+            <h1 class="text-2xl font-bold text-[#212842] mb-6">Store Transactions</h1>
             @foreach ($orders as $order)
                 <div class="transaction-card">
                     <div class="transaction-top">
@@ -202,6 +202,34 @@
                     <div class="total-section">
                         Total: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                     </div>
+                    {{-- Shipping Info --}}
+                    @if ($order->shipping_provider && $order->tracking_number)
+                        <div class="mt-4 p-4 bg-[#fffcea] border border-gray-200 rounded-lg text-sm text-gray-800">
+                                <h3 class="font-semibold text-base text-[#212842] mb-2">Shipping Information</h3>
+                                <p class="mb-1"><span class="font-semibold">Shipping Provider:</span>
+                                    {{ $order->shipping_provider ?? '-' }}</p>
+                                <p class="mb-1"><span class="font-semibold">Estimated Delivery:</span>
+                                    {{ $order->estimated_delivery ? \Carbon\Carbon::parse($order->estimated_delivery)->format('d M Y') : '-' }}
+                                </p>
+
+                                @if ($order->notes)
+                                    <p class="mb-1"><span class="font-medium">Note:</span> {{ $order->notes }}</p>
+                                @endif
+
+                                @if ($order->status === 'delivered' && $order->delivered_at)
+                                    <p class="mt-2 text-green-700"><span class="font-medium">Delivered At:</span>
+                                        {{ \Carbon\Carbon::parse($order->delivered_at)->format('d M Y, H:i') }}</p>
+                                @endif
+                            </div>
+                    @else
+                        <div class="mt-4">
+                            <a href="{{ route('merchant.orders.shipping', $order->id) }}"
+                            class="inline-block bg-[#212842] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#3b4b91]">
+                                Input Shipping Info
+                            </a>
+                        </div>
+                    @endif
+
                 </div>
             @endforeach
         @else
