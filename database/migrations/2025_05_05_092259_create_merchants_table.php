@@ -21,6 +21,7 @@ return new class extends Migration
             // --- Tambahkan dua baris ini di sini ---
             $table->string('account_number')->nullable(); // Kolom untuk nomor rekening
             $table->string('bank_name')->nullable();      // Kolom untuk nama bank
+            $table->string('merchant_password');
             // --- Akhir penambahan ---
 
             $table->enum('status', ['pending', 'active', 'suspended'])->default('pending');

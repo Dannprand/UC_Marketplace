@@ -28,39 +28,39 @@ class MerchantController extends Controller
     }
 
     // Process merchant registration
-    public function openMerchant(Request $request)
-    {
-        $request->validate([
-            'merchant_name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'merchant_password' => 'required|string|min:8|confirmed',
-            'pfp' => 'nullable|image|max:2048',
-        ]);
+    // Di dalam method openMerchant()
+public function openMerchant(Request $request)
+{
+    $request->validate([
+        'merchant_name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'merchant_password' => 'required|string|min:8|confirmed',
+        'pfp' => 'nullable|image|max:2048',
+        'account_number' => 'required|string|max:255',
+        'bank_name' => 'required|string|max:255',
+    ]);
 
-        // Handle file upload
-        $pfpPath = null;
-        if ($request->hasFile('pfp')) {
-            $pfpPath = $request->file('pfp')->store('merchant_pfps', 'public');
-        }
-
-        // Create merchant
-        $merchant = Merchant::create([
-            'user_id' => Auth::id(),
-            'merchant_name' => $request->merchant_name,
-            'merchant_description' => $request->description,
-            'merchant_pfp' => $pfpPath,
-            'merchant_password' => Hash::make($request->merchant_password),
-            'status' => 'active',
-        ]);
-
-        // Update user's merchant status
-        // Auth::user()->update(['is_merchant' => true]);
-        $user = Auth::user();
-        $user->is_merchant = true;
-        $user->save();
-
-        return redirect()->route('store.create');
+    $pfpPath = null;
+    if ($request->hasFile('pfp')) {
+        $pfpPath = $request->file('pfp')->store('merchant_pfps', 'public');
     }
+
+    $merchant = Merchant::create([
+        'user_id' => Auth::id(),
+        'merchant_name' => $request->merchant_name,
+        'merchant_description' => $request->description,
+        'merchant_pfp' => $pfpPath,
+        'merchant_password' => Hash::make($request->merchant_password), // simpan di merchant
+        'account_number' => $request->account_number,
+        'bank_name' => $request->bank_name,
+        'status' => 'active',
+    ]);
+
+    // Update user status tanpa menyimpan password merchant
+    Auth::user()->update(['is_merchant' => true]);
+
+    return redirect()->route('store.create');
+}
 
     // Show merchant management login
     public function showManageForm()
@@ -74,17 +74,18 @@ class MerchantController extends Controller
 
     // Process merchant management login
     public function manageMerchant(Request $request)
-    {
-        $request->validate([
-            'merchant_password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'merchant_password' => 'required|string',
+    ]);
 
-        if (Hash::check($request->merchant_password, Auth::user()->merchant->merchant_password)) {
-            return redirect()->route('merchant.dashboard');
-        }
-
-        return back()->withErrors(['merchant_password' => 'Incorrect merchant password']);
+    // Gunakan merchant_password dari tabel merchants
+    if (Hash::check($request->merchant_password, Auth::user()->merchant->merchant_password)) {
+        return redirect()->route('merchant.dashboard');
     }
+
+    return back()->withErrors(['merchant_password' => 'Incorrect merchant password']);
+}
 
     // Show merchant dashboard
     public function dashboard()
