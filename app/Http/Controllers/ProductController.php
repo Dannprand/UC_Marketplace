@@ -26,11 +26,18 @@ class ProductController extends Controller
 
         // Ambil produk best seller
         $bestSellers = Product::orderBy('sold_amount', 'desc')->limit(6)->get();
+        
+        // Ambil produk untuk Hot Deals (misal: produk dengan diskon terbesar)
+        $hotDeals = Product::where('is_discounted', true)
+                    ->orderBy('discount_percentage', 'desc')
+                    ->limit(5)
+                    ->get();
 
         return view('user_view.home', [
             'categories'   => $categories,
             'products'     => $products,
             'bestSellers'  => $bestSellers,
+            'hotDeals'     => $hotDeals // Tambahkan ini
         ]);
     }
 
@@ -71,7 +78,6 @@ class ProductController extends Controller
             return redirect()->route('store.create')->with('error', 'You need to create a store first');
         }
 
-        // return view('products.create', compact('store', 'categories'));
         return view('merchant_view.products.create', compact('store', 'categories'));
     }
 
@@ -99,7 +105,7 @@ class ProductController extends Controller
            'store_id' => $store->id,
             'category_id' => $request->category_id,
             'name' => $request->name,
-            'slug' => Str::slug($request->name) . '-' . uniqid(), // Generate slug otomatis
+            'slug' => Str::slug($request->name) . '-' . uniqid(),
             'description' => $request->description,
             'price' => $request->price,
             'quantity' => $request->quantity,
@@ -110,7 +116,7 @@ class ProductController extends Controller
             'is_featured' => $request->boolean('is_featured'),
             'rating' => 0,
             'review_count' => 0,
-            ];
+        ];
 
         $product = Product::create($productData);
 
