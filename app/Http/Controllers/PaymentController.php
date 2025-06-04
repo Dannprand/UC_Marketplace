@@ -16,11 +16,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PaymentController extends Controller
 {
-    // Menampilkan halaman pembayaran
     public function showPayment(Request $request)
     {
         $user = Auth::user();
@@ -29,8 +27,6 @@ class PaymentController extends Controller
         }
 
         $selectedItemIds = $request->input('selected_items', []);
-
-        // Dapatkan cart user
         $cart = Cart::with('items.product.store.merchant')
             ->where('user_id', $user->id)
             ->first();
@@ -45,7 +41,6 @@ class PaymentController extends Controller
         }
 
         $storeIds = $items->pluck('product.store_id')->unique();
-
         if ($storeIds->count() > 1) {
             return redirect()->route('cart')->with('error', 'Anda hanya dapat melakukan checkout untuk satu toko saja.');
         }
@@ -59,7 +54,6 @@ class PaymentController extends Controller
         }
 
         $merchant = null;
-        $qrCodeData = '';
         $totalPrice = $items->sum(function ($item) {
             return $item->product->price * $item->quantity;
         });
@@ -70,19 +64,6 @@ class PaymentController extends Controller
 
             if ($store && $store->merchant) {
                 $merchant = $store->merchant;
-
-                $qrCodeContent = json_encode([
-                    'bank' => $merchant->bank_name,
-                    'account_number' => $merchant->account_number,
-                    'account_name' => $merchant->merchant_name,
-                    'amount' => number_format($totalPrice, 0, '', '')
-                ]);
-
-                try {
-                    $qrCodeData = base64_encode(QrCode::format('png')->size(220)->generate($qrCodeContent));
-                } catch (\Exception $e) {
-                    Log::error("QR Code Generation Error: " . $e->getMessage());
-                }
             }
         }
 
@@ -95,7 +76,6 @@ class PaymentController extends Controller
             'addresses' => $addresses,
             'selectedItemIds' => $selectedItemIds,
             'merchant' => $merchant,
-            'qrCodeData' => $qrCodeData,
         ]);
-}
+    }
 }

@@ -252,7 +252,7 @@
                 @forelse($cart->items as $item)
                     <div class="cart-item-container" id="item-{{ $item->id }}">
                         <div class="cart-item-content">
-                            <input type="checkbox" name="selected_items[]" class="item-checkbox" data-id="{{ $item->id }}"
+                            <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
                                 data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
                             <div class="product-info">
                                 <div class="product-image-container">
@@ -272,8 +272,8 @@
                                     @method('PATCH')
                                     <button type="button" class="quantity-btn minus"
                                         onclick="updateQuantity(this, -1)">-</button>
-                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1"
-                                        max="10" class="quantity-input" onchange="submitForm(this)">
+                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="10"
+                                        class="quantity-input" onchange="submitForm(this)">
                                     <button type="button" class="quantity-btn plus"
                                         onclick="updateQuantity(this, 1)">+</button>
                                 </form>
@@ -298,21 +298,19 @@
                     Items: <span id="item-count">{{ $totalItems }}</span>
                 </div>
 
-                @if ($totalItems > 0)
-                    <form id="checkout-form" action="{{ route('checkout.payment') }}" method="POST">
-                        @csrf
-                        {{-- Hidden inputs untuk selected_items nanti diisi JS --}}
-                        <div id="selected-items-inputs"></div>
-                        <button type="submit" class="buy-button">
-                            Buy Now
-                        </button>
-                    </form>
-                @else
-                    <button class="buy-button disabled" disabled>
-                        Cart is Empty
+                            @if($totalItems > 0)
+                <!-- Tambahkan id="checkout-form" -->
+                <form id="checkout-form" action="{{ route('checkout.payment') }}" method="GET">
+                    <div id="selected-items-inputs"></div>
+                    <button type="submit" class="buy-button">
+                        Buy Now
                     </button>
-                @endif
-
+                </form>
+            @else
+                <button class="buy-button disabled" disabled>
+                    Cart is Empty
+                </button>
+            @endif
             </div>
         </div>
     </div>
@@ -320,15 +318,13 @@
     {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
         // Global variable untuk menyimpan data cart
-        let cartItems = {!! json_encode(
-            $cart->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'price' => $item->product->price,
-                    'quantity' => $item->quantity,
-                ];
-            }),
-        ) !!};
+        let cartItems = {!! json_encode($cart->items->map(function ($item) {
+    return [
+        'id' => $item->id,
+        'price' => $item->product->price,
+        'quantity' => $item->quantity
+    ];
+})) !!};
 
         // Format angka ke rupiah
         function formatRupiah(number) {
@@ -389,7 +385,7 @@
 
         // Hapus konfirmasi sebelum delete
         document.querySelectorAll('.delete-action button').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 if (!confirm('Are you sure you want to remove this item?')) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -403,9 +399,7 @@
 
             container.addEventListener('touchstart', e => {
                 startX = e.touches[0].clientX;
-            }, {
-                passive: true
-            });
+            }, { passive: true });
 
             container.addEventListener('touchmove', e => {
                 currentX = e.touches[0].clientX;
@@ -413,9 +407,7 @@
 
                 if (diff > 30) container.classList.add('swiped');
                 else if (diff < -30) container.classList.remove('swiped');
-            }, {
-                passive: true
-            });
+            }, { passive: true });
 
             container.addEventListener('mousedown', e => {
                 if (e.button !== 0) return;
@@ -423,9 +415,7 @@
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', () => {
                     document.removeEventListener('mousemove', handleMouseMove);
-                }, {
-                    once: true
-                });
+                }, { once: true });
             });
 
             function handleMouseMove(e) {
@@ -437,7 +427,7 @@
         });
 
         // Saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             calculateTotal();
 
             // Dengarkan perubahan checkbox
@@ -447,14 +437,14 @@
 
             // Dengarkan input langsung di quantity
             document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function() {
+                input.addEventListener('change', function () {
                     submitForm(this);
                 });
             });
         });
 
         // cart store
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             calculateTotal();
 
             // Dengarkan perubahan checkbox
@@ -464,14 +454,14 @@
 
             // Dengarkan input langsung di quantity
             document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function() {
+                input.addEventListener('change', function () {
                     submitForm(this);
                 });
             });
 
             // Tangani submit form checkout
             const checkoutForm = document.getElementById('checkout-form');
-            checkoutForm.addEventListener('submit', function(e) {
+            checkoutForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 // Ambil semua checkbox yang dicek
@@ -488,8 +478,7 @@
                 checkedBoxes.forEach(cb => {
                     // cari store name dari seller-name element di cart item container
                     const itemContainer = cb.closest('.cart-item-container');
-                    const storeName = itemContainer.querySelector('.seller-name').textContent
-                .trim();
+                    const storeName = itemContainer.querySelector('.seller-name').textContent.trim();
                     selectedStores.add(storeName);
                 });
 
@@ -514,6 +503,7 @@
                 this.submit();
             });
         });
+
     </script>
 
 </body>

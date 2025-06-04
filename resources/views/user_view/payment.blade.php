@@ -7,8 +7,78 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>Payment - UCMarketPlace</title>
     <style>
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90vh;
+            width: 500px;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .popup-content.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .popup-scrollable-content {
+            overflow-y: auto;
+            max-height: 60vh;
+            padding-right: 10px;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: auto;
+        }
+        
+        #qr-code-container {
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
         /* Base styles */
         * {
             box-sizing: border-box;
@@ -355,6 +425,27 @@
             background-color: #414e7a;
         }
 
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+        }
+        
+        #qrcode canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .qr-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+
         /* Animation Keyframes */
         @keyframes fadeIn {
             from {
@@ -493,33 +584,34 @@
         <div class="popup-content">
             <h2>Confirm Payment</h2>
             <p>Please transfer the total amount to the following merchant account:</p>
-            @if ($merchant)
-                <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span></p>
-                <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span>
-                </p>
-                <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
-            @else
-                <p class="text-red-500">Merchant details are not available.</p>
-            @endif
-            <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp.
-                    {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
+            
+            <div class="popup-scrollable-content">
+                @if ($merchant)
+                    <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span></p>
+                    <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span></p>
+                    <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
+                @else
+                    <p class="text-red-500">Merchant details are not available.</p>
+                @endif
+                <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-            <div id="qr-code-container" class="my-4">
-    @if ($qrCodeData)
-        <img src="data:image/png;base64,{{ $qrCodeData }}" alt="QR Code Payment">
-    @else
-        <p class="text-red-500 text-sm">QR Code not available. Please use bank details.</p>
-    @endif
-</div>
+                <!-- QR Code Container -->
+                <div id="qr-code-container" class="my-4">
+                    <div id="qrcode" class="flex justify-center">
+                        <div class="qr-placeholder">QR Code will be generated</div>
+                    </div>
+                </div>
 
-            <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your
-                payment.</p>
+                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment.</p>
+            </div>
 
-            <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
-            <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have
-                paid</button>
+            <div class="popup-buttons mt-4">
+                <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
+                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have paid</button>
+            </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -540,11 +632,45 @@
                 shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
             });
 
+             function generateQRCode(content) {
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = ''; // Clear any existing content
+                
+                try {
+                    // Create QR code with qrcode.js
+                    new QRCode(qrContainer, {
+                        text: content,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    qrContainer.innerHTML = '<div class="text-red-500 p-4">Failed to generate QR code</div>';
+                }
+            }
+
             // Validate form before showing popup
-            openPaymentPopupButton.addEventListener('click', function () {
+            openPaymentPopupButton.addEventListener('click', function() {
                 if (checkoutForm.checkValidity()) {
+                    @if($merchant)
+                        // Prepare QR code content
+                        const qrContent = `BANK: {{ $merchant->bank_name }}\n` +
+                                        `ACCOUNT NO: {{ $merchant->account_number }}\n` +
+                                        `ACCOUNT NAME: {{ $merchant->merchant_name }}\n` +
+                                        `AMOUNT: Rp {{ number_format($totalPrice, 0, ',', '.') }}`;
+                        
+                        // Generate QR code
+                        generateQRCode(qrContent);
+                    @else
+                        const qrContainer = document.getElementById('qrcode');
+                        qrContainer.innerHTML = '<div class="text-center p-4 bg-gray-100 rounded shadow">Merchant information not available</div>';
+                    @endif
+                    
+                    // Tampilkan popup
                     paymentPopupOverlay.style.display = 'flex';
-                    // Trigger animation
                     setTimeout(() => {
                         popupContent.classList.add('active');
                     }, 10);

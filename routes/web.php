@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\OrderController;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 // Public Routes
 Route::get('/', function () {
@@ -61,11 +62,9 @@ Route::middleware('auth')->prefix('user')->group(function () {
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
-    // Tambahkan ini untuk menyimpan metode pembayaran
-    Route::post('/payment-method/store', [PaymentController::class, 'store'])->name('payment-method.store');
-
-    // Konfirmasi pembayaran dari halaman payment
-    Route::post('/payment/confirm', [PaymentController::class, 'confirmPayment'])->name('payment.confirm');
+    
+    // Should be using GET, not POST
+    Route::get('user/payment', [PaymentController::class, 'showPayment'])->name('user.payment');
 
     // Order Routes 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -122,3 +121,14 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
+
+Route::get('/test-qr', function () {
+    return response(
+        QrCode::format('svg')->size(300)->generate('Hello World'),
+        200,
+        ['Content-Type' => 'image/svg+xml']
+    );
+});
+
+
+
