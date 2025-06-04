@@ -141,7 +141,7 @@
             padding: 2.5rem;
             border-radius: 15px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            height: fit-content;
+            height: 100%;
             border: 1px solid #ddd;
         }
 
@@ -463,7 +463,7 @@
     <x-navigation />
 
     <div class="pt-24 payment-wrapper">
-        <div class="payment-container">
+        <div class="payment-container mt-20">
             <div class="payment-header">Checkout Process</div>
 
             @if ($errors->any())
@@ -541,7 +541,7 @@
                 </div>
 
                 <div class="payment-column payment-section">
-                    <h2 class="text-lg font-semibold mb-4">Payment Details (Merchant)</h2>
+                    <h2 class="text-lg font-semibold mb-4">Payment Details</h2>
                     @if ($merchant)
                         <div class="space-y-3 text-gray-700">
                             <p><strong>Nama Pemilik:</strong> {{ $merchant->merchant_name }}</p>

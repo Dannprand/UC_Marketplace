@@ -17,7 +17,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -38,7 +38,7 @@
 
         .illustration {
             flex: 1;
-            background: linear-gradient(135deg, #2b6cb0 0%, #4299e1 100%);
+            background: #273157;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -139,7 +139,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(to right, #2b6cb0, #3182ce);
+            background: #273157;
             color: white;
             padding: 16px;
             border: none;
@@ -149,12 +149,11 @@
             font-size: 1.05rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(50, 115, 220, 0.3);
             margin-top: 10px;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(to right, #2c5282, #2b6cb0);
+            background: #5363a0;
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(50, 115, 220, 0.4);
         }
@@ -168,6 +167,7 @@
             flex-direction: column;
             align-items: center;
             margin-bottom: 10px;
+            color: white;
         }
 
         .pfp-preview {
@@ -197,13 +197,12 @@
         }
 
         .file-input-label {
-            background: #ebf8ff;
             padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            color: #2b6cb0;
+            background: #5363a0;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -211,7 +210,7 @@
         }
 
         .file-input-label:hover {
-            background: #bee3f8;
+            background: #94a4e4;
             transform: translateY(-2px);
         }
 
@@ -246,7 +245,7 @@
         }
 
         .form-footer a {
-            color: #3182ce;
+            color: #273157;
             text-decoration: none;
             font-weight: 500;
         }

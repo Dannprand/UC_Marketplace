@@ -103,7 +103,7 @@
         .product-price {
             font-weight: 700;
             font-size: 1rem;
-            color: #e74c3c;
+            color: #5363a0;
             margin: 0;
         }
         .add-product-btn {
@@ -298,7 +298,7 @@
                                 </div>
                             </div>
                         @empty
-                            <p class="col-span-full text-center text-gray-600 py-4">No products yet. Add your first one!</p>
+                            <p class="col-span-full text-center text-white py-4">No products yet. Add your first one!</p>
                         @endforelse
                     </div>
                 </div>

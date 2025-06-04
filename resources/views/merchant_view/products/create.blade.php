@@ -87,7 +87,8 @@
         }
         
         .file-input-label {
-            background: #e0f3fe;
+           background: #273157;
+           color: white;
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
@@ -97,7 +98,7 @@
         }
         
         .file-input-label:hover {
-            background: #a1d4f6;
+            background: #5363a0;
         }
         
         .toggle-switch {
@@ -192,7 +193,7 @@
                         <input type="number" id="quantity" name="quantity" min="0" class="form-input w-full p-3" required>
                     </div>
                     
-                    <div class="flex items-center space-x-4">
+                    {{-- <div class="flex items-center space-x-4">
                         <label class="block text-sm font-medium text-[#4a5568]">Is Featured?</label>
                         <label class="toggle-switch">
                             <input type="checkbox" name="is_featured" value="1">
@@ -206,7 +207,7 @@
                             <input type="checkbox" id="is_discounted" name="is_discounted" value="1">
                             <span class="slider"></span>
                         </label>
-                    </div>
+                    </div> --}}
                     
                     <div id="discountFields" class="discount-fields">
                         <label for="discount_percentage" class="block text-sm font-medium text-[#4a5568] mb-2">Discount Percentage</label>
@@ -224,10 +225,10 @@
                     <div>
                         <label class="block text-sm font-medium text-[#4a5568] mb-2">Product Images</label>
                         <label class="file-input-label">
-                            Select Images (Max 5)
+                            Select Images
                             <input type="file" name="images[]" id="imagesInput" class="hidden" accept="image/*" multiple required>
                         </label>
-                        <p class="text-xs text-gray-500">First image will be used as main product image</p>
+                        {{-- <p class="text-xs text-gray-500">First image will be used as main product image</p> --}}
                         <div id="imagesPreview" class="image-preview-container"></div>
                     </div>
                 </div>
