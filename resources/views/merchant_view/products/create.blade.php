@@ -199,7 +199,7 @@
                             <input type="checkbox" name="is_featured" value="1">
                             <span class="slider"></span>
                         </label>
-                    </div>
+                    </div> --}}
                     
                     <div class="flex items-center space-x-4">
                         <label class="block text-sm font-medium text-[#4a5568]">Is Discounted?</label>
@@ -207,7 +207,7 @@
                             <input type="checkbox" id="is_discounted" name="is_discounted" value="1">
                             <span class="slider"></span>
                         </label>
-                    </div> --}}
+                    </div>
                     
                     <div id="discountFields" class="discount-fields">
                         <label for="discount_percentage" class="block text-sm font-medium text-[#4a5568] mb-2">Discount Percentage</label>
