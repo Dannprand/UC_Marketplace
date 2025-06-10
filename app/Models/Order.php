@@ -13,7 +13,7 @@ class Order extends Model
         'user_id',
         'store_id',
         'order_number',
-        'status', // 'pending', 'processing', 'shipped', 'delivered', 'cancelled'
+        'status', // 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'pending_verification'
         'total_amount',
         'shipping_address_id',
         'billing_address_id',
@@ -24,6 +24,7 @@ class Order extends Model
         'delivered_at',            
         'estimated_delivery', 
         'notes',
+        'payment_proof'
     ];
 
     protected $casts = [

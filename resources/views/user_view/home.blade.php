@@ -9,8 +9,10 @@
     <title>Home - UCMarketPlace</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0e7d5;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .scroll-section {
@@ -306,7 +308,7 @@
         .seller-avatar {
             width: 28px;
             height: 28px;
-            border-radius: 50%;
+            border-radius: 50%; 
             overflow: hidden;
             background-color: #E5EDF1;
             margin-right: 0.5rem;
@@ -403,18 +405,30 @@
         <!-- Filter Dropdown Menu -->
         <div class="filter-dropdown absolute bg-white border rounded shadow-lg mt-2 hidden z-50" id="filterDropdown" role="menu" aria-labelledby="filterBtn">
             <!-- No Filter option -->
-            <ul class="filter-options-list">
-            <li><a href="{{ route('home', ['category' => 'all']) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-filter="all" role="menuitem" aria-label="No Filter">No Filter</a></li>
-             @foreach($categories as $category)
+                <ul class="filter-options-list">
                     <li>
-                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" role="menuitem" aria-label="{{ $category->name }}">
-                            {{ $category->name }}
+                        <a href="{{ route('home', ['category' => 'all']) }}" 
+                        class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                        data-filter="all" 
+                        role="menuitem" 
+                        aria-label="No Filter">
+                            No Filter
                         </a>
                     </li>
-                @endforeach
-            </ul>
+                    @foreach($categories as $category)
+                        <li>
+                            <a href="{{ route('home', ['category' => $category->slug]) }}" 
+                            class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                            data-filter="{{ $category->slug }}" 
+                            role="menuitem" 
+                            aria-label="{{ $category->name }}">
+                                {{ $category->name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
         </div>
-    </div>
+    </div>  
 
     <!-- Products Grid -->
     <div class="products-grid mt-6" id="productsGrid">

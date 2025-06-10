@@ -11,8 +11,10 @@
     <style>
         /* Maintain original styles */
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0e7d5;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
         }
         

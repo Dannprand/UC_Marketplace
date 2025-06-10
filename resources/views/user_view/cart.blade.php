@@ -15,14 +15,10 @@
         }
 
         body {
-            background: #f0e7d5;
-            /* background: -webkit-linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%); */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
             margin: 0;
-            overflow: hidden
+            padding: 0;
         }
 
         .main-container {
@@ -252,8 +248,13 @@
                 @forelse($cart->items as $item)
                     <div class="cart-item-container" id="item-{{ $item->id }}">
                         <div class="cart-item-content">
+                            <!-- Perubahan: Gunakan harga diskon untuk data-price -->
                             <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
-                                data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}" checked>
+                                data-price="{{ $item->product->is_discounted ? $item->product->discounted_price : $item->product->price }}"
+                                data-store="{{ $item->product->store_id }}"
+                                data-quantity="{{ $item->quantity }}"
+                                checked>
+                                
                             <div class="product-info">
                                 <div class="product-image-container">
                                     <img src="{{ asset('storage/' . $item->product->images[0]) }}"
@@ -262,7 +263,23 @@
                                 <div>
                                     <h3>{{ $item->product->name }}</h3>
                                     <p class="seller-name">{{ $item->product->store->name }}</p>
-                                    <p>Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                    
+                                    <!-- Perubahan: Tampilkan harga diskon jika ada -->
+                                    @if($item->product->is_discounted)
+                                        <p>
+                                            <span style="text-decoration: line-through; color: #999;">
+                                                Rp {{ number_format($item->product->price, 0, ',', '.') }}
+                                            </span>
+                                            <span style="color: #e74c3c;">
+                                                Rp {{ number_format($item->product->discounted_price, 0, ',', '.') }}
+                                            </span>
+                                            <span style="color: green; font-weight: bold;">
+                                                ({{ $item->product->discount_percentage }}% OFF)
+                                            </span>
+                                        </p>
+                                    @else
+                                        <p>Rp {{ number_format($item->product->price, 0, ',', '.') }}</p>
+                                    @endif
                                 </div>
                             </div>
 
@@ -298,22 +315,22 @@
                     Items: <span id="item-count">{{ $totalItems }}</span>
                 </div>
 
-                            @if($totalItems > 0)
-                <!-- Tambahkan id="checkout-form" -->
-                <form id="checkout-form" action="{{ route('checkout.payment') }}" method="GET">
-                    <div id="selected-items-inputs"></div>
-                    <button type="submit" class="buy-button">
-                        Buy Now
+                @if($totalItems > 0)
+                    <form id="checkout-form" action="{{ route('checkout.payment') }}" method="GET">
+                        <div id="selected-items-inputs"></div>
+                        <button type="submit" class="buy-button">
+                            Buy Now
+                        </button>
+                    </form>
+                @else
+                    <button class="buy-button disabled" disabled>
+                        Cart is Empty
                     </button>
-                </form>
-            @else
-                <button class="buy-button disabled" disabled>
-                    Cart is Empty
-                </button>
-            @endif
+                @endif
             </div>
         </div>
     </div>
+
 
     {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
@@ -321,8 +338,9 @@
         let cartItems = {!! json_encode($cart->items->map(function ($item) {
     return [
         'id' => $item->id,
-        'price' => $item->product->price,
-        'quantity' => $item->quantity
+        'price' => $item->product->is_discounted ? $item->product->discounted_price : $item->product->price,
+        'quantity' => $item->quantity,
+        'store_id' => $item->product->store_id
     ];
 })) !!};
 
@@ -333,18 +351,21 @@
 
         // Fungsi hitung total berdasarkan item yang dichecklist
         function calculateTotal() {
-            let total = 0;
-            let itemCount = 0;
+        let total = 0;
+        let itemCount = 0;
 
-            document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
-                const price = parseFloat(checkbox.getAttribute('data-price'));
-                const quantity = parseInt(checkbox.getAttribute('data-quantity'));
-                total += price * quantity;
-                itemCount++;
-            });
+        document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
+            const priceValue = checkbox.getAttribute('data-price');
+            // Pastikan harga valid
+            const price = !isNaN(parseFloat(priceValue)) ? parseFloat(priceValue) : 0;
+            const quantity = parseInt(checkbox.getAttribute('data-quantity'));
+            
+            total += price * quantity;
+            itemCount++;
+        });
 
-            document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
-            document.querySelector('#item-count').textContent = itemCount;
+        document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
+        document.querySelector('#item-count').textContent = itemCount;
         }
 
         // Fungsi update quantity
@@ -427,69 +448,52 @@
         });
 
         // Saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function () {
-            calculateTotal();
+    document.addEventListener('DOMContentLoaded', function () {
+        calculateTotal();
 
-            // Dengarkan perubahan checkbox
-            document.querySelectorAll('.item-checkbox').forEach(cb => {
-                cb.addEventListener('change', calculateTotal);
-            });
+        // Dengarkan perubahan checkbox
+        document.querySelectorAll('.item-checkbox').forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
 
-            // Dengarkan input langsung di quantity
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function () {
-                    submitForm(this);
-                });
+        // Dengarkan input langsung di quantity
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function () {
+                submitForm(this);
             });
         });
 
-        // cart store
-        document.addEventListener('DOMContentLoaded', function () {
-            calculateTotal();
-
-            // Dengarkan perubahan checkbox
-            document.querySelectorAll('.item-checkbox').forEach(cb => {
-                cb.addEventListener('change', calculateTotal);
-            });
-
-            // Dengarkan input langsung di quantity
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function () {
-                    submitForm(this);
-                });
-            });
-
-            // Tangani submit form checkout
-            const checkoutForm = document.getElementById('checkout-form');
+        // Tangani submit form checkout - PERBAIKAN DI SINI
+        const checkoutForm = document.getElementById('checkout-form');
+        if (checkoutForm) {
             checkoutForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 // Ambil semua checkbox yang dicek
                 const checkedBoxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
                 if (checkedBoxes.length === 0) {
-                    alert('Silakan pilih minimal satu item untuk checkout.');
+                    alert('Please select at least one item to checkout.');
                     return;
                 }
 
-                // Cek semua item berasal dari toko yang sama
-                const selectedIds = checkedBoxes.map(cb => parseInt(cb.getAttribute('data-id')));
+                // Cek semua item berasal dari toko yang sama (dengan ID)
                 const selectedStores = new Set();
+                const selectedIds = [];
 
                 checkedBoxes.forEach(cb => {
-                    // cari store name dari seller-name element di cart item container
-                    const itemContainer = cb.closest('.cart-item-container');
-                    const storeName = itemContainer.querySelector('.seller-name').textContent.trim();
-                    selectedStores.add(storeName);
+                    const storeId = cb.getAttribute('data-store');
+                    selectedStores.add(storeId);
+                    selectedIds.push(parseInt(cb.getAttribute('data-id')));
                 });
 
                 if (selectedStores.size > 1) {
-                    alert('Anda hanya dapat melakukan checkout untuk satu toko saja.');
+                    alert('You can only checkout items from one store at a time.');
                     return;
                 }
 
                 // Isi hidden inputs selected_items[] di form
                 const inputsContainer = document.getElementById('selected-items-inputs');
-                inputsContainer.innerHTML = ''; // kosongkan dulu
+                inputsContainer.innerHTML = '';
 
                 selectedIds.forEach(id => {
                     const input = document.createElement('input');
@@ -499,12 +503,13 @@
                     inputsContainer.appendChild(input);
                 });
 
-                // Submit form jika validasi lolos
+                // PERBAIKAN: Submit form secara manual
                 this.submit();
             });
-        });
-
-    </script>
+        }
+    });
+</script>
+</body>
 
 </body>
 

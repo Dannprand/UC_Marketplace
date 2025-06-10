@@ -52,7 +52,7 @@ class OrderController extends Controller
     }
 
     // Perbaikan query untuk mengambil order dengan item yang relevan
-    $orders = Order::with(['items.product.store.merchant', 'shippingAddress', 'paymentMethod'])
+    $orders = Order::with(['items.product.store.merchant', 'shippingAddress', 'paymentMethod', 'items.product.reviews'])
         ->where('user_id', $user->id)
         ->orderBy('created_at', 'desc')
         ->get();

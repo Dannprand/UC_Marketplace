@@ -11,9 +11,10 @@
         /* Similar styles to openMerchant.blade.php */
         body {
             font-family: 'Poppins', sans-serif;
-           background: #f0e7d5;
+           background: #f9f9f9;
             /* background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%); */
             min-height: 100vh;
+            color: #333;
         }
         
         .merchant-card {

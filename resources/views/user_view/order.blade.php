@@ -10,8 +10,10 @@
     @vite('resources/css/app.css')
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0e7d5;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
 
         .order-section {
@@ -70,6 +72,12 @@
             background-color: #fefcbf;
             color: #b7791f;
         }
+        
+        .status-pending_verification {
+            background-color: #fff5f5;
+            color: #e53e3e;
+            border: 1px dashed #e53e3e;
+        }
 
         .status-shipped {
             background-color: #bee3f8;
@@ -85,7 +93,6 @@
             background-color: #e2e8f0;
             color: #4a5568;
         }
-
 
         .order-items {
             border-top: 1px solid #cbd5e0;
@@ -137,6 +144,87 @@
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Payment Proof Styles */
+        .payment-proof-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .payment-proof-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #212842;
+        }
+        
+        .payment-proof-image {
+            max-width: 300px;
+            max-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+        
+        .payment-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #212842;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5363a0;
+        }
+        
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .review-form {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .review-form h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #212842;
+        }
+
+        /* Rating Stars */
+        .rating input:checked ~ label {
+            color: #ccc;
+        }
+        .rating label {
+            color: #ffc107;
+            cursor: pointer;
+        }
+        .rating input:checked + label {
+            color: #ffc107;
+        }
     </style>
 </head>
 
@@ -150,6 +238,7 @@
                 @php
                     $statusClass = match ($order->status) {
                         'pending' => 'status-pending',
+                        'pending_verification' => 'status-pending_verification',
                         'processing' => 'status-processing',
                         'shipped' => 'status-shipped',
                         'delivered' => 'status-delivered',
@@ -160,12 +249,12 @@
 
                 <article class="order-card" data-order-id="{{ $order->id }}">
                     <header class="order-header">
-                        <div class="order-id">Order #{{ $order->id }}</div>
+                        <div class="order-id">Order #{{ $order-> order_number }}</div>
                         <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</div>
                     </header>
 
                     <div class="order-status {{ $statusClass }}">
-                        {{ ucfirst($order->status) }}
+                        {{ str_replace('_', ' ', ucfirst($order->status)) }}
                     </div>
 
                     <div class="order-items">
@@ -183,14 +272,97 @@
                                     </p>
                                 </div>
                             </div>
-                        @endforeach
+                            @if ($order->status === 'delivered')
+        @php
+            $hasReviewed = $item->product->reviews->contains('order_id', $order->id);
+        @endphp
+        
+        @if (!$hasReviewed)
+            <div class="review-form mt-4 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-medium mb-3">Review Product: {{ $item->product->name }}</h4>
+                <form action="{{ route('reviews.store', $item->product) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
+                    
+                    <!-- Rating -->
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium mb-1">Rating</label>
+                        <div class="flex space-x-1">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <input type="radio" id="star{{ $i }}_{{ $item->id }}" name="rating" value="{{ $i }}" 
+                                    class="hidden peer" {{ $i == 5 ? 'checked' : '' }}>
+                                <label for="star{{ $i }}_{{ $item->id }}" 
+                                    class="text-2xl cursor-pointer text-gray-300 peer-checked:text-yellow-500">★</label>
+                            @endfor
+                        </div>
+                    </div>
+                    
+                    <!-- Comment -->
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium mb-1">Review</label>
+                        <textarea name="comment" rows="3" required
+                            class="w-full border rounded p-2"
+                            placeholder="Share your experience with this product"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Submit Review
+                    </button>
+                </form>
+            </div>
+        @else
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 class="font-medium text-green-800">You've reviewed this product</h4>
+                <div class="flex mt-1">
+                    @php
+                        $review = $item->product->reviews->where('order_id', $order->id)->first();
+                    @endphp
+                    @for ($i = 1; $i <= 5; $i++)
+                        <span class="{{ $i <= $review->rating ? 'text-yellow-500' : 'text-gray-300' }}">★</span>
+                    @endfor
+                </div>
+                <p class="mt-2 text-gray-700">{{ $review->comment }}</p>
+            </div>
+        @endif
+    @endif
+@endforeach
 
                         {{-- Total Pembayaran --}}
                         <div class="order-total mt-4 font-bold text-lg text-right">
                             Total Payment: Rp {{ number_format($order->total_amount ?? 0, 0, ',', '.') }}
                         </div>
+                        
+                        {{-- Bukti Pembayaran --}}
+                        @if($order->payment_proof)
+                        <div class="payment-proof-section">
+                            <h3 class="payment-proof-title">Payment Proof</h3>
+                            <img 
+                                src="{{ asset('storage/' . $order->payment_proof) }}" 
+                                alt="Payment Proof" 
+                                class="payment-proof-image"
+                            >
+                            <p class="text-sm mt-2 text-gray-600">
+                                Uploaded at {{ $order->updated_at->format('d M Y, H:i') }}
+                            </p>
+                            
+                            @if($order->status === 'pending_verification')
+                            <div class="payment-actions">
+                                <button 
+                                    class="btn btn-primary"
+                                    onclick="verifyPayment('{{ $order->id }}')">
+                                    Verify Payment
+                                </button>
+                                <button 
+                                    class="btn btn-secondary"
+                                    onclick="rejectPayment('{{ $order->id }}')">
+                                    Reject Payment
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
 
-                        @if (!in_array($order->status, ['pending', 'processing', 'cancelled']))
+                        @if (!in_array($order->status, ['pending', 'pending_verification', 'processing', 'cancelled']))
                             <div class="mt-4 p-4 bg-[#fffcea] border border-gray-200 rounded-lg text-sm text-gray-800">
                                 <h3 class="font-semibold text-base text-[#212842] mb-2">Shipping Information</h3>
                                 <p class="mb-1"><span class="font-medium">Shipping Provider:</span>
@@ -209,9 +381,7 @@
                                 @endif
                             </div>
                         @endif
-
                     </div>
-
                 </article>
             @endforeach
         @else
@@ -237,8 +407,55 @@
                 printWindow.print();
             }
         }
+        
+        function verifyPayment(orderId) {
+            fetch(`/orders/${orderId}/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ action: 'verify' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+        
+        function rejectPayment(orderId) {
+            if (confirm('Are you sure you want to reject this payment?')) {
+                fetch(`/orders/${orderId}/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ action: 'reject' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
+            }
+        }
     </script>
 
 </body>
-
 </html>

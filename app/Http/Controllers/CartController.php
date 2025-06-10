@@ -12,6 +12,7 @@ use App\Models\Merchant;
 use App\Models\PaymentMethod;
 use App\Models\Store;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
+    // Helper function untuk mendapatkan harga produk yang benar (termasuk diskon)
+    private function getProductPrice(Product $product)
+    {
+        return $product->discounted_price ?? $product->price;
+    }
+
     // Menampilkan halaman keranjang
     public function index()
     {
@@ -40,7 +47,8 @@ class CartController extends Controller
         $totalItems = 0;
 
         foreach ($cart->items as $item) {
-            $totalPrice += $item->product->price * $item->quantity;
+            $price = $this->getProductPrice($item->product);
+            $totalPrice += $price * $item->quantity;
             $totalItems += $item->quantity;
         }
 
@@ -163,9 +171,10 @@ class CartController extends Controller
 
         // Konversi ke array integer
         if (!is_array($selectedItemIds)) {
-            $selectedItemIds = [$selectedItemIds];
+            $selectedItemIds = explode(',', $selectedItemIds);
         }
         $selectedItemIds = array_map('intval', $selectedItemIds);
+        $selectedItemIds = array_filter($selectedItemIds);
 
         // Validasi jika cart kosong
         if (!$orderSuccess && (!$cart || $cart->items->isEmpty())) {
@@ -200,7 +209,11 @@ class CartController extends Controller
 
         $merchant = null;
         $qrCodeData = '';
-        $totalPrice = $items->sum(fn($item) => $item->product->price * $item->quantity);
+        
+        $totalPrice = $items->sum(function($item) {
+            $price = $this->getProductPrice($item->product);
+            return $price * $item->quantity;
+        });
 
         // Pastikan storeId ada sebelum diproses
         if ($storeIds->isNotEmpty()) {
@@ -252,11 +265,12 @@ class CartController extends Controller
         return redirect()->route('login');
     }
 
-    // Validasi input
+    // Validasi
     $request->validate([
         'shipping_address_id' => 'required|exists:addresses,id',
         'selected_items' => 'required|array',
-        'selected_items.*' => 'integer|exists:cart_items,id'
+        'selected_items.*' => 'integer|exists:cart_items,id',
+        'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB
     ]);
 
     DB::beginTransaction();
@@ -288,7 +302,10 @@ class CartController extends Controller
 
         $merchant = $store->merchant;
         $userId = auth()->id();
-        // PERBAIKAN: Tambahkan user_id => null
+        
+        // Simpan file bukti pembayaran
+        $proofPath = $request->file('payment_proof')->store('payment_proofs', 'public');
+        
         $paymentMethod = PaymentMethod::create([
             'user_id' => $userId,
             'type' => 'bank_transfer',
@@ -299,28 +316,32 @@ class CartController extends Controller
         ]);
 
         $totalAmount = $selectedItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            $price = $this->getProductPrice($item->product);
+            return $price * $item->quantity;
         });
 
         // Buat order baru
         $order = Order::create([
             'user_id' => $user->id,
-            'order_number' => 'INV-' . strtoupper(Str::random(8)),
-            'status' => 'pending_payment',
+            'order_number' => 'INV-'.strtoupper(Str::random(8)),
+            'status' => 'pending',
             'total_amount' => $totalAmount,
             'shipping_address_id' => $request->shipping_address_id,
             'payment_method_id' => $paymentMethod->id,
             'store_id' => $storeId,
+            'payment_proof' => $proofPath, // Simpan path file
         ]);
 
         // Tambahkan item ke order
         foreach ($selectedItems as $cartItem) {
+            $price = $this->getProductPrice($cartItem->product);
+            
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $cartItem->product_id,
                 'quantity' => $cartItem->quantity,
-                'unit_price' => $cartItem->product->price,
-                'total_price' => $cartItem->product->price * $cartItem->quantity,
+                'unit_price' => $price,
+                'total_price' => $price * $cartItem->quantity,
             ]);
 
             // Update sold_amount produk
@@ -334,16 +355,20 @@ class CartController extends Controller
 
         DB::commit();
 
-        return redirect()->route('orders.history')
-            ->with([
-                'success' => 'Pesanan Anda telah dibuat! Mohon selesaikan pembayaran.',
-                'order_number' => $order->order_number
-            ]);
+        return response()->json([
+            'success' => true,
+            'redirect' => route('orders.index'),
+            'message' => 'Order created successfully'
+        ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
-        Log::error('Checkout Error: ' . $e->getMessage());
-        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        Log::error('Checkout Error: '.$e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Checkout failed: '.$e->getMessage()
+        ], 500);
     }
 }
 }

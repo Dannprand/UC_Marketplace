@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>Payment - UCMarketPlace</title>
     <style>
-
+        
         .popup-overlay {
             display: none;
             position: fixed;
@@ -86,11 +86,10 @@
         }
 
         body {
-            background: #f0e7d5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
             margin: 0;
+            padding: 0;
         }
 
         /* Main container layout */
@@ -456,6 +455,93 @@
                 opacity: 1;
             }
         }
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-custom {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #5363a0;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .file-custom:hover {
+            background-color: #414e7a;
+        }
+        
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .preview-container {
+    margin-top: 15px;
+    display: none; /* Tetap hidden sampai ada gambar */
+}
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
     </style>
 </head>
 
@@ -509,12 +595,11 @@
                 </form>
             </div>
 
-            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST"
-                class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
-                @csrf
-                @foreach ($selectedItemIds as $itemId)
-                    <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
-                @endforeach
+            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data" class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
+            @csrf
+            @foreach ($selectedItemIds as $itemId)
+                <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+            @endforeach
 
                 <div class="payment-column address-section">
                     <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
@@ -580,7 +665,7 @@
         </div>
     </div>
 
-    <div class="popup-overlay" id="payment-popup-overlay">
+<div class="popup-overlay" id="payment-popup-overlay">
         <div class="popup-content">
             <h2>Confirm Payment</h2>
             <p>Please transfer the total amount to the following merchant account:</p>
@@ -595,19 +680,33 @@
                 @endif
                 <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-                <!-- QR Code Container -->
                 <div id="qr-code-container" class="my-4">
                     <div id="qrcode" class="flex justify-center">
                         <div class="qr-placeholder">QR Code will be generated</div>
                     </div>
                 </div>
 
-                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment.</p>
+                <div class="upload-section">
+    <label class="upload-label">Upload Payment Proof</label>
+    <div class="file-input-wrapper">
+        <input type="file" id="payment-proof" class="file-input" accept="image/*" required>
+        <span class="file-custom">Choose File</span>
+        <span id="file-name" class="file-name">No file chosen</span>
+    </div>
+    <div id="file-error" class="error-message">Please upload a valid image file (max 5MB)</div>
+    
+    <div class="preview-container" id="preview-container">
+        <p>Preview:</p>
+        <img id="preview-image" class="preview-image" src="" alt="Payment proof preview">
+    </div>
+</div>
+
+                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment. Please upload proof of payment.</p>
             </div>
 
             <div class="popup-buttons mt-4">
                 <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
-                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have paid</button>
+                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white" disabled>I have paid</button>
             </div>
         </div>
     </div>
@@ -624,6 +723,15 @@
             const closePopupButton = document.getElementById('close-popup-button');
             const proceedButton = document.getElementById('proceed-to-payment-processing');
             const checkoutForm = document.getElementById('checkout-form');
+            const paymentProofInput = document.getElementById('payment-proof');
+            const fileNameSpan = document.getElementById('file-name');
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('preview-image');
+            const fileError = document.getElementById('file-error');
+            const errorList = document.getElementById('error-list');
+            const alertDanger = document.querySelector('.alert-danger');
+
+            proceedButton.disabled = true;
 
             // Toggle new address form visibility
             toggleAddressFormButton.addEventListener('click', function (e) {
@@ -652,6 +760,48 @@
                 }
             }
 
+             // Handle file selection for payment proof
+    paymentProofInput.addEventListener('change', function() {
+        fileError.style.display = 'none'; // Sembunyikan pesan error
+        
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Validasi jenis file (hanya gambar)
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+            if (!validImageTypes.includes(file.type)) {
+                fileError.textContent = 'Please upload an image file (JPEG, PNG, GIF)';
+                fileError.style.display = 'block';
+                proceedButton.disabled = true;
+                fileNameSpan.textContent = 'Invalid file type';
+                return;
+            }
+            
+            // Validasi ukuran file (maks 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                fileError.textContent = 'File size exceeds 5MB limit';
+                fileError.style.display = 'block';
+                proceedButton.disabled = true;
+                fileNameSpan.textContent = 'File too large';
+                return;
+            }
+            
+            fileNameSpan.textContent = file.name;
+            proceedButton.disabled = false;
+            
+            // Tampilkan preview gambar
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            fileNameSpan.textContent = 'No file chosen';
+            proceedButton.disabled = true;
+        }
+    });
+
             // Validate form before showing popup
             openPaymentPopupButton.addEventListener('click', function() {
                 if (checkoutForm.checkValidity()) {
@@ -668,6 +818,14 @@
                         const qrContainer = document.getElementById('qrcode');
                         qrContainer.innerHTML = '<div class="text-center p-4 bg-gray-100 rounded shadow">Merchant information not available</div>';
                     @endif
+
+                    // Reset input file dan status tombol
+                    paymentProofInput.value = '';
+                    fileNameSpan.textContent = 'No file chosen';
+                    previewContainer.style.display = 'none';
+                    proceedButton.disabled = true;
+                    proceedButton.classList.remove('bg-green-500');
+                    proceedButton.classList.add('bg-blue-500');
                     
                     // Tampilkan popup
                     paymentPopupOverlay.style.display = 'flex';
@@ -694,13 +852,49 @@
                 }
             });
 
-            // Submit form on confirm payment
             proceedButton.addEventListener('click', () => {
-                // Optionally disable button to prevent double submit
-                proceedButton.disabled = true;
-                proceedButton.textContent = 'Processing...';
-                checkoutForm.submit();
-            });
+        // Validasi file
+        if (!paymentProofInput.files || paymentProofInput.files.length === 0) {
+            fileError.textContent = 'Please upload payment proof';
+            fileError.style.display = 'block';
+            return;
+        }
+
+        // Buat FormData dari form utama
+        const formData = new FormData(document.getElementById('checkout-form'));
+        formData.append('payment_proof', paymentProofInput.files[0]);
+
+        // Disable button selama proses
+        proceedButton.disabled = true;
+        proceedButton.textContent = 'Processing...';
+
+        // Kirim dengan AJAX
+        fetch("{{ route('checkout.process') }}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'An error occurred. Please try again.');
+            proceedButton.disabled = false;
+            proceedButton.textContent = 'I have paid';
+        });
+    });
         });
 
     </script>

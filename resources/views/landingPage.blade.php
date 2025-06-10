@@ -9,8 +9,11 @@
     <title>Landing Page - UCMarketPlace</title>
     <style>
     body {
-        font-family: 'Poppins', sans-serif;
-    } 
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
     :root {
         --primary: #273157;
