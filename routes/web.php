@@ -8,6 +8,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReviewController;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 // Public Routes
 Route::get('/', function () {
@@ -31,6 +33,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/users', [AuthController::class, 'adminUsers'])->name('admin.users');
     Route::delete('/users/{user}', [AuthController::class, 'adminDeleteUser'])->name('admin.users.delete');
+    Route::get('/users/{user}/orders', [AuthController::class, 'userOrders'])->name('admin.users.orders');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
@@ -77,14 +80,19 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
     // Payment routes
-    // Route::get('/payment', [CartController::class, 'payment'])->name('payment');
+    // Route::get('/payment', [CartController::class, 'payment'])->name('payment');    
     Route::post('/address/store', [OrderController::class, 'storeAddress'])->name('address.store');
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
+    Route::get('/direct-payment/{product}', [CartController::class, 'directPayment'])->name('direct.payment');
+    
+    // Should be using GET, not POST
+    Route::get('user/payment', [PaymentController::class, 'showPayment'])->name('user.payment');
 
     // Order Routes 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 });
     // Page awal user masuk!
@@ -111,15 +119,19 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [MerchantController::class, 'dashboard'])->name('merchant.dashboard');
-
+    
     // Transactions Page
     Route::get('/transactions', [MerchantController::class, 'transactions'])->name('merchant.transactions');
     Route::put('/merchant/orders/{order}/status', [MerchantController::class, 'updateStatus'])->name('merchant.orders.updateStatus');
 
+    // Shipping Page
+    Route::get('/merchant/orders/{order}/shipping', [MerchantController::class, 'showShippingForm'])->name('merchant.orders.shipping');
+    Route::post('/merchant/orders/{order}/shipping', [MerchantController::class, 'storeShipping'])->name('merchant.orders.shipping.store');
+
     // Add this inside the merchant group
-    Route::get('/detail', function () {
-        return view('merchant_view.detailMerchant');
-    })->name('merchant.detail');
+    Route::get('/merchant/dashboard', [MerchantController::class, 'index'])->name('merchant_view.merchant');
+     Route::get('/detail/{id}', [MerchantController::class, 'showDetail'])->name('merchant.detail');
+     Route::get('/income-data', [MerchantController::class, 'getIncomeData'])->name('income.data');
     
     // Product Management
     Route::prefix('/products')->group(function () {
@@ -131,28 +143,17 @@ Route::prefix('merchant')->middleware(['auth'])->group(function () {
     });
 });
 
-// // View-only routes (if still needed for legacy links)
-// Route::get('/merchant', function () {
-//     return redirect()->route('merchant.dashboard');
-// });
-
-Route::get('/detailMerchant', function () {
-    return redirect()->route('merchant.detail');
-});
-
 Route::get('/openMerchant', function () {
     return view('openMerchant'); // This remains in root views
 })->name('openMerchant.legacy');
 
+Route::get('/test-qr', function () {
+    return response(
+        QrCode::format('svg')->size(300)->generate('Hello World'),
+        200,
+        ['Content-Type' => 'image/svg+xml']
+    );
+});
 
-// Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
 
-
-// Route::get('/merchant', function () {
-//     return view('merchant_view.merchant'); // Updated path
-// })->name('merchant.legacy');
-
-// Route::get('/detailMerchant', function () {
-//     return view('merchant_view.detailMerchant'); // Updated path
-// })->name('detailMerchant.legacy');
 

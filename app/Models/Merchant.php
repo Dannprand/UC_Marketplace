@@ -10,14 +10,17 @@ class Merchant extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'merchant_name',
-        'merchant_description',
-        'merchant_pfp',
-        'status', // 'pending', 'active', 'suspended'
-        'rating',
-        'total_sales',
-    ];
+    'user_id',
+    'merchant_name',
+    'merchant_description',
+    'merchant_pfp',
+    'status',
+    'rating',
+    'total_sales',  
+    'merchant_password', 
+    'bank_name',         
+    'account_number',
+];
 
     public function user()
     {

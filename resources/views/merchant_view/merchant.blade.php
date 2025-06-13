@@ -11,7 +11,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background:#f0e7d5;
             min-height: 100vh;
         }
         .container {
@@ -48,7 +48,7 @@
         .merchant-name {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #2d3436;
+            color: #212842;
             margin: 0;
         }
         .merchant-description {
@@ -57,7 +57,7 @@
             font-size: 0.9rem;
         }
         .products-section {
-            background: rgba(255, 255, 255, 0.9);
+            background: #212842;
             backdrop-filter: blur(4px);
             padding: 2rem;
             border-radius: 12px;
@@ -80,7 +80,7 @@
         }
         .product-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 6px rgba(255, 251, 251, 0.386);
         }
         .product-image {
             width: 100%;
@@ -103,7 +103,7 @@
         .product-price {
             font-weight: 700;
             font-size: 1rem;
-            color: #e74c3c;
+            color: #5363a0;
             margin: 0;
         }
         .add-product-btn {
@@ -112,8 +112,8 @@
             justify-content: center;
             width: 40px; /* Ukuran lingkaran */
             height: 40px; /* Ukuran lingkaran */
-            background-color: #2ecc71; /* Warna hijau */
-            color: white;
+            background-color: #f0e7d5; /* Warna hijau */
+            color: #273157;
             font-size: 24px; /* Ukuran tanda + */
             font-weight: bold;
             border-radius: 50%; /* Bentuk lingkaran */
@@ -126,7 +126,7 @@
             z-index: 10; /* Agar tetap berada di atas konten lainnya */
         }
         .add-product-btn:hover {
-            background: #27ae60;
+            background: #daceb6;
             transform: scale(1.05);
         }
         @media (min-width: 768px) {
@@ -137,33 +137,65 @@
                 height: 150px;
             }
         }
-        .details-btn {
-        margin-left: auto;
-        background: #2ecc71;
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
 
-    .details-btn:hover {
-        background: #27ae60;
-        transform: translateY(-1px);
-    }
+   .details-btn {
+    margin-left: auto;
+    background-color: white;
+    color: #212842;
+    border: 2px solid #212842;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
 
-    .details-btn svg {
-        transition: transform 0.2s ease;
-    }
+.details-btn:hover {
+    background-color: #eaeeff;
+    color: #212842;
+    border-color: #212842;
+    transform: translateY(-1px);
+}
 
-    .details-btn:hover svg {
-        transform: translateX(2px);
-    }
+.details-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.details-btn:hover svg {
+    transform: translateX(2px);
+}
+
+    .transaction-btn {
+    margin-left: auto;
+    background-color: #212842;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.transaction-btn:hover {
+    background-color: #3b4b91;
+    transform: translateY(-1px);
+}
+
+.transaction-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.transaction-btn:hover svg {
+    transform: translateX(2px);
+}
+
 
     @media (max-width: 640px) {
         .merchant-profile {
@@ -229,14 +261,14 @@
                         <p class="merchant-description">{{ $store->description }}</p>
                     </div>
                     <!-- Button Details -->
-                    <a href="{{ route('merchant.detail') }}" class="details-btn">
+                    <a href="{{ route('merchant.detail', $store->id) }}" class="details-btn">
                         Details
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                         </svg>
                     </a>
                     <!-- Button Activity -->
-                   <a href="{{ route('merchant.transactions') }}" class="details-btn" style="background-color: #3498db;">
+                   <a href="{{ route('merchant.transactions') }}" class="transaction-btn">
                         Transactions
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -266,7 +298,7 @@
                                 </div>
                             </div>
                         @empty
-                            <p class="col-span-full text-center text-gray-600 py-4">No products yet. Add your first one!</p>
+                            <p class="col-span-full text-center text-white py-4">No products yet. Add your first one!</p>
                         @endforelse
                     </div>
                 </div>

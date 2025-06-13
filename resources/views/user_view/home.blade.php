@@ -9,7 +9,10 @@
     <title>Home - UCMarketPlace</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .scroll-section {
@@ -41,22 +44,17 @@
             flex: 0 0 calc(90% - 1rem);
             scroll-snap-align: start;
             height: 280px;
-            background: #E5EDF1;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
             font-weight: 600;
-            color: #2d3748;
+            color: #e0f3fe;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.2s ease;
             margin: 0 0.5rem;
-            background: linear-gradient(
-                180deg,
-                #e0f3fe 70%,
-                #a1d4f6 100%
-            );
+            background: #273157;
         }
         
         .scroll-item:hover {
@@ -65,12 +63,12 @@
         }
         
         .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.8rem;
+            font-weight: 800;
             text-align: center;
             margin-bottom: 1rem;
             padding: 0 1.25rem;
-            color: #a1d4f6;
+            color: #273157;
         }
         
         @media (min-width: 768px) {
@@ -81,11 +79,7 @@
         }
 
         .best-seller-section {
-        background: linear-gradient(
-            180deg,
-            #e0f3fe 70%,
-            #a1d4f6 100%
-        );
+        background: #212842;
         padding: 2rem 0;
         margin-top: 2rem;
     }
@@ -106,7 +100,7 @@
         .best-seller-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #2d3748;
+            color: white;
             padding-left: 0.5rem;
         }
         
@@ -140,7 +134,7 @@
         
         .best-seller-item:hover{
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 6px rgba(255, 251, 251, 0.386);
         }
 
         .product-image {
@@ -171,7 +165,7 @@
         .product-price {
             font-weight: 700;
             font-size: 1rem;
-            color: #2b6cb0;
+            color: #5363a0;
             margin-bottom: 0.5rem;
         }
         
@@ -236,7 +230,7 @@
         
         .filter-btn {
             background-color: white;
-            color:  #96C2DB;
+            color:  #273157;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -275,16 +269,12 @@
         }
         
         .filter-option:hover {
-            color: #2b6cb0;
+            color: #273157;
         }
         
         /* Products Section */
         .products-section {
-            background: linear-gradient(
-                180deg,
-                #e0f3fe 70%,
-                #a1d4f6 100%
-            );
+            background: #273157;
             padding: 1rem 0 2rem;
             margin: 2rem;
         }
@@ -312,13 +302,13 @@
         
         .product-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+           box-shadow: 0 6px 6px rgba(255, 251, 251, 0.386);
         }
         
         .seller-avatar {
             width: 28px;
             height: 28px;
-            border-radius: 50%;
+            border-radius: 50%; 
             overflow: hidden;
             background-color: #E5EDF1;
             margin-right: 0.5rem;
@@ -343,51 +333,63 @@
     <x-navigation />
     <div class="pt-12">
 
-    <div class="animate__animated animate__fadeIn">
+     <div class="animate__animated animate__fadeIn">
         <div class="scroll-section">
-            <h2 class="section-title mt-12">Hot Deals</h2>
+            <h2 class="section-title mt-16">Hot Deals</h2>
             <div class="scroll-container mt-12" id="autoScrollContainer">
-                <div class="scroll-item">Item 1</div>
-                <div class="scroll-item">Item 2</div>
-                <div class="scroll-item">Item 3</div>
-                <div class="scroll-item">Item 4</div>
-                <div class="scroll-item">Item 5</div>
+                @foreach($hotDeals as $product)
+                    @php
+                        $image = $product->images[0] ?? 'https://via.placeholder.com/300x200?text=Hot+Deal';
+                    @endphp
+                    <a href="{{ route('product.show', $product->id) }}" class="scroll-item">
+                        <div class="hot-deal-item">
+                            <img src="{{ $image }}" alt="{{ $product->name }}" class="hot-deal-image" />
+                            {{-- <div class="hot-deal-overlay">
+                                <div class="hot-deal-name">{{ $product->name }}</div>
+                                <div class="hot-deal-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                            </div> --}}
+                        </div>
+                    </a>
+                @endforeach
             </div>
         </div>
     
 
-    <section class="best-seller-section rounded-2xl mx-8">
-        <div class="best-seller-container">
-            <div class="best-seller-header">
-                <h2 class="best-seller-title">Best Seller</h2>
-                <div class="best-seller-scroll">
-                   <div class="best-seller-items">
-                        @foreach($bestSellers as $product)
-                            @php
-                                $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
-                                $logo = $product->store->logo ?? 'https://via.placeholder.com/40x40?text=Logo';
-                                $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
-                            @endphp
+    <!-- ... kode sebelumnya ... -->
+<section class="best-seller-section rounded-2xl mx-8">
+    <div class="best-seller-container">
+        <div class="best-seller-header">
+            <h2 class="best-seller-title">Best Seller</h2>
+            <div class="best-seller-scroll">
+                <div class="best-seller-items">
+                    @foreach($bestSellers as $product)
+                        @php
+                            $sellerName = $product->store->merchant->merchant_name ?? 'Unknown';
+                            $logo = $product->store->logo ?? 'https://via.placeholder.com/40x40?text=Logo';
+                            $image = $product->images[0] ?? 'https://via.placeholder.com/180x120';
+                        @endphp
 
-                            <div class="best-seller-item">
-                                <img src="{{ $image }}" alt="{{ $product->name }}" class="product-image" />
-                                <div class="product-details">
-                                    <div class="product-name">{{ $product->name }}</div>
-                                    <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                                    <div class="seller-info">
-                                        <div class="seller-avatar">
-                                            <img src="{{ $logo }}" alt="Logo {{ $sellerName }}" class="w-full h-full object-cover rounded-full" />
-                                        </div>
-                                        <div class="seller-name">{{ $sellerName }}</div>
+                        <!-- Perubahan di sini: tambahkan tag <a> -->
+                        <a href="{{ route('product.show', $product->id) }}" class="best-seller-item">
+                            <img src="{{ $image }}" alt="{{ $product->name }}" class="product-image" />
+                            <div class="product-details">
+                                <div class="product-name">{{ $product->name }}</div>
+                                <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                                <div class="seller-info">
+                                    <div class="seller-avatar">
+                                        <img src="{{ $logo }}" alt="Logo {{ $sellerName }}" class="w-full h-full object-cover rounded-full" />
                                     </div>
+                                    <div class="seller-name">{{ $sellerName }}</div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </a>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+<!-- ... kode setelahnya ... -->
 
    <!-- All Products Section with Filter -->
 <section class="products-section rounded-2xl">
@@ -403,18 +405,30 @@
         <!-- Filter Dropdown Menu -->
         <div class="filter-dropdown absolute bg-white border rounded shadow-lg mt-2 hidden z-50" id="filterDropdown" role="menu" aria-labelledby="filterBtn">
             <!-- No Filter option -->
-            <ul class="filter-options-list">
-            <li><a href="{{ route('home', ['category' => 'all']) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-filter="all" role="menuitem" aria-label="No Filter">No Filter</a></li>
-             @foreach($categories as $category)
+                <ul class="filter-options-list">
                     <li>
-                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" role="menuitem" aria-label="{{ $category->name }}">
-                            {{ $category->name }}
+                        <a href="{{ route('home', ['category' => 'all']) }}" 
+                        class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                        data-filter="all" 
+                        role="menuitem" 
+                        aria-label="No Filter">
+                            No Filter
                         </a>
                     </li>
-                @endforeach
-            </ul>
+                    @foreach($categories as $category)
+                        <li>
+                            <a href="{{ route('home', ['category' => $category->slug]) }}" 
+                            class="filter-option px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                            data-filter="{{ $category->slug }}" 
+                            role="menuitem" 
+                            aria-label="{{ $category->name }}">
+                                {{ $category->name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
         </div>
-    </div>
+    </div>  
 
     <!-- Products Grid -->
     <div class="products-grid mt-6" id="productsGrid">

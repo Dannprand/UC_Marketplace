@@ -13,17 +13,26 @@ class Order extends Model
         'user_id',
         'store_id',
         'order_number',
-        'status', // 'pending', 'processing', 'shipped', 'delivered', 'cancelled'
+        'status', // 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'pending_verification'
         'total_amount',
         'shipping_address_id',
         'billing_address_id',
         'payment_method_id',
         'tracking_number',
+        'shipping_provider',       
+        'shipped_at',              
+        'delivered_at',            
+        'estimated_delivery', 
         'notes',
+        'payment_proof'
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'shipped_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'estimated_delivery' => 'datetime',
+
     ];
 
     public function user()

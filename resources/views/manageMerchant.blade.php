@@ -9,9 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .merchant-card {
@@ -33,12 +34,12 @@
         }
         
         .form-input:focus {
-            border-color: #a1d4f6;
+            border-color: #111157;
             box-shadow: 0 0 0 3px rgba(161, 212, 246, 0.2);
         }
         
         .btn-primary {
-            background: #2b6cb0;
+            background: #273157;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -46,7 +47,7 @@
         }
         
         .btn-primary:hover {
-            background: #2c5282;
+            background: #5363a0;
             transform: translateY(-1px);
         }
         

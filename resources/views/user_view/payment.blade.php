@@ -7,98 +7,330 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>Payment - UCMarketPlace</title>
     <style>
-        /* Previous styles remain the same */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90vh;
+            width: 500px;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .popup-content.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .popup-scrollable-content {
+            overflow-y: auto;
+            max-height: 60vh;
+            padding-right: 10px;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: auto;
+        }
+        
+        #qr-code-container {
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* Base styles */
         * {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
 
         body {
-            background: #e0f3fe;
-            background: -webkit-linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
             margin: 0;
+            padding: 0;
+        }
+
+        /* Main container layout */
+        .payment-wrapper {
+            padding: 30px 0;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .payment-container {
-            margin: 30px auto;
-            padding: 0 100px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 40px;
+            display: grid;
             grid-template-columns: 1fr 1fr;
-            align-items: start;
+            gap: 2rem;
         }
 
         .payment-header {
-            padding: 20px;
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 18px;
-            font-weight: 600;
-            border-bottom: 2px solid black;
+            grid-column: 1 / -1;
+            font-size: 28px;
+            color: #212842;
+            /* Dark blue-ish color */
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
             position: relative;
-            padding-bottom: 15px;
+        }
+
+        .payment-header::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: #5363a0;
+            /* Blueish underline */
+            border-radius: 2px;
         }
 
         /* Form sections */
         .form-section {
             background: white;
-            padding: 25px;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            border: 1px solid #ddd;
+        }
+
+        .address-section {
+            grid-column: 1;
+        }
+
+        .payment-section {
+            grid-column: 2;
+        }
+
+        .order-section {
+            grid-column: 1 / -1;
+            position: sticky;
+            top: 30px;
+            z-index: 10;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+                gap: 1.5rem;
+            }
+
+            .payment-header {
+                margin: 0 20px 25px;
+            }
+
+            .address-section,
+            .payment-section,
+            .order-section {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-wrapper {
+                padding: 20px 0;
+            }
+
+            .payment-container {
+                padding: 0 15px;
+                gap: 1rem;
+            }
+
+            .payment-header {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .payment-column {
+                padding: 1.5rem;
+            }
+        }
+
+        .payment-methods h2,
+        .order-summary h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #212842;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-
-        /* Dropdown styles */
-        .select-dropdown {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-top: 10px;
-            background-color: #f8fafc;
+            margin-bottom: 15px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            color: #212842;
         }
 
-        .select-dropdown:hover {
-            border-color: #96C2DB;
+        .payment-option:hover {
+            border-color: #5363a0;
+            background-color: #f0f0f0;
         }
 
-        .select-dropdown:focus {
-            outline: none;
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        .payment-option.active {
+            border-color: #5363a0;
+            background-color: #d9e0f0;
         }
 
-        /* Add new button */
-        .add-new-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: #4299e1;
+        .order-items {
+            margin-bottom: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Custom scrollbar for order-items */
+        .order-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .order-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .order-items::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .order-items::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 15px;
+            color: #212842;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .item-price {
+            color: #333;
+            /* red accent from second CSS */
+            font-weight: 400;
+        }
+
+        .order-total {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .total-label {
+            color: #212842;
+        }
+
+        .total-value {
+            color: #5363a0;
+            font-size: 22px;
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 18px;
+            background-color: #212842;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.3s;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(33, 40, 66, 0.3);
         }
 
-        .add-new-btn:hover {
-            background-color: #3182ce;
+        .pay-button:hover {
+            background-color: #5363a0;
+            transform: translateY(-2px);
         }
 
-        /* Selected info box */
-        .selected-info {
-            background-color: #f0f9ff;
-            border: 1px solid #bee3f8;
-            border-radius: 8px;
+        .pay-button:active {
+            transform: translateY(0);
+        }
+
+        /* Alert styling */
+        .alert {
             padding: 15px;
-            margin-top: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background-color: #fcecea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
         }
 
         /* Popup Styling */
@@ -108,187 +340,563 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(33, 40, 66, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .popup-content {
             background: white;
             padding: 40px;
-            border-radius: 12px;
+            border-radius: 15px;
             text-align: center;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 8px 30px rgba(33, 40, 66, 0.2);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .popup-content.active {
+            transform: scale(1);
+            opacity: 1;
         }
 
         .popup-content h2 {
-            color: #2ecc71;
-            margin-bottom: 15px;
+            color: #5363a0;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
         }
 
         .popup-content p {
-            margin-bottom: 25px;
-            color: #555;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .popup-content p strong {
+            color: #212842;
+        }
+
+        /* Style for the QR Code container */
+        #qr-code-container {
+            max-width: 220px;
+            margin: 30px auto 0;
+            border: 5px solid #f2f2f2;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .popup-content button {
-            padding: 12px 25px;
-            background-color: #3498db;
-            color: white;
-            border: none;
+            padding: 12px 28px;
             border-radius: 8px;
-            cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #close-popup-button {
+            background-color: #95a5a6;
+        }
+
+        #close-popup-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        #proceed-to-payment-processing {
+            background-color: #5363a0;
+            margin-left: 15px;
+        }
+
+        #proceed-to-payment-processing:hover {
+            background-color: #414e7a;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+        }
+        
+        #qrcode canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .qr-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-custom {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #5363a0;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
             transition: background-color 0.3s;
         }
-
-        .popup-content button:hover {
-            background-color: #2980b9;
+        
+        .file-custom:hover {
+            background-color: #414e7a;
         }
-
+        
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .preview-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .payment-pending-notice {
+            background-color: #fff5f5;
+            border: 1px dashed #e53e3e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #e53e3e;
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
-   <x-navigation />
+    <x-navigation />
 
-<div class="pt-24">
-    <div class="payment-header">Checkout Process</div>
-    <div class="payment-container">
-        <!-- New Address Form -->
-        <div id="new-address-form" class="my-4 bg-white p-4 rounded-xl hidden">
-        <h3 class="font-semibold mb-2">Add a New Address</h3>
-            <form action="{{ route('address.store') }}" method="POST" class="space-y-2">
-                 @csrf
-                <input type="hidden" name="from_checkout" value="1">
+    <div class="pt-24 payment-wrapper">
+        <div class="payment-container mt-20">
+            <div class="payment-header">Checkout Process</div>
 
-                <input type="text" name="street" placeholder="Street / House No." required class="w-full border px-3 py-2 rounded mb-2">
-                <input type="text" name="city" placeholder="City" required class="w-full border px-3 py-2 rounded mb-2">
-                <input type="text" name="province" placeholder="Province" required class="w-full border px-3 py-2 rounded mb-2">
-                <input type="text" name="postal_code" placeholder="Postal Code" required class="w-full border px-3 py-2 rounded mb-2">
-                <input type="text" name="country" placeholder="Country" required class="w-full border px-3 py-2 rounded mb-2">
+            @if ($errors->any())
+                <div class="alert alert-danger col-span-full">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger col-span-full">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-                <label class="flex items-center mb-2">
-                    <input type="checkbox" name="is_primary" value="1" class="mr-2">
+            <div id="new-address-form" class="payment-column my-4 hidden col-span-full">
+                <h3 class="font-semibold mb-4 text-lg">Add a New Address</h3>
+                <form action="{{ route('address.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="from_checkout" value="1">
+
+                    <input type="text" name="street" placeholder="Street / House No." required
+                        class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                    <input type="text" name="city" placeholder="City" required
+                        class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                    <input type="text" name="province" placeholder="Province" required
+                        class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                    <input type="text" name="postal_code" placeholder="Postal Code" required
+                        class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                    <input type="text" name="country" placeholder="Country" required
+                        class="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" name="is_primary" value="1" class="mr-2 h-4 w-4 text-blue-600 rounded">
                         Set as primary address
-                </label>
+                    </label>
 
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Address</button>
+                    <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold transition-colors">Save
+                        Address</button>
+                </form>
+            </div>
+
+            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data" class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
+                @csrf
+                @foreach ($selectedItemIds as $itemId)
+                    <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+                @endforeach
+
+                <div class="payment-column address-section">
+                    <h2 class="text-lg font-semibold mb-4">Shipping Address</h2>
+                    <div class="mb-4">
+                        <label for="shipping_address_id" class="block mb-2 font-medium text-gray-700">Select an
+                            address</label>
+                        <select name="shipping_address_id" id="shipping_address_id"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                            required>
+                            @forelse ($addresses as $address)
+                                <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
+                                    {{ $address->street }}, {{ $address->city }}, {{ $address->province }} -
+                                    {{ $address->postal_code }}
+                                </option>
+                            @empty
+                                <option value="" disabled selected>No addresses found. Please add one.</option>
+                            @endforelse
+                        </select>
+                    </div>
+                    <a href="#" id="toggle-address-form"
+                        class="text-blue-600 underline text-sm hover:text-blue-800 transition-colors">
+                        + Add New Address
+                    </a>
+                </div>
+
+                <div class="payment-column payment-section">
+                    <h2 class="text-lg font-semibold mb-4">Payment Details</h2>
+                    @if ($merchant)
+                        <div class="space-y-3 text-gray-700">
+                            <p><strong>Nama Pemilik:</strong> {{ $merchant->merchant_name }}</p>
+                            <p><strong>Nomor Rekening:</strong> {{ $merchant->account_number }}</p>
+                            <p><strong>Bank:</strong> {{ $merchant->bank_name }}</p>
+                        </div>
+                    @else
+                        <p class="text-red-500 text-sm">Informasi pembayaran merchant tidak tersedia. Harap hubungi
+                            penjual.</p>
+                    @endif
+                    
+                    <div class="payment-pending-notice mt-4">
+                        <p><strong>Perhatian:</strong> Anda dapat menyelesaikan pembayaran nanti di halaman order. 
+                        Order akan otomatis dibatalkan jika pembayaran tidak diselesaikan dalam 24 jam.</p>
+                    </div>
+                </div>
+
+                <div class="payment-column order-section col-span-full">
+                    <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+                    <div class="order-items">
+                        @forelse ($items as $item)
+                            <div class="order-item">
+                                <span class="item-name">{{ $item->product->name }} (x{{ $item->quantity }})</span>
+                                <span class="item-price">Rp.
+                                    {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
+                            </div>
+                        @empty
+                            <p class="text-gray-600">No items selected for checkout.</p>
+                        @endforelse
+                    </div>
+                    <div class="order-total flex justify-between items-center font-bold text-xl">
+                        <span class="total-label">Total:</span>
+                        <span class="total-value">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                    </div>
+
+                    <button type="button" id="open-payment-popup" class="pay-button">
+                        Complete Payment
+                    </button>
+                </div>
             </form>
         </div>
+    </div>
 
-        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-4">
-            @csrf
-            <!-- Top Section: Address and Payment Side by Side -->
-             @foreach($selectedItemIds as $itemId)
-        <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
-    @endforeach
-            <div class="flex flex-col lg:flex-row gap-4">
-                <!-- Shipping Address (50%) -->
-                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
-                    <div class="mb-4">
-                    <label for="shipping_address_id" class="block mb-1 font-medium">Shipping Address</label>
-                        <select name="shipping_address_id" id="shipping_address_id" class="w-full border rounded px-3 py-2" required>
-                            @foreach($addresses as $address)
-                                <option value="{{ $address->id }}" {{ $address->is_primary ? 'selected' : '' }}>
-                                    {{ $address->street }}, {{ $address->city }}, {{ $address->province }} - {{ $address->postal_code }}
-                                </option>
-                            @endforeach
-                        </select>
+    <div class="popup-overlay" id="payment-popup-overlay">
+        <div class="popup-content">
+            <h2>Confirm Payment</h2>
+            <p>Please transfer the total amount to the following merchant account:</p>
+            
+            <div class="popup-scrollable-content">
+                @if ($merchant)
+                    <p><strong>Nama Pemilik:</strong> <span id="popup-account-name">{{ $merchant->merchant_name }}</span></p>
+                    <p><strong>Nomor Rekening:</strong> <span id="popup-account-number">{{ $merchant->account_number }}</span></p>
+                    <p><strong>Bank:</strong> <span id="popup-bank-name">{{ $merchant->bank_name }}</span></p>
+                @else
+                    <p class="text-red-500">Merchant details are not available.</p>
+                @endif
+                <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
+
+                <div id="qr-code-container" class="my-4">
+                    <div id="qrcode" class="flex justify-center">
+                        <div class="qr-placeholder">QR Code will be generated</div>
                     </div>
+                </div>
 
-                    <a href="#" id="toggle-address-form" class="text-blue-600 underline text-sm">+ Add New Address</a>
-
+                <div class="upload-section">
+                    <label class="upload-label">Upload Payment Proof (Optional)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="payment-proof" class="file-input" accept="image/*">
+                        <span class="file-custom">Choose File</span>
+                        <span id="file-name" class="file-name">No file chosen</span>
+                    </div>
+                    <div id="file-error" class="error-message">Please upload a valid image file (max 5MB)</div>
                     
-                </div>
-
-                <!-- Payment Method (Input Section) -->
-                <div class="w-full lg:w-1/2 bg-white p-4 rounded-xl shadow">
-                    <h2 class="text-lg font-semibold mb-2">Add Payment Method</h2>
-
-                    <!-- Select Type -->
-                    <div class="mb-3">
-                        <label for="payment-type" class="block mb-1">Payment Type</label>
-                        <select name="type" id="payment-type" class="w-full border rounded px-3 py-2" required>
-                        <option value="" disabled selected>-- Select Payment Type --</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="e-wallet">E-Wallet</option>
-                        </select>
-                    </div>
-
-                    <!-- Select Provider -->
-                    <div class="mb-3">
-                        <label for="payment-provider" class="block mb-1">Provider</label>
-                        <select name="provider" id="payment-provider" class="w-full border rounded px-3 py-2" required>
-                            <option value="" disabled selected>-- Select Provider --</option>
-                        </select>
+                    <div class="preview-container" id="preview-container">
+                        <p>Preview:</p>
+                        <img id="preview-image" class="preview-image" src="" alt="Payment proof preview">
                     </div>
                 </div>
+
+                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment. You can upload proof now or later.</p>
             </div>
 
-            <!-- Bottom Section: Order Summary (100%) -->
-            <div class="bg-white p-4 rounded-xl shadow">
-    <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
-    <div class="order-items space-y-2">
-        @foreach($items as $item)
-            <div class="order-item flex justify-between">
-                <span class="item-name">
-                    {{ $item->product->name }} x{{ $item->quantity }}
-                </span>
-                <span class="item-price">
-                    Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
-                </span>
+            <div class="popup-buttons mt-4">
+                <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
+                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">Confirm Order</button>
             </div>
-        @endforeach
-    </div>
-    
-    <!-- Pindahkan total dan tombol ke dalam div ini -->
-    <div class="order-total mt-4 flex justify-between font-bold text-lg">
-        <span class="total-label">Total Amount</span>
-        <span class="total-value">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+        </div>
     </div>
 
-    <button type="submit" 
-            class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
-        Confirm Payment
-    </button>
-</div>
-        </form>
-    </div>
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleAddressFormButton = document.getElementById('toggle-address-form');
+            const newAddressForm = document.getElementById('new-address-form');
+            const shippingAddressSelect = document.getElementById('shipping_address_id');
+            const openPaymentPopupButton = document.getElementById('open-payment-popup');
+            const paymentPopupOverlay = document.getElementById('payment-popup-overlay');
+            const popupContent = paymentPopupOverlay.querySelector('.popup-content');
+            const closePopupButton = document.getElementById('close-popup-button');
+            const proceedButton = document.getElementById('proceed-to-payment-processing');
+            const checkoutForm = document.getElementById('checkout-form');
+            const paymentProofInput = document.getElementById('payment-proof');
+            const fileNameSpan = document.getElementById('file-name');
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('preview-image');
+            const fileError = document.getElementById('file-error');
 
-<script>
-    // Toggle form tambah alamat baru
-    document.getElementById('toggle-address-form').addEventListener('click', function (e) {
-        e.preventDefault();
-        const form = document.getElementById('new-address-form');
-        form.classList.toggle('hidden');
-    });
+            // Toggle new address form visibility
+            toggleAddressFormButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                newAddressForm.classList.toggle('hidden');
+                shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
+            });
 
-    // Payment type & provider logic
-    const providerSelect = document.getElementById('payment-provider');
-    const typeSelect = document.getElementById('payment-type');
+            function generateQRCode(content) {
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = ''; // Clear any existing content
+                
+                try {
+                    // Create QR code with qrcode.js
+                    new QRCode(qrContainer, {
+                        text: content,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    qrContainer.innerHTML = '<div class="text-red-500 p-4">Failed to generate QR code</div>';
+                }
+            }
 
-    const providers = {
-        'bank_transfer': ['BCA'],
-        'e-wallet': ['Gopay', 'UC Coin']
-    };
+            // Handle file selection for payment proof
+            paymentProofInput.addEventListener('change', function() {
+                fileError.style.display = 'none'; // Hide error message
+                
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Validate file type (images only)
+                    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+                    if (!validImageTypes.includes(file.type)) {
+                        fileError.textContent = 'Please upload an image file (JPEG, PNG, GIF)';
+                        fileError.style.display = 'block';
+                        fileNameSpan.textContent = 'Invalid file type';
+                        return;
+                    }
+                    
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        fileError.textContent = 'File size exceeds 5MB limit';
+                        fileError.style.display = 'block';
+                        fileNameSpan.textContent = 'File too large';
+                        return;
+                    }
+                    
+                    fileNameSpan.textContent = file.name;
+                    
+                    // Show image preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileNameSpan.textContent = 'No file chosen';
+                }
+            });
 
-    typeSelect.addEventListener('change', function () {
-        const selectedType = this.value;
-        const options = providers[selectedType] || [];
+            // Validate form before showing popup
+            openPaymentPopupButton.addEventListener('click', function() {
+                if (checkoutForm.checkValidity()) {
+                    @if($merchant)
+                        // Prepare QR code content
+                        const qrContent = `BANK: {{ $merchant->bank_name }}\n` +
+                                        `ACCOUNT NO: {{ $merchant->account_number }}\n` +
+                                        `ACCOUNT NAME: {{ $merchant->merchant_name }}\n` +
+                                        `AMOUNT: Rp {{ number_format($totalPrice, 0, ',', '.') }}`;
+                        
+                        // Generate QR code
+                        generateQRCode(qrContent);
+                    @else
+                        const qrContainer = document.getElementById('qrcode');
+                        qrContainer.innerHTML = '<div class="text-center p-4 bg-gray-100 rounded shadow">Merchant information not available</div>';
+                    @endif
 
-        // Reset & populate provider dropdown
-        providerSelect.innerHTML = '<option value="" disabled selected>-- Select Provider --</option>';
-        options.forEach(provider => {
-            const option = document.createElement('option');
-            option.value = provider;
-            option.textContent = provider;
-            providerSelect.appendChild(option);
+                    // Reset input file and button status
+                    paymentProofInput.value = '';
+                    fileNameSpan.textContent = 'No file chosen';
+                    previewContainer.style.display = 'none';
+                    
+                    // Show popup
+                    paymentPopupOverlay.style.display = 'flex';
+                    setTimeout(() => {
+                        popupContent.classList.add('active');
+                    }, 10);
+                } else {
+                    checkoutForm.reportValidity();
+                }
+            });
+
+            // Close popup
+            closePopupButton.addEventListener('click', () => {
+                popupContent.classList.remove('active');
+                setTimeout(() => {
+                    paymentPopupOverlay.style.display = 'none';
+                }, 300);
+            });
+
+            // Close popup if clicked outside popup content
+            paymentPopupOverlay.addEventListener('click', (e) => {
+                if (e.target === paymentPopupOverlay) {
+                    closePopupButton.click();
+                }
+            });
+
+            proceedButton.addEventListener('click', () => {
+                // Buat FormData dari form utama
+                const formData = new FormData(document.getElementById('checkout-form'));
+                
+                // Jika ada file yang dipilih, tambahkan ke formData
+                if (paymentProofInput.files && paymentProofInput.files[0]) {
+                    formData.append('payment_proof', paymentProofInput.files[0]);
+                }
+
+                // Disable button selama proses
+                proceedButton.disabled = true;
+                proceedButton.textContent = 'Processing...';
+
+                // Kirim dengan AJAX
+                fetch("{{ route('checkout.process') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    // Tangani jika respons adalah redirect
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                    proceedButton.disabled = false;
+                    proceedButton.textContent = 'Confirm Order';
+                });
+            });
         });
-    });
-</script>
+    </script>
+</body>
+</html>

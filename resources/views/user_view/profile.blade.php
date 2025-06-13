@@ -11,8 +11,10 @@
     <style>
         /* Maintain original styles */
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
         }
         
@@ -30,7 +32,7 @@
         
         /* Improved edit button */
         .edit-btn {
-            background: #2b6cb0;
+            background: #08315d;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -47,7 +49,7 @@
         
         /* New merchant button style */
         .merchant-btn {
-            background: #4299e1;
+            background: #273157;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -59,7 +61,7 @@
         }
         
         .merchant-btn:hover {
-            background: #3182ce;
+            background: #5363a0;
             transform: translateY(-1px);
         }
         

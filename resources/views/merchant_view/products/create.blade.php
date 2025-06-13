@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
+            background: #f0e7d5;
             min-height: 100vh;
         }
         
@@ -28,12 +28,12 @@
         }
         
         .form-input:focus {
-            border-color: #a1d4f6;
+            border-color: #111157;
             box-shadow: 0 0 0 3px rgba(161, 212, 246, 0.2);
         }
         
         .btn-primary {
-            background: #2b6cb0;
+            background: #273157;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -41,7 +41,7 @@
         }
         
         .btn-primary:hover {
-            background: #2c5282;
+            background: #5363a0;
             transform: translateY(-1px);
         }
         
@@ -87,7 +87,8 @@
         }
         
         .file-input-label {
-            background: #e0f3fe;
+           background: #273157;
+           color: white;
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
@@ -97,7 +98,7 @@
         }
         
         .file-input-label:hover {
-            background: #a1d4f6;
+            background: #5363a0;
         }
         
         .toggle-switch {
@@ -138,7 +139,7 @@
         }
         
         input:checked + .slider {
-            background-color: #2b6cb0;
+            background-color: #273157;
         }
         
         input:checked + .slider:before {
@@ -192,14 +193,7 @@
                         <input type="number" id="quantity" name="quantity" min="0" class="form-input w-full p-3" required>
                     </div>
                     
-                    <div class="flex items-center space-x-4">
-                        <label class="block text-sm font-medium text-[#4a5568]">Is Featured?</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="is_featured" value="1">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    
+                    <!-- Fitur diskon -->
                     <div class="flex items-center space-x-4">
                         <label class="block text-sm font-medium text-[#4a5568]">Is Discounted?</label>
                         <label class="toggle-switch">
@@ -224,10 +218,9 @@
                     <div>
                         <label class="block text-sm font-medium text-[#4a5568] mb-2">Product Images</label>
                         <label class="file-input-label">
-                            Select Images (Max 5)
+                            Select Images
                             <input type="file" name="images[]" id="imagesInput" class="hidden" accept="image/*" multiple required>
                         </label>
-                        <p class="text-xs text-gray-500">First image will be used as main product image</p>
                         <div id="imagesPreview" class="image-preview-container"></div>
                     </div>
                 </div>
@@ -237,7 +230,7 @@
                 <button type="submit" class="btn-primary flex-1 font-semibold">
                     Add Product
                 </button>
-                <a href="{{ route('merchant.dashboard') }}" class="btn-primary flex-1 font-semibold text-center" style="background: #718096">
+                <a href="{{ route('merchant.dashboard') }}" class="btn-primary flex-1 font-semibold text-center" style="background: #901c04">
                     Cancel
                 </a>
             </div>

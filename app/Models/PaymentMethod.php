@@ -10,14 +10,14 @@ class PaymentMethod extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'type', // e.g., 'bank_transfer', 'e-wallet'
-        'provider', // e.g.,  'BCA', 'Gopay','UC Coin'
-        'account_name',
-        'account_number',
-        'expiry_date',
-        'is_default',
-    ];
+    'user_id',
+    'type',
+    'provider',
+    'account_name',
+    'account_number',
+    'expiry_date',
+    'is_default',
+];
 
     protected $casts = [
         'expiry_date' => 'date',
