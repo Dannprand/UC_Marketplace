@@ -26,7 +26,6 @@
             grid-template-columns: 75% 25%;
             grid-template-rows: auto 1fr;
             height: calc(100vh - 80px);
-            /* Adjust based on navigation height */
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
@@ -46,126 +45,10 @@
             padding-bottom: 15px;
         }
 
-        /* Items Section (75%) */
         .items-section {
             overflow-y: auto;
             padding-right: 15px;
             height: 100%;
-        }
-
-        .cart-item {
-            display: flex;
-            background: white;
-            padding: 20px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .cart-item h3 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .cart-item p {
-            font-size: 16px;
-            color: #e74c3c;
-            margin-bottom: 5px;
-        }
-
-        .product-image-container {
-            width: 100px;
-            height: 100px;
-            flex-shrink: 0;
-            margin-left: 5%
-        }
-
-        .product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .item-details {
-            flex-grow: 1;
-        }
-
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .quantity-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: 6px;
-            background: #212842;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .quantity-btn:hover {
-            background: #5363a0;
-        }
-
-        .quantity-input {
-            width: 50px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 5px;
-            font-size: 14px;
-        }
-
-        /* Remove number input arrows */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        /* Total Section (25%) */
-        .total-section {
-            position: sticky;
-            top: 20px;
-            height: fit-content;
-            background: white;
-            padding: 10%;
-            border-radius: 8px;
-        }
-
-        .total-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #5363a0;
-            margin-bottom: 20px;
-        }
-
-        .buy-button {
-            background: #212842;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-
-        .buy-button:hover {
-            background: #5363a0;
         }
 
         .cart-item-container {
@@ -184,6 +67,7 @@
             transition: transform 0.3s ease;
             position: relative;
             z-index: 2;
+            align-items: center;
         }
 
         .delete-action {
@@ -213,14 +97,6 @@
             transform: translateX(-100px);
         }
 
-        /* Update quantity controls */
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-
-        /* Product info styling */
         .product-info {
             display: flex;
             align-items: center;
@@ -231,6 +107,111 @@
             width: 80px;
             height: 80px;
             margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .cart-item p {
+            font-size: 16px;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: #212842;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #5363a0;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .total-section {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #5363a0;
+            margin-bottom: 20px;
+        }
+
+        .buy-button {
+            background: #212842;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .buy-button:hover {
+            background: #5363a0;
+        }
+
+        .buy-button.disabled {
+            background: #cccccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -242,29 +223,26 @@
         <div class="main-container">
             <div class="cart-header">Cart</div>
 
-            <!-- Scrollable Items (75%) -->
+            <!-- Items Section -->
             <div class="items-section">
-                @php $total = 0; @endphp
                 @forelse($cart->items as $item)
                     <div class="cart-item-container" id="item-{{ $item->id }}">
                         <div class="cart-item-content">
-                            <!-- Perubahan: Gunakan harga diskon untuk data-price -->
                             <input type="checkbox" class="item-checkbox" data-id="{{ $item->id }}"
                                 data-price="{{ $item->product->is_discounted ? $item->product->discounted_price : $item->product->price }}"
                                 data-store="{{ $item->product->store_id }}"
                                 data-quantity="{{ $item->quantity }}"
                                 checked>
-                                
+                            
                             <div class="product-info">
                                 <div class="product-image-container">
                                     <img src="{{ asset('storage/' . $item->product->images[0]) }}"
-                                        alt="{{ $item->product->name }}" class="rounded object-cover w-20 h-20">
+                                        alt="{{ $item->product->name }}" class="product-image">
                                 </div>
-                                <div>
+                                <div class="item-details">
                                     <h3>{{ $item->product->name }}</h3>
                                     <p class="seller-name">{{ $item->product->store->name }}</p>
                                     
-                                    <!-- Perubahan: Tampilkan harga diskon jika ada -->
                                     @if($item->product->is_discounted)
                                         <p>
                                             <span style="text-decoration: line-through; color: #999;">
@@ -297,7 +275,8 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="delete-action">
+                        <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="delete-action" 
+                              onsubmit="return confirm('Are you sure you want to remove this item?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit">Delete</button>
@@ -310,7 +289,7 @@
 
             <!-- Total Section -->
             <div class="total-section">
-                <div class="total-price">Total: Rp {{ number_format($totalPrice, 0, ',', '.') }}</div>
+                <div class="total-price">Total: Rp <span id="total-amount">{{ number_format($totalPrice, 0, ',', '.') }}</span></div>
                 <div style="margin-bottom: 15px;">
                     Items: <span id="item-count">{{ $totalItems }}</span>
                 </div>
@@ -331,19 +310,7 @@
         </div>
     </div>
 
-
-    {{-- Quantity JS (optional: dynamic only if you later make update route) --}}
     <script>
-        // Global variable untuk menyimpan data cart
-        let cartItems = {!! json_encode($cart->items->map(function ($item) {
-    return [
-        'id' => $item->id,
-        'price' => $item->product->is_discounted ? $item->product->discounted_price : $item->product->price,
-        'quantity' => $item->quantity,
-        'store_id' => $item->product->store_id
-    ];
-})) !!};
-
         // Format angka ke rupiah
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID').format(number);
@@ -351,21 +318,19 @@
 
         // Fungsi hitung total berdasarkan item yang dichecklist
         function calculateTotal() {
-        let total = 0;
-        let itemCount = 0;
+            let total = 0;
+            let itemCount = 0;
 
-        document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
-            const priceValue = checkbox.getAttribute('data-price');
-            // Pastikan harga valid
-            const price = !isNaN(parseFloat(priceValue)) ? parseFloat(priceValue) : 0;
-            const quantity = parseInt(checkbox.getAttribute('data-quantity'));
-            
-            total += price * quantity;
-            itemCount++;
-        });
+            document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
+                const price = parseFloat(checkbox.dataset.price);
+                const quantity = parseInt(checkbox.dataset.quantity);
+                
+                total += price * quantity;
+                itemCount++;
+            });
 
-        document.querySelector('.total-price').textContent = 'Total: Rp ' + formatRupiah(total);
-        document.querySelector('#item-count').textContent = itemCount;
+            document.getElementById('total-amount').textContent = formatRupiah(total);
+            document.getElementById('item-count').textContent = itemCount;
         }
 
         // Fungsi update quantity
@@ -378,10 +343,10 @@
             input.value = newValue;
 
             // Update data di checkbox
-            const itemId = parseInt(form.action.split('/').pop());
+            const itemId = form.action.split('/').pop();
             const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
             if (checkbox) {
-                checkbox.setAttribute('data-quantity', newValue);
+                checkbox.dataset.quantity = newValue;
             }
 
             calculateTotal();
@@ -391,126 +356,105 @@
         // Fungsi submit form
         function submitForm(input) {
             const form = input.closest('form');
-            const itemId = parseInt(form.action.split('/').pop());
+            const itemId = form.action.split('/').pop();
             const quantity = parseInt(input.value);
 
             // Update data di checkbox
             const checkbox = document.querySelector(`.item-checkbox[data-id="${itemId}"]`);
             if (checkbox) {
-                checkbox.setAttribute('data-quantity', quantity);
+                checkbox.dataset.quantity = quantity;
             }
 
             calculateTotal();
             form.submit();
         }
 
-        // Hapus konfirmasi sebelum delete
-        document.querySelectorAll('.delete-action button').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                if (!confirm('Are you sure you want to remove this item?')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
-        });
-
-        // Swipe gesture (mobile & desktop)
-        document.querySelectorAll('.cart-item-container').forEach(container => {
-            let startX, currentX;
-
-            container.addEventListener('touchstart', e => {
-                startX = e.touches[0].clientX;
-            }, { passive: true });
-
-            container.addEventListener('touchmove', e => {
-                currentX = e.touches[0].clientX;
-                const diff = startX - currentX;
-
-                if (diff > 30) container.classList.add('swiped');
-                else if (diff < -30) container.classList.remove('swiped');
-            }, { passive: true });
-
-            container.addEventListener('mousedown', e => {
-                if (e.button !== 0) return;
-                startX = e.clientX;
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                }, { once: true });
-            });
-
-            function handleMouseMove(e) {
-                currentX = e.clientX;
-                const diff = startX - currentX;
-                if (diff > 30) container.classList.add('swiped');
-                else if (diff < -30) container.classList.remove('swiped');
-            }
-        });
-
         // Saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function () {
-        calculateTotal();
+        document.addEventListener('DOMContentLoaded', function () {
+            calculateTotal();
 
-        // Dengarkan perubahan checkbox
-        document.querySelectorAll('.item-checkbox').forEach(cb => {
-            cb.addEventListener('change', calculateTotal);
-        });
-
-        // Dengarkan input langsung di quantity
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('change', function () {
-                submitForm(this);
+            // Dengarkan perubahan checkbox
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                cb.addEventListener('change', calculateTotal);
             });
-        });
 
-        // Tangani submit form checkout - PERBAIKAN DI SINI
-        const checkoutForm = document.getElementById('checkout-form');
-        if (checkoutForm) {
-            checkoutForm.addEventListener('submit', function (e) {
-                e.preventDefault();
+            // Tangani submit form checkout
+            const checkoutForm = document.getElementById('checkout-form');
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
 
-                // Ambil semua checkbox yang dicek
-                const checkedBoxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
-                if (checkedBoxes.length === 0) {
-                    alert('Please select at least one item to checkout.');
-                    return;
-                }
+                    // Ambil semua checkbox yang dicek
+                    const checkedBoxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
+                    if (checkedBoxes.length === 0) {
+                        alert('Please select at least one item to checkout.');
+                        return;
+                    }
 
-                // Cek semua item berasal dari toko yang sama (dengan ID)
-                const selectedStores = new Set();
-                const selectedIds = [];
+                    // Cek semua item berasal dari toko yang sama
+                    const selectedStores = new Set();
+                    const selectedIds = [];
 
-                checkedBoxes.forEach(cb => {
-                    const storeId = cb.getAttribute('data-store');
-                    selectedStores.add(storeId);
-                    selectedIds.push(parseInt(cb.getAttribute('data-id')));
+                    checkedBoxes.forEach(cb => {
+                        selectedStores.add(cb.dataset.store);
+                        selectedIds.push(cb.dataset.id);
+                    });
+
+                    if (selectedStores.size > 1) {
+                        alert('You can only checkout items from one store at a time.');
+                        return;
+                    }
+
+                    // Isi hidden inputs selected_items[] di form
+                    const inputsContainer = document.getElementById('selected-items-inputs');
+                    inputsContainer.innerHTML = '';
+
+                    selectedIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'selected_items[]';
+                        input.value = id;
+                        inputsContainer.appendChild(input);
+                    });
+
+                    this.submit();
+                });
+            }
+
+            // Swipe gesture untuk delete
+            document.querySelectorAll('.cart-item-container').forEach(container => {
+                let startX, currentX;
+
+                container.addEventListener('touchstart', e => {
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+
+                container.addEventListener('touchmove', e => {
+                    currentX = e.touches[0].clientX;
+                    const diff = startX - currentX;
+
+                    if (diff > 30) container.classList.add('swiped');
+                    else if (diff < -30) container.classList.remove('swiped');
+                }, { passive: true });
+
+                container.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    startX = e.clientX;
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', () => {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                    }, { once: true });
                 });
 
-                if (selectedStores.size > 1) {
-                    alert('You can only checkout items from one store at a time.');
-                    return;
+                function handleMouseMove(e) {
+                    currentX = e.clientX;
+                    const diff = startX - currentX;
+                    if (diff > 30) container.classList.add('swiped');
+                    else if (diff < -30) container.classList.remove('swiped');
                 }
-
-                // Isi hidden inputs selected_items[] di form
-                const inputsContainer = document.getElementById('selected-items-inputs');
-                inputsContainer.innerHTML = '';
-
-                selectedIds.forEach(id => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'selected_items[]';
-                    input.value = id;
-                    inputsContainer.appendChild(input);
-                });
-
-                // PERBAIKAN: Submit form secara manual
-                this.submit();
             });
-        }
-    });
-</script>
-</body>
-
+        });
+    </script>
 </body>
 
 </html>
