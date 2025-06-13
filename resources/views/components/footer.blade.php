@@ -1,5 +1,5 @@
 <!-- resources/views/components/footer.blade.php -->
-<footer class="bg-[#f0e7d5] shadow-lg px-12 py-8">
+<footer class="background: #f9f9f9 color: #333 shadow-lg px-12 py-8">
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row justify-between items-center">
             <!-- Logo and Copyright -->

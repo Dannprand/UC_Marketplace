@@ -10,7 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>Payment - UCMarketPlace</title>
     <style>
-
         .popup-overlay {
             display: none;
             position: fixed;
@@ -86,11 +85,10 @@
         }
 
         body {
-            background: #f0e7d5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
             margin: 0;
+            padding: 0;
         }
 
         /* Main container layout */
@@ -456,6 +454,102 @@
                 opacity: 1;
             }
         }
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-custom {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #5363a0;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .file-custom:hover {
+            background-color: #414e7a;
+        }
+        
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .preview-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .payment-pending-notice {
+            background-color: #fff5f5;
+            border: 1px dashed #e53e3e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #e53e3e;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -509,8 +603,7 @@
                 </form>
             </div>
 
-            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST"
-                class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
+            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data" class="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full">
                 @csrf
                 @foreach ($selectedItemIds as $itemId)
                     <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
@@ -552,6 +645,11 @@
                         <p class="text-red-500 text-sm">Informasi pembayaran merchant tidak tersedia. Harap hubungi
                             penjual.</p>
                     @endif
+                    
+                    <div class="payment-pending-notice mt-4">
+                        <p><strong>Perhatian:</strong> Anda dapat menyelesaikan pembayaran nanti di halaman order. 
+                        Order akan otomatis dibatalkan jika pembayaran tidak diselesaikan dalam 24 jam.</p>
+                    </div>
                 </div>
 
                 <div class="payment-column order-section col-span-full">
@@ -595,23 +693,36 @@
                 @endif
                 <p><strong>Total Amount:</strong> <span id="popup-total-amount">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
 
-                <!-- QR Code Container -->
                 <div id="qr-code-container" class="my-4">
                     <div id="qrcode" class="flex justify-center">
                         <div class="qr-placeholder">QR Code will be generated</div>
                     </div>
                 </div>
 
-                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment.</p>
+                <div class="upload-section">
+                    <label class="upload-label">Upload Payment Proof (Optional)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="payment-proof" class="file-input" accept="image/*">
+                        <span class="file-custom">Choose File</span>
+                        <span id="file-name" class="file-name">No file chosen</span>
+                    </div>
+                    <div id="file-error" class="error-message">Please upload a valid image file (max 5MB)</div>
+                    
+                    <div class="preview-container" id="preview-container">
+                        <p>Preview:</p>
+                        <img id="preview-image" class="preview-image" src="" alt="Payment proof preview">
+                    </div>
+                </div>
+
+                <p class="mt-4 text-sm text-gray-600">Scan the QR code or use the bank details above to complete your payment. You can upload proof now or later.</p>
             </div>
 
             <div class="popup-buttons mt-4">
                 <button type="button" id="close-popup-button" class="btn bg-gray-500 text-white">Close</button>
-                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">I have paid</button>
+                <button type="button" id="proceed-to-payment-processing" class="btn bg-blue-500 text-white">Confirm Order</button>
             </div>
         </div>
     </div>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -624,6 +735,11 @@
             const closePopupButton = document.getElementById('close-popup-button');
             const proceedButton = document.getElementById('proceed-to-payment-processing');
             const checkoutForm = document.getElementById('checkout-form');
+            const paymentProofInput = document.getElementById('payment-proof');
+            const fileNameSpan = document.getElementById('file-name');
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('preview-image');
+            const fileError = document.getElementById('file-error');
 
             // Toggle new address form visibility
             toggleAddressFormButton.addEventListener('click', function (e) {
@@ -632,7 +748,7 @@
                 shippingAddressSelect.required = newAddressForm.classList.contains('hidden');
             });
 
-             function generateQRCode(content) {
+            function generateQRCode(content) {
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = ''; // Clear any existing content
                 
@@ -652,6 +768,44 @@
                 }
             }
 
+            // Handle file selection for payment proof
+            paymentProofInput.addEventListener('change', function() {
+                fileError.style.display = 'none'; // Hide error message
+                
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Validate file type (images only)
+                    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+                    if (!validImageTypes.includes(file.type)) {
+                        fileError.textContent = 'Please upload an image file (JPEG, PNG, GIF)';
+                        fileError.style.display = 'block';
+                        fileNameSpan.textContent = 'Invalid file type';
+                        return;
+                    }
+                    
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        fileError.textContent = 'File size exceeds 5MB limit';
+                        fileError.style.display = 'block';
+                        fileNameSpan.textContent = 'File too large';
+                        return;
+                    }
+                    
+                    fileNameSpan.textContent = file.name;
+                    
+                    // Show image preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileNameSpan.textContent = 'No file chosen';
+                }
+            });
+
             // Validate form before showing popup
             openPaymentPopupButton.addEventListener('click', function() {
                 if (checkoutForm.checkValidity()) {
@@ -668,8 +822,13 @@
                         const qrContainer = document.getElementById('qrcode');
                         qrContainer.innerHTML = '<div class="text-center p-4 bg-gray-100 rounded shadow">Merchant information not available</div>';
                     @endif
+
+                    // Reset input file and button status
+                    paymentProofInput.value = '';
+                    fileNameSpan.textContent = 'No file chosen';
+                    previewContainer.style.display = 'none';
                     
-                    // Tampilkan popup
+                    // Show popup
                     paymentPopupOverlay.style.display = 'flex';
                     setTimeout(() => {
                         popupContent.classList.add('active');
@@ -694,16 +853,50 @@
                 }
             });
 
-            // Submit form on confirm payment
             proceedButton.addEventListener('click', () => {
-                // Optionally disable button to prevent double submit
+                // Buat FormData dari form utama
+                const formData = new FormData(document.getElementById('checkout-form'));
+                
+                // Jika ada file yang dipilih, tambahkan ke formData
+                if (paymentProofInput.files && paymentProofInput.files[0]) {
+                    formData.append('payment_proof', paymentProofInput.files[0]);
+                }
+
+                // Disable button selama proses
                 proceedButton.disabled = true;
                 proceedButton.textContent = 'Processing...';
-                checkoutForm.submit();
+
+                // Kirim dengan AJAX
+                fetch("{{ route('checkout.process') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    // Tangani jika respons adalah redirect
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                    proceedButton.disabled = false;
+                    proceedButton.textContent = 'Confirm Order';
+                });
             });
         });
-
     </script>
 </body>
-
 </html>

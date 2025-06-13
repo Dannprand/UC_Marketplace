@@ -193,14 +193,7 @@
                         <input type="number" id="quantity" name="quantity" min="0" class="form-input w-full p-3" required>
                     </div>
                     
-                    {{-- <div class="flex items-center space-x-4">
-                        <label class="block text-sm font-medium text-[#4a5568]">Is Featured?</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="is_featured" value="1">
-                            <span class="slider"></span>
-                        </label>
-                    </div> --}}
-                    
+                    <!-- Fitur diskon -->
                     <div class="flex items-center space-x-4">
                         <label class="block text-sm font-medium text-[#4a5568]">Is Discounted?</label>
                         <label class="toggle-switch">
@@ -228,7 +221,6 @@
                             Select Images
                             <input type="file" name="images[]" id="imagesInput" class="hidden" accept="image/*" multiple required>
                         </label>
-                        {{-- <p class="text-xs text-gray-500">First image will be used as main product image</p> --}}
                         <div id="imagesPreview" class="image-preview-container"></div>
                     </div>
                 </div>

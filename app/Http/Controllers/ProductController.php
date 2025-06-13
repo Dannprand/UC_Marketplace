@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Review;
+use App\Models\User;
 use App\Models\Store;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -27,7 +29,7 @@ class ProductController extends Controller
         // Ambil produk best seller
         $bestSellers = Product::orderBy('sold_amount', 'desc')->limit(6)->get();
         
-        // Ambil produk untuk Hot Deals (misal: produk dengan diskon terbesar)
+        // Ambil produk untuk Hot Deals (produk dengan diskon terbesar)
         $hotDeals = Product::where('is_discounted', true)
                     ->orderBy('discount_percentage', 'desc')
                     ->limit(5)
@@ -37,16 +39,41 @@ class ProductController extends Controller
             'categories'   => $categories,
             'products'     => $products,
             'bestSellers'  => $bestSellers,
-            'hotDeals'     => $hotDeals // Tambahkan ini
+            'hotDeals'     => $hotDeals
         ]);
     }
 
     // Show a single product (user view)
     public function show($id)
-    {
-        $product = Product::with('store')->findOrFail($id);
-        return view('user_view.product', compact('product'));
+{
+    $product = Product::with('store')->findOrFail($id);
+    
+    // Check if user can review
+    $canReview = false;
+    $hasReviewed = false;
+    
+    if (auth()->check()) {
+        $user = auth()->user();
+        
+        // Cek jika user memiliki order yang sudah delivered untuk produk ini
+        $canReview = \App\Models\Order::where('user_id', $user->id)
+            ->where('status', 'delivered')
+            ->whereHas('items', function ($query) use ($id) {
+                $query->where('product_id', $id);
+            })
+            ->exists();
+            
+        // Cek jika user sudah memberikan review untuk produk ini
+        $hasReviewed = \App\Models\Review::where('user_id', $user->id)
+            ->where('product_id', $id)
+            ->exists();
     }
+
+    // Get reviews with pagination
+    $reviews = $product->reviews()->with('user')->paginate(5);
+
+    return view('user_view.product', compact('product', 'canReview', 'hasReviewed', 'reviews'));
+}
 
     // Live search (user view)
     public function liveSearch(Request $request)
@@ -84,6 +111,7 @@ class ProductController extends Controller
     // Store new product (merchant view)
     public function store(Request $request)
     {
+        // Validasi tambahan untuk diskon
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -92,6 +120,17 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'images' => 'required|array|min:1',
             'images.*' => 'image|max:2048',
+            'discount_percentage' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->is_discounted && empty($value)) {
+                        $fail('Discount percentage is required when discount is enabled');
+                    }
+                }
+            ]
         ]);
 
         $store = Auth::user()->merchant->store;
@@ -102,7 +141,7 @@ class ProductController extends Controller
         }
 
         $productData = [
-           'store_id' => $store->id,
+            'store_id' => $store->id,
             'category_id' => $request->category_id,
             'name' => $request->name,
             'slug' => Str::slug($request->name) . '-' . uniqid(),
@@ -132,16 +171,18 @@ class ProductController extends Controller
 
         $categories = Category::all();
 
-        return view('products.edit', compact('product', 'categories'));
+        // Pastikan untuk mengirim ke view edit yang mendukung diskon
+        return view('merchant_view.products.edit', compact('product', 'categories'));
     }
 
-    // Update product (merchant view)
+    // Update product (merchant view) - dengan penanganan diskon
     public function update(Request $request, $id)
     {
         $product = Product::whereHas('store', function($query) {
             $query->where('merchant_id', Auth::user()->merchant->id);
         })->findOrFail($id);
 
+        // Validasi tambahan untuk diskon
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -150,9 +191,34 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'images' => 'sometimes|array',
             'images.*' => 'image|max:2048',
+            'discount_percentage' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->is_discounted && empty($value)) {
+                        $fail('Discount percentage is required when discount is enabled');
+                    }
+                }
+            ]
         ]);
 
-        $data = $request->only(['name', 'description', 'price', 'quantity', 'category_id']);
+        $data = $request->only([
+            'name', 
+            'description', 
+            'price', 
+            'quantity', 
+            'category_id',
+            'is_discounted',
+            'discount_percentage',
+            'is_featured'
+        ]);
+        
+        // Jika diskon dinonaktifkan, set discount_percentage ke null
+        if (!$request->boolean('is_discounted')) {
+            $data['discount_percentage'] = null;
+        }
 
         if ($request->hasFile('images')) {
             // Delete old images
@@ -188,5 +254,17 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('merchant.dashboard')->with('success', 'Product deleted successfully');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+    
+    public function updateRating()
+    {
+        $this->review_count = $this->reviews()->count();
+        $this->average_rating = $this->reviews()->avg('rating') ?? 0;
+        $this->save();
     }
 }

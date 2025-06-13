@@ -26,7 +26,6 @@ return new class extends Migration
             $table->decimal('discount_percentage', 5, 2)->nullable();
             $table->boolean('is_featured')->default(false);
             $table->decimal('rating', 2, 1)->default(0);
-            $table->integer('review_count')->default(0);
             $table->timestamps();
         });
     }

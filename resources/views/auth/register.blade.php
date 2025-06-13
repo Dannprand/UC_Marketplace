@@ -9,8 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0e7d5;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
         
         .register-card {

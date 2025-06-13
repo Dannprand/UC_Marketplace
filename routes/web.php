@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReviewController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 // Public Routes
@@ -62,12 +63,14 @@ Route::middleware('auth')->prefix('user')->group(function () {
     // Route::delete('/address/{id}', [OrderController::class, 'deleteAddress'])->name('address.delete');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout', [CartController::class, 'payment'])->name('checkout.payment');
+    Route::get('/direct-payment/{product}', [CartController::class, 'directPayment'])->name('direct.payment');
     
     // Should be using GET, not POST
     Route::get('user/payment', [PaymentController::class, 'showPayment'])->name('user.payment');
 
     // Order Routes 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 });
     // Page awal user masuk!

@@ -9,9 +9,10 @@
     <title>Admin Dashboard - UCMarketPlace</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #e0f3fe 70%, #a1d4f6 100%);
-            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .admin-container {
